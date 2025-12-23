@@ -1,9 +1,9 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.1.0 → 1.1.1
+Version change: 1.1.1 → 1.1.2
 Modified principles:
-  - II. Reader Simplicity: Added themability requirements (semantic HTML, CSS-only styling)
+  - II. Reader Simplicity: Removed "category" from navigation list (spec clarified single-tag taxonomy)
 Added sections: None
 Removed sections: None
 Templates requiring updates:
@@ -39,7 +39,7 @@ Readers MUST experience a lightweight, distraction-free interface focused entire
 
 **Non-negotiable rules:**
 - Pages load fast with minimal JavaScript
-- Navigation by date, tag, and category is intuitive and consistent
+- Navigation by date and tag is intuitive and consistent
 - No registration, popups, or interruptions required to read content
 - Mobile and desktop experiences are equally functional
 - Cross-links between articles work seamlessly
@@ -133,4 +133,4 @@ This constitution is the authoritative guide for all development decisions on th
 - Constitution Check is a gate in the planning phase
 - PRs that violate principles MUST document the violation and justification in Complexity Tracking
 
-**Version**: 1.1.1 | **Ratified**: 2025-12-23 | **Last Amended**: 2025-12-23
+**Version**: 1.1.2 | **Ratified**: 2025-12-23 | **Last Amended**: 2025-12-23

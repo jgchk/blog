@@ -13,7 +13,7 @@
 - Q: Should categories and tags be separate taxonomies or merged? → A: Merge into tags only. Single flat taxonomy for all article labeling; no separate category system.
 - Q: What syntax for cross-links between articles? → A: Obsidian-style `[[Title or Alias]]` for internal links (case-insensitive, normalized matching, front matter alias support); standard markdown `[text](url)` for external links.
 - Q: Where do images live relative to posts? → A: Co-located per post. Each post is a folder containing `index.md` plus any images/assets. Structure: `posts/my-article/index.md`, `posts/my-article/image.png`. Reference with `![](./image.png)`.
-- Q: What is the expected traffic scale for performance planning? → A: Scale-to-zero with burst capability. Start minimal (near-zero to 100-1,000 daily visitors), scale down to zero when idle to minimize costs, but architecture must handle sudden traffic spikes without re-engineering.
+- Q: What is the expected traffic scale for performance planning? → A: Scale-to-zero with burst capability. Start minimal (near-zero to 100-1,000 daily visitors), scale down to zero when idle to minimize costs. Architecture must handle 10x baseline traffic spikes (up to 10,000 concurrent requests) within 30 seconds of first request (measured as time from cold start to serving cached responses at scale, relying on Lambda provisioned concurrency and CloudFront edge caching) without manual intervention or re-engineering.
 - Q: How should the system handle Git sync or render failures? → A: Dashboard + SNS alerting. Retry failed syncs, show status in admin dashboard, send AWS SNS/email notification after persistent failures. Use AWS free tier for cost-effectiveness.
 - Q: How should the admin dashboard be protected? → A: AWS IAM authorization via API Gateway. Architect for portability: abstract AWS-specific integrations (S3, SNS, Lambda, IAM) behind interfaces so core logic remains cloud-agnostic and could be re-hosted without rewriting business logic.
 - Q: What level of accessibility compliance should the blog meet? → A: WCAG 2.1 AA. Semantic HTML, keyboard navigation, sufficient color contrast, screen reader support.
@@ -44,7 +44,7 @@ As a blog author, I want to create a new markdown file with front matter in a de
 
 As a blog reader, I want to click on a tag attached to any article and see all other articles that share that tag, so I can discover related content.
 
-**Why this priority**: Tag-based navigation is a core requested feature and enables content discovery. This builds directly on P1's tagging infrastructure.
+**Why this priority**: Tag-based navigation is a core requested feature and enables content discovery. This builds directly on P1's tagging infrastructure. (Note: Categories merged into single-tag taxonomy per clarification session.)
 
 **Independent Test**: Can be tested by creating 3+ articles with overlapping tags, clicking a tag, and verifying the filtered list shows only articles with that tag.
 
@@ -96,7 +96,7 @@ As a blog reader, I want to see articles organized chronologically and filter by
 - What happens when a referenced cross-link article is deleted? (Link should be marked as broken or converted to plain text)
 - How are drafts handled? (Articles with `draft: true` in front matter should not be published)
 - What happens with deeply nested folder structures in the articles directory? (System should handle subdirectories or explicitly document flat-only structure)
-- How are special characters in tags handled? (Spaces, punctuation should be normalized to URL-safe slugs)
+- How are special characters in tags handled? (Normalize to URL-safe slugs: lowercase, replace spaces/underscores with hyphens, strip all characters except alphanumeric and hyphens, collapse consecutive hyphens)
 
 ## Requirements *(mandatory)*
 
@@ -106,7 +106,7 @@ As a blog reader, I want to see articles organized chronologically and filter by
 - **FR-002**: System MUST parse YAML front matter from markdown files containing at minimum: title, date, and tags
 - **FR-003**: System MUST render markdown content to properly formatted HTML, supporting standard markdown syntax (headers, lists, code blocks, links, images, blockquotes)
 - **FR-004**: System MUST generate tag pages that list all articles associated with each tag
-- **FR-005**: System MUST resolve Obsidian-style `[[Title]]` cross-links between articles using case-insensitive, normalized matching (spaces ≈ dashes ≈ underscores) and front matter aliases
+- **FR-005**: System MUST resolve Obsidian-style `[[Title]]` cross-links between articles using case-insensitive, normalized matching (spaces ≈ dashes ≈ underscores) with resolution order: slug → title → front matter aliases
 - **FR-006**: System MUST display articles in reverse chronological order on the homepage
 - **FR-007**: System MUST derive article slugs from folder names (folder name is canonical; filesystem enforces uniqueness)
 - **FR-008**: System MUST support draft articles that are excluded from publication when `draft: true` is set in front matter
@@ -114,7 +114,7 @@ As a blog reader, I want to see articles organized chronologically and filter by
 - **FR-010**: System MUST provide a way to view all tags (tag cloud or list)
 - **FR-011**: System MUST handle gracefully markdown files with missing or invalid front matter by logging warnings and excluding them from publication
 - **FR-012**: System MUST serve images and assets co-located in post folders, resolving relative paths in markdown
-- **FR-013**: System MUST automatically retry failed Git syncs/renders and display sync status in an admin dashboard
+- **FR-013**: System MUST automatically retry failed Git syncs/renders up to 3 times with exponential backoff (1s, 2s, 4s delays), and display sync status in an admin dashboard
 - **FR-014**: System MUST send AWS SNS/email alerts after persistent sync/render failures (3+ consecutive failures)
 
 ### Key Entities
@@ -134,7 +134,7 @@ As a blog reader, I want to see articles organized chronologically and filter by
 - **SC-005**: The blog displays correctly and is navigable on mobile and desktop browsers
 - **SC-006**: New visitors can find articles by tag or date within 30 seconds of arriving
 - **SC-007**: Blog UI meets WCAG 2.1 AA accessibility standards (keyboard navigable, screen reader compatible, sufficient color contrast)
-- **SC-008**: Blog pages load in under 2 seconds for visitors (measured as Time to First Contentful Paint)
+- **SC-008**: Blog pages load in under 2 seconds for visitors (measured as Time to First Contentful Paint on simulated Fast 3G connection via Lighthouse/Playwright, targeting 75th percentile)
 
 ## Assumptions
 
@@ -144,8 +144,9 @@ As a blog reader, I want to see articles organized chronologically and filter by
 - Date format in front matter follows ISO 8601 (YYYY-MM-DD) or similar standard format
 - The blog supports a single author (no multi-author attribution required)
 - Search functionality is not included in the initial scope
-- Pagination for long article lists follows reasonable defaults (10-20 articles per page)
-- Infrastructure must scale to zero when idle (minimize costs for low-traffic periods) while supporting sudden traffic spikes without architectural changes
+- Pagination for long article lists is deferred to future scope; initial release displays all articles on homepage/tag/archive pages
+- Post folders MUST be direct children of the posts directory; nested subdirectories within posts/ are not scanned (e.g., `posts/my-article/` is valid, `posts/2024/my-article/` is not)
+- Infrastructure must scale to zero when idle (minimize costs for low-traffic periods) while supporting sudden traffic spikes (10x baseline, up to 10,000 concurrent requests) without architectural changes; CloudFront caching handles burst reads, Lambda concurrency handles burst renders
 - Architecture must minimize cloud vendor lock-in: abstract AWS-specific services (S3, SNS, Lambda, IAM) behind interfaces so core business logic remains portable
 - Admin dashboard protected via AWS IAM/API Gateway authorization
 - Observability starts with basic CloudWatch logging and error alerting; detailed metrics, request tracing, and dashboards deferred until operational needs clarify priorities

@@ -91,6 +91,8 @@ Based on plan.md monorepo structure:
 
 - [ ] T027 [P] [US1] Unit test for FrontMatter parsing in packages/core/tests/unit/services/front-matter-parser.test.ts
 - [ ] T028 [P] [US1] Unit test for Article validation in packages/core/tests/unit/services/article-validator.test.ts
+- [ ] T028a [P] [US1] Unit test for invalid/malformed front matter handling in packages/core/tests/unit/services/front-matter-parser.test.ts (missing required fields, invalid YAML syntax, wrong field types)
+- [ ] T028b [P] [US1] Unit test for nested folder rejection in packages/core/tests/unit/services/post-scanner.test.ts (verify posts/2024/my-article/ is ignored, only posts/my-article/ scanned per spec.md:L148)
 - [ ] T029 [P] [US1] Unit test for MarkdownParser in packages/core/tests/unit/services/markdown-parser.test.ts
 - [ ] T030 [P] [US1] Unit test for slug normalization in packages/core/tests/unit/utils/slug.test.ts
 - [ ] T031 [P] [US1] Integration test for render pipeline in packages/renderer/tests/integration/render-pipeline.test.ts
@@ -100,11 +102,13 @@ Based on plan.md monorepo structure:
 
 - [ ] T033 [US1] Implement FrontMatterParser in packages/core/src/services/front-matter-parser.ts using gray-matter
 - [ ] T034 [US1] Implement ArticleValidator in packages/core/src/services/article-validator.ts with validation rules from data-model.md
+- [ ] T034a [US1] Add duplicate slug detection in packages/core/src/services/article-validator.ts (warn and skip duplicates per edge case spec.md:L95)
 - [ ] T035 [US1] Implement MarkdownParser in packages/core/src/services/markdown-parser.ts with remark pipeline per research.md
 - [ ] T036 [US1] Create packages/core/src/services/index.ts exporting all services
 - [ ] T037 [US1] Implement S3StorageAdapter in packages/renderer/src/adapters/s3-storage.ts implementing StorageAdapter
 - [ ] T038 [US1] Implement GitHubWebhookHandler in packages/renderer/src/handlers/webhook.ts handling push events
 - [ ] T039 [US1] Implement RenderService in packages/renderer/src/services/render-service.ts orchestrating parse → render → store
+- [ ] T039a [US1] Implement image/asset copying in packages/renderer/src/services/render-service.ts (copy co-located files from post folder to output, resolve relative paths per FR-012)
 - [ ] T040 [US1] Create packages/renderer/src/handlers/index.ts as Lambda entry point
 - [ ] T041 [US1] Create esbuild configuration in packages/renderer/build.ts per research.md
 - [ ] T042 [US1] Create article page template in packages/site/src/templates/article.html with semantic HTML (WCAG 2.1 AA)
@@ -125,7 +129,9 @@ Based on plan.md monorepo structure:
 
 - [ ] T045 [P] [US2] Unit test for TagIndex in packages/core/tests/unit/services/tag-index.test.ts
 - [ ] T046 [P] [US2] Unit test for Tag normalization in packages/core/tests/unit/models/tag.test.ts
+- [ ] T046a [P] [US2] Unit test for special character handling in tags (spaces, punctuation → URL-safe slugs) in packages/core/tests/unit/utils/tag-slug.test.ts
 - [ ] T047 [P] [US2] E2E test for tag navigation in packages/site/tests/e2e/tag-navigation.spec.ts
+- [ ] T047a [P] [US2] E2E test for /tags page in packages/site/tests/e2e/all-tags.spec.ts (FR-010: verify page lists all tags with counts, each tag links to tag detail page)
 
 ### Implementation for User Story 2
 
@@ -133,6 +139,7 @@ Based on plan.md monorepo structure:
 - [ ] T049 [US2] Extend RenderService in packages/renderer/src/services/render-service.ts to generate tag index on render
 - [ ] T050 [US2] Create tag page template in packages/site/src/templates/tag.html showing tag name, count, and article list
 - [ ] T051 [US2] Create tag cloud/list template in packages/site/src/templates/partials/tag-list.html for all tags view (FR-010)
+- [ ] T051a [US2] Generate /tags/index.html page in packages/renderer/src/services/render-service.ts using tag-list.html partial, listing all tags with article counts (FR-010)
 - [ ] T052 [US2] Update article template in packages/site/src/templates/article.html to show tags as clickable links
 - [ ] T053 [US2] Store tags.json metadata in packages/renderer/src/services/render-service.ts for tag cloud
 
@@ -150,11 +157,12 @@ Based on plan.md monorepo structure:
 
 - [ ] T054 [P] [US3] Unit test for remarkWikilinks plugin in packages/core/tests/unit/plugins/wikilinks.test.ts
 - [ ] T055 [P] [US3] Unit test for CrossLinkResolver in packages/core/tests/unit/services/cross-link-resolver.test.ts
+- [ ] T055a [P] [US3] Unit test for resolution order priority in packages/core/tests/unit/services/cross-link-resolver.test.ts (when slug, title, and alias all match different articles, verify slug wins; when only title and alias match, verify title wins)
 - [ ] T056 [P] [US3] E2E test for cross-link navigation in packages/site/tests/e2e/cross-links.spec.ts
 
 ### Implementation for User Story 3
 
-- [ ] T057 [US3] Implement ArticleIndex in packages/core/src/services/article-index.ts with bySlug, byTitle, byAlias lookups
+- [ ] T057 [US3] Implement ArticleIndex in packages/core/src/services/article-index.ts with resolve(query) method enforcing FR-005 priority order: slug → title → aliases (bySlug, byTitle, byAlias are internal; resolve() is the public API)
 - [ ] T058 [US3] Implement remarkWikilinks plugin in packages/core/src/plugins/wikilinks.ts per research.md
 - [ ] T059 [US3] Implement CrossLinkResolver in packages/core/src/services/cross-link-resolver.ts with resolution order: slug → title → aliases
 - [ ] T060 [US3] Integrate wikilinks plugin into MarkdownParser pipeline in packages/core/src/services/markdown-parser.ts
@@ -195,6 +203,7 @@ Based on plan.md monorepo structure:
 ### Tests for Admin Features
 
 - [ ] T070 [P] Unit test for SyncStatus tracking in packages/renderer/tests/unit/services/sync-tracker.test.ts
+- [ ] T070a [P] Unit test for exponential backoff timing in packages/renderer/tests/unit/services/retry-handler.test.ts (verify 1s, 2s, 4s delays per FR-013, mock timers)
 - [ ] T071 [P] Unit test for SNS alerting in packages/renderer/tests/unit/adapters/sns-notifier.test.ts
 - [ ] T072 [P] Contract test for admin endpoints in packages/renderer/tests/contract/admin-api.test.ts
 
@@ -204,7 +213,7 @@ Based on plan.md monorepo structure:
 - [ ] T074 Implement SyncTracker in packages/renderer/src/services/sync-tracker.ts tracking sync operations
 - [ ] T075 Implement SNSNotificationAdapter in packages/renderer/src/adapters/sns-notifier.ts implementing NotificationAdapter
 - [ ] T076 Implement AdminHandler in packages/renderer/src/handlers/admin.ts with status, retry, articles, health endpoints per api.yaml
-- [ ] T077 Add retry logic in packages/renderer/src/services/render-service.ts for failed syncs (FR-013)
+- [ ] T077 Add retry logic in packages/renderer/src/services/render-service.ts for failed syncs (FR-013: 3 retries with 1s, 2s, 4s exponential backoff) - tested by T070a
 - [ ] T078 Add consecutive failure detection in packages/renderer/src/services/sync-tracker.ts triggering SNS alert at 3+ failures (FR-014)
 
 ---
@@ -229,6 +238,8 @@ Based on plan.md monorepo structure:
 - [ ] T087 Create packages/infra/bin/app.ts as CDK entry point
 - [ ] T088 Add CloudWatch log groups in packages/infra/lib/blog-stack.ts for Lambda functions
 - [ ] T089 Configure CloudFront cache invalidation in packages/infra/lib/blog-stack.ts
+- [ ] T089a Document GitHub webhook configuration in packages/infra/README.md (webhook URL from CDK output, content-type application/json, push events only, secret token setup)
+- [ ] T089b Add webhook secret validation in packages/renderer/src/handlers/webhook.ts (verify X-Hub-Signature-256 header per GitHub webhook security)
 
 ---
 
@@ -237,11 +248,11 @@ Based on plan.md monorepo structure:
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T090 [P] Add draft filtering in packages/core/src/services/article-validator.ts (FR-008: exclude draft: true)
-- [ ] T091 [P] Add invalid file handling in packages/core/src/services/article-validator.ts (FR-011: skip with warnings)
+- [ ] T091 [P] Integrate invalid file handling in packages/core/src/services/article-validator.ts (FR-011: skip with warnings, log to CloudWatch) - unit tests covered by T028a
 - [ ] T092 [P] Add excerpt generation in packages/core/src/services/markdown-parser.ts (first 160 chars or custom)
-- [ ] T093 [P] Add image/asset copying in packages/renderer/src/services/render-service.ts (FR-012: resolve relative paths)
+- [ ] T093 [P] Verify image/asset path resolution edge cases in packages/renderer/tests/integration/asset-paths.test.ts (spaces in filenames, subdirectories within post folder)
 - [ ] T094 Accessibility audit with Playwright axe in packages/site/tests/e2e/accessibility.spec.ts (WCAG 2.1 AA)
-- [ ] T095 Performance test in packages/site/tests/e2e/performance.spec.ts (page load <2s)
+- [ ] T095 Performance test in packages/site/tests/e2e/performance.spec.ts (TTFCP <2s on Fast 3G throttle, using Playwright network emulation)
 - [ ] T096 Update packages/site/src/styles/main.css with responsive design for mobile
 - [ ] T097 Run full E2E test suite validating all user journeys
 - [ ] T098 Validate against quickstart.md scenarios
