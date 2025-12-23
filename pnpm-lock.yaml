@@ -71,6 +71,9 @@ importers:
       remark-rehype:
         specifier: ^11.0.0
         version: 11.1.2
+      remark-stringify:
+        specifier: ^11.0.0
+        version: 11.0.0
       unified:
         specifier: ^11.0.4
         version: 11.0.5

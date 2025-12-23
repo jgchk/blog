@@ -9,3 +9,6 @@ export * from './utils/index.js';
 
 // Services
 export * from './services/index.js';
+
+// Plugins
+export * from './plugins/index.js';

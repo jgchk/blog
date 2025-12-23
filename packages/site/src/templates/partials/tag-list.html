@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="All tags on the blog">
+  <title>All Tags</title>
+  <link rel="stylesheet" href="/assets/styles/main.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header role="banner">
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/archive.html">Archive</a></li>
+        <li><a href="/tags/" aria-current="page">Tags</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main-content" role="main">
+    <h1>All Tags</h1>
+    <p>{{totalTags}} tags across all articles</p>
+
+    <nav aria-label="Tag cloud">
+      <ul class="tag-cloud" role="list">
+        {{#each tags}}
+        <li>
+          <a href="/tags/{{slug}}.html" aria-label="{{name}} ({{count}} articles)">
+            {{name}} <span class="tag-count">({{count}})</span>
+          </a>
+        </li>
+        {{/each}}
+      </ul>
+    </nav>
+  </main>
+
+  <footer role="contentinfo">
+    <p>&copy; {{year}} Blog. All rights reserved.</p>
+  </footer>
+</body>
+</html>

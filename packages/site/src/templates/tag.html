@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Articles tagged with {{tagName}}">
+  <title>Tag: {{tagName}}</title>
+  <link rel="stylesheet" href="/assets/styles/main.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header role="banner">
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/archive.html">Archive</a></li>
+        <li><a href="/tags/" aria-current="page">Tags</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main-content" role="main">
+    <h1>Tag: {{tagName}}</h1>
+    <p>{{articleCount}} {{#if isPlural}}articles{{else}}article{{/if}} tagged with "{{tagName}}"</p>
+
+    <section aria-label="Tagged articles">
+      {{#each articles}}
+      <article>
+        <h2><a href="/articles/{{slug}}/">{{title}}</a></h2>
+        <time datetime="{{dateIso}}">{{dateFormatted}}</time>
+        <p>{{excerpt}}</p>
+      </article>
+      {{/each}}
+    </section>
+
+    <nav aria-label="Tag navigation">
+      <a href="/tags/">View all tags</a>
+    </nav>
+  </main>
+
+  <footer role="contentinfo">
+    <p>&copy; {{year}} Blog. All rights reserved.</p>
+  </footer>
+</body>
+</html>
