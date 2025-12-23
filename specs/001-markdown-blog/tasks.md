@@ -28,18 +28,18 @@ Based on plan.md monorepo structure:
 
 **Purpose**: Project initialization with pnpm monorepo and TypeScript configuration
 
-- [ ] T001 Initialize pnpm workspace with pnpm-workspace.yaml at repository root
-- [ ] T002 Create root package.json with workspace scripts (build, test, lint, typecheck)
-- [ ] T003 [P] Create root tsconfig.json with ES2022 target and strict mode per research.md
-- [ ] T004 [P] Configure ESLint and Prettier at repository root
-- [ ] T005 [P] Create packages/core/package.json with @blog/core name
-- [ ] T006 [P] Create packages/renderer/package.json with @blog/renderer name
-- [ ] T007 [P] Create packages/site/package.json with @blog/site name
-- [ ] T008 [P] Create packages/infra/package.json with @blog/infra name
-- [ ] T009 Install dependencies: unified, remark-parse, remark-frontmatter, remark-gfm, remark-rehype, rehype-highlight, rehype-stringify, gray-matter, unist-util-visit
-- [ ] T010 Install dev dependencies: typescript, esbuild, vitest, @playwright/test, aws-sdk-client-mock, aws-cdk-lib
-- [ ] T011 Create .env.example with AWS configuration template
-- [ ] T012 Create posts/example-post/index.md with sample front matter for development
+- [X] T001 Initialize pnpm workspace with pnpm-workspace.yaml at repository root
+- [X] T002 Create root package.json with workspace scripts (build, test, lint, typecheck)
+- [X] T003 [P] Create root tsconfig.json with ES2022 target and strict mode per research.md
+- [X] T004 [P] Configure ESLint and Prettier at repository root
+- [X] T005 [P] Create packages/core/package.json with @blog/core name
+- [X] T006 [P] Create packages/renderer/package.json with @blog/renderer name
+- [X] T007 [P] Create packages/site/package.json with @blog/site name
+- [X] T008 [P] Create packages/infra/package.json with @blog/infra name
+- [X] T009 Install dependencies: unified, remark-parse, remark-frontmatter, remark-gfm, remark-rehype, rehype-highlight, rehype-stringify, gray-matter, unist-util-visit
+- [X] T010 Install dev dependencies: typescript, esbuild, vitest, @playwright/test, aws-sdk-client-mock, aws-cdk-lib
+- [X] T011 Create .env.example with AWS configuration template
+- [X] T012 Create posts/example-post/index.md with sample front matter for development
 
 ---
 
