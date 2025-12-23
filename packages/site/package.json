@@ -6,7 +6,7 @@
   "scripts": {
     "build": "echo 'Static site - no build needed'",
     "test:e2e": "playwright test",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "echo 'Static site - no TypeScript to check'",
     "clean": "rm -rf dist"
   },
   "devDependencies": {

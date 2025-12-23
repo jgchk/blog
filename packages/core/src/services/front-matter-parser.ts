@@ -38,11 +38,12 @@ export class FrontMatterParser {
       }
 
       // Validate date format (YYYY-MM-DD)
-      const dateStr = data.date instanceof Date
+      const rawDate = data.date instanceof Date
         ? data.date.toISOString().split('T')[0]
         : String(data.date);
+      const dateStr = rawDate ?? '';
 
-      if (dateStr && !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
         return {
           success: false,
           error: { type: 'invalid_date', path, value: dateStr },

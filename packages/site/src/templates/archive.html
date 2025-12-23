@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Archive of all blog articles by date">
+  <title>Archive</title>
+  <link rel="stylesheet" href="/assets/styles/main.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header role="banner">
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/archive.html" aria-current="page">Archive</a></li>
+        <li><a href="/tags/">Tags</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main-content" role="main">
+    <h1>Archive</h1>
+    <p>{{totalArticles}} articles total</p>
+
+    {{#each archiveGroups}}
+    <section aria-labelledby="archive-{{yearMonth}}">
+      <h2 id="archive-{{yearMonth}}">{{displayName}}</h2>
+      <p>{{count}} {{#if isPlural}}articles{{else}}article{{/if}}</p>
+
+      <ul>
+        {{#each articles}}
+        <li>
+          <time datetime="{{dateIso}}">{{dateFormatted}}</time>
+          <a href="/articles/{{slug}}/">{{title}}</a>
+        </li>
+        {{/each}}
+      </ul>
+    </section>
+    {{/each}}
+  </main>
+
+  <footer role="contentinfo">
+    <p>&copy; {{year}} Blog. All rights reserved.</p>
+  </footer>
+</body>
+</html>

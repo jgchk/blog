@@ -1,7 +1,26 @@
 import { visit } from 'unist-util-visit';
-import type { Root, Text, Link } from 'mdast';
-import type { VFile } from 'vfile';
 import type { ArticleIndex } from '../services/article-index.js';
+
+// Type definitions inline to avoid mdast/vfile type issues
+interface TextNode {
+  type: 'text';
+  value: string;
+}
+
+interface LinkNode {
+  type: 'link';
+  url: string;
+  children: TextNode[];
+}
+
+interface RootNode {
+  type: 'root';
+  children: Array<{ children?: Array<TextNode | LinkNode> }>;
+}
+
+interface VFileData {
+  data: { brokenLinks?: string[] };
+}
 
 interface WikilinksOptions {
   articleIndex: ArticleIndex;
@@ -14,15 +33,15 @@ interface WikilinksOptions {
 export function remarkWikilinks(options: WikilinksOptions) {
   const { articleIndex } = options;
 
-  return (tree: Root, file: VFile) => {
+  return (tree: RootNode, file: VFileData) => {
     const brokenLinks: string[] = [];
 
-    visit(tree, 'text', (node: Text, index, parent) => {
+    visit(tree, 'text', (node: TextNode, index: number | undefined, parent: { children: Array<TextNode | LinkNode> } | undefined) => {
       if (!parent || typeof index !== 'number') return;
 
       const regex = /\[\[([^\]]+)\]\]/g;
       let match;
-      const segments: (Text | Link)[] = [];
+      const segments: (TextNode | LinkNode)[] = [];
       let lastIndex = 0;
 
       while ((match = regex.exec(node.value)) !== null) {
@@ -53,7 +72,6 @@ export function remarkWikilinks(options: WikilinksOptions) {
 
         if (resolution) {
           // Create a link node
-          const article = articleIndex.getBySlug(resolution.slug);
           segments.push({
             type: 'link',
             url: `/articles/${resolution.slug}/`,
@@ -63,7 +81,7 @@ export function remarkWikilinks(options: WikilinksOptions) {
                 value: linkText,
               },
             ],
-          } as Link);
+          });
         } else {
           // Broken link - keep as text with original brackets
           brokenLinks.push(linkText);

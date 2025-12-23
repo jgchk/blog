@@ -1,4 +1,4 @@
-import { unified } from 'unified';
+import { unified, type Processor } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkRehype from 'remark-rehype';
@@ -10,15 +10,16 @@ import rehypeStringify from 'rehype-stringify';
  * Per research.md specification.
  */
 export class MarkdownParser {
-  private processor: ReturnType<typeof unified>;
+  private processor: Processor;
 
   constructor() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.processor = unified()
       .use(remarkParse)
       .use(remarkGfm)
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeHighlight, { detect: true, ignoreMissing: true })
-      .use(rehypeStringify, { allowDangerousHtml: true });
+      .use(rehypeStringify, { allowDangerousHtml: true }) as unknown as Processor;
   }
 
   /**
