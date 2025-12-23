@@ -1,0 +1,432 @@
+openapi: 3.1.0
+info:
+  title: Markdown Blog API
+  version: 1.0.0
+  description: |
+    Internal API for the markdown blog admin dashboard and Git webhook integration.
+    Reader-facing content is served as static files from S3/CloudFront (no API).
+
+servers:
+  - url: https://api.{domain}/v1
+    description: Production API
+    variables:
+      domain:
+        default: example.com
+
+security:
+  - iamAuth: []
+
+paths:
+  # ============================================
+  # Git Webhook (GitHub → Lambda)
+  # ============================================
+  /webhook/github:
+    post:
+      operationId: handleGitHubWebhook
+      summary: Handle GitHub push webhook
+      description: |
+        Receives GitHub push events and triggers article rendering pipeline.
+        Validates webhook signature before processing.
+      tags:
+        - Webhook
+      security: []  # Webhook uses signature validation, not IAM
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GitHubPushEvent'
+      responses:
+        '200':
+          description: Webhook received and processing started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        '400':
+          description: Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid webhook signature
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ============================================
+  # Admin Dashboard
+  # ============================================
+  /admin/status:
+    get:
+      operationId: getSyncStatus
+      summary: Get current sync status
+      description: Returns the status of recent Git sync operations for the dashboard.
+      tags:
+        - Admin
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+          description: Number of recent sync operations to return
+      responses:
+        '200':
+          description: Sync status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncStatusList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/status/{syncId}:
+    get:
+      operationId: getSyncStatusById
+      summary: Get specific sync operation status
+      tags:
+        - Admin
+      parameters:
+        - name: syncId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sync status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncStatus'
+        '404':
+          description: Sync operation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/retry/{syncId}:
+    post:
+      operationId: retrySyncOperation
+      summary: Retry a failed sync operation
+      description: Manually triggers a retry of a failed sync operation.
+      tags:
+        - Admin
+      parameters:
+        - name: syncId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Retry initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        '404':
+          description: Sync operation not found
+        '409':
+          description: Sync operation is not in failed state
+
+  /admin/articles:
+    get:
+      operationId: listArticles
+      summary: List all articles with their status
+      tags:
+        - Admin
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [published, draft, error]
+          description: Filter by article status
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 200
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Article list retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleList'
+
+  /admin/articles/{slug}/invalidate:
+    post:
+      operationId: invalidateArticleCache
+      summary: Invalidate CloudFront cache for an article
+      description: Forces re-delivery of an article from S3 origin.
+      tags:
+        - Admin
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Cache invalidation initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invalidationId:
+                    type: string
+        '404':
+          description: Article not found
+
+  /admin/health:
+    get:
+      operationId: getSystemHealth
+      summary: Get system health status
+      tags:
+        - Admin
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+components:
+  securitySchemes:
+    iamAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: AWS IAM authentication via API Gateway
+
+  schemas:
+    # ============================================
+    # Webhook Schemas
+    # ============================================
+    GitHubPushEvent:
+      type: object
+      required:
+        - ref
+        - commits
+        - repository
+      properties:
+        ref:
+          type: string
+          example: refs/heads/main
+        commits:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              added:
+                type: array
+                items:
+                  type: string
+              removed:
+                type: array
+                items:
+                  type: string
+              modified:
+                type: array
+                items:
+                  type: string
+        repository:
+          type: object
+          properties:
+            full_name:
+              type: string
+            clone_url:
+              type: string
+
+    WebhookResponse:
+      type: object
+      properties:
+        syncId:
+          type: string
+          description: ID of the sync operation created
+        status:
+          type: string
+          enum: [accepted, ignored]
+        message:
+          type: string
+
+    # ============================================
+    # Sync Status Schemas
+    # ============================================
+    SyncStatus:
+      type: object
+      required:
+        - syncId
+        - status
+        - startedAt
+      properties:
+        syncId:
+          type: string
+        commitHash:
+          type: string
+        status:
+          type: string
+          enum: [pending, in_progress, completed, failed]
+        articlesProcessed:
+          type: integer
+        articlesFailed:
+          type: integer
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncError'
+        consecutiveFailures:
+          type: integer
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    SyncError:
+      type: object
+      properties:
+        articleSlug:
+          type: string
+        errorType:
+          type: string
+          enum: [parse, render, storage, unknown]
+        message:
+          type: string
+
+    SyncStatusList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncStatus'
+        total:
+          type: integer
+
+    # ============================================
+    # Article Schemas
+    # ============================================
+    ArticleSummary:
+      type: object
+      properties:
+        slug:
+          type: string
+        title:
+          type: string
+        date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [published, draft, error]
+        tags:
+          type: array
+          items:
+            type: string
+        lastRendered:
+          type: string
+          format: date-time
+        errorMessage:
+          type: string
+          nullable: true
+
+    ArticleList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArticleSummary'
+        total:
+          type: integer
+        offset:
+          type: integer
+        limit:
+          type: integer
+
+    # ============================================
+    # Health Schemas
+    # ============================================
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        components:
+          type: object
+          properties:
+            s3:
+              $ref: '#/components/schemas/ComponentHealth'
+            cloudfront:
+              $ref: '#/components/schemas/ComponentHealth'
+            sns:
+              $ref: '#/components/schemas/ComponentHealth'
+        lastSyncAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    ComponentHealth:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+        latencyMs:
+          type: integer
+          nullable: true
+
+    # ============================================
+    # Error Schemas
+    # ============================================
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
