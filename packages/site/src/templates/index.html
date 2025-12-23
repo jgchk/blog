@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A lightweight markdown blog">
+  <title>Blog</title>
+  <link rel="stylesheet" href="/assets/styles/main.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header role="banner">
+    <h1><a href="/">Blog</a></h1>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="/" aria-current="page">Home</a></li>
+        <li><a href="/archive.html">Archive</a></li>
+        <li><a href="/tags/">Tags</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main-content" role="main">
+    <h2>Recent Articles</h2>
+
+    <section aria-label="Article list">
+      {{#each articles}}
+      <article>
+        <h3><a href="/articles/{{slug}}/">{{title}}</a></h3>
+        <time datetime="{{dateIso}}">{{dateFormatted}}</time>
+        <p>{{excerpt}}</p>
+        {{#if tags}}
+        <ul class="tags" role="list" aria-label="Tags">
+          {{#each tags}}
+          <li><a href="/tags/{{slug}}.html" rel="tag">{{name}}</a></li>
+          {{/each}}
+        </ul>
+        {{/if}}
+      </article>
+      {{/each}}
+    </section>
+
+    {{#if hasMoreArticles}}
+    <nav aria-label="Pagination">
+      <a href="/archive.html">View all articles</a>
+    </nav>
+    {{/if}}
+  </main>
+
+  <footer role="contentinfo">
+    <p>&copy; {{year}} Blog. All rights reserved.</p>
+  </footer>
+</body>
+</html>

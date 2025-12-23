@@ -89,31 +89,31 @@ Based on plan.md monorepo structure:
 
 > **Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T027 [P] [US1] Unit test for FrontMatter parsing in packages/core/tests/unit/services/front-matter-parser.test.ts
-- [ ] T028 [P] [US1] Unit test for Article validation in packages/core/tests/unit/services/article-validator.test.ts
-- [ ] T028a [P] [US1] Unit test for invalid/malformed front matter handling in packages/core/tests/unit/services/front-matter-parser.test.ts (missing required fields, invalid YAML syntax, wrong field types)
-- [ ] T028b [P] [US1] Unit test for nested folder rejection in packages/core/tests/unit/services/post-scanner.test.ts (verify posts/2024/my-article/ is ignored, only posts/my-article/ scanned per spec.md:L148)
-- [ ] T029 [P] [US1] Unit test for MarkdownParser in packages/core/tests/unit/services/markdown-parser.test.ts
-- [ ] T030 [P] [US1] Unit test for slug normalization in packages/core/tests/unit/utils/slug.test.ts
-- [ ] T031 [P] [US1] Integration test for render pipeline in packages/renderer/tests/integration/render-pipeline.test.ts
-- [ ] T032 [P] [US1] Contract test for webhook endpoint in packages/renderer/tests/contract/webhook.test.ts
+- [X] T027 [P] [US1] Unit test for FrontMatter parsing in packages/core/tests/unit/services/front-matter-parser.test.ts
+- [X] T028 [P] [US1] Unit test for Article validation in packages/core/tests/unit/services/article-validator.test.ts
+- [X] T028a [P] [US1] Unit test for invalid/malformed front matter handling in packages/core/tests/unit/services/front-matter-parser.test.ts (missing required fields, invalid YAML syntax, wrong field types)
+- [X] T028b [P] [US1] Unit test for nested folder rejection in packages/core/tests/unit/services/post-scanner.test.ts (verify posts/2024/my-article/ is ignored, only posts/my-article/ scanned per spec.md:L148)
+- [X] T029 [P] [US1] Unit test for MarkdownParser in packages/core/tests/unit/services/markdown-parser.test.ts
+- [X] T030 [P] [US1] Unit test for slug normalization in packages/core/tests/unit/utils/slug.test.ts
+- [X] T031 [P] [US1] Integration test for render pipeline in packages/renderer/tests/integration/render-pipeline.test.ts
+- [X] T032 [P] [US1] Contract test for webhook endpoint in packages/renderer/tests/contract/webhook.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T033 [US1] Implement FrontMatterParser in packages/core/src/services/front-matter-parser.ts using gray-matter
-- [ ] T034 [US1] Implement ArticleValidator in packages/core/src/services/article-validator.ts with validation rules from data-model.md
-- [ ] T034a [US1] Add duplicate slug detection in packages/core/src/services/article-validator.ts (warn and skip duplicates per edge case spec.md:L95)
-- [ ] T035 [US1] Implement MarkdownParser in packages/core/src/services/markdown-parser.ts with remark pipeline per research.md
-- [ ] T036 [US1] Create packages/core/src/services/index.ts exporting all services
-- [ ] T037 [US1] Implement S3StorageAdapter in packages/renderer/src/adapters/s3-storage.ts implementing StorageAdapter
-- [ ] T038 [US1] Implement GitHubWebhookHandler in packages/renderer/src/handlers/webhook.ts handling push events
-- [ ] T039 [US1] Implement RenderService in packages/renderer/src/services/render-service.ts orchestrating parse → render → store
+- [X] T033 [US1] Implement FrontMatterParser in packages/core/src/services/front-matter-parser.ts using gray-matter
+- [X] T034 [US1] Implement ArticleValidator in packages/core/src/services/article-validator.ts with validation rules from data-model.md
+- [X] T034a [US1] Add duplicate slug detection in packages/core/src/services/article-validator.ts (warn and skip duplicates per edge case spec.md:L95)
+- [X] T035 [US1] Implement MarkdownParser in packages/core/src/services/markdown-parser.ts with remark pipeline per research.md
+- [X] T036 [US1] Create packages/core/src/services/index.ts exporting all services
+- [X] T037 [US1] Implement S3StorageAdapter in packages/renderer/src/adapters/s3-storage.ts implementing StorageAdapter
+- [X] T038 [US1] Implement GitHubWebhookHandler in packages/renderer/src/handlers/webhook.ts handling push events
+- [X] T039 [US1] Implement RenderService in packages/renderer/src/services/render-service.ts orchestrating parse → render → store
 - [ ] T039a [US1] Implement image/asset copying in packages/renderer/src/services/render-service.ts (copy co-located files from post folder to output, resolve relative paths per FR-012)
-- [ ] T040 [US1] Create packages/renderer/src/handlers/index.ts as Lambda entry point
-- [ ] T041 [US1] Create esbuild configuration in packages/renderer/build.ts per research.md
-- [ ] T042 [US1] Create article page template in packages/site/src/templates/article.html with semantic HTML (WCAG 2.1 AA)
-- [ ] T043 [US1] Create homepage template in packages/site/src/templates/index.html showing recent articles
-- [ ] T044 [US1] Create base stylesheet in packages/site/src/styles/main.css (themeable, no inline styles)
+- [X] T040 [US1] Create packages/renderer/src/handlers/index.ts as Lambda entry point
+- [X] T041 [US1] Create esbuild configuration in packages/renderer/build.ts per research.md
+- [X] T042 [US1] Create article page template in packages/site/src/templates/article.html with semantic HTML (WCAG 2.1 AA)
+- [X] T043 [US1] Create homepage template in packages/site/src/templates/index.html showing recent articles
+- [X] T044 [US1] Create base stylesheet in packages/site/src/styles/main.css (themeable, no inline styles)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
