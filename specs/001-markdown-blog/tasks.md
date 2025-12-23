@@ -51,29 +51,29 @@ Based on plan.md monorepo structure:
 
 ### Core Type System
 
-- [ ] T013 [P] Create packages/core/src/models/front-matter.ts with FrontMatter interface per data-model.md
-- [ ] T014 [P] Create packages/core/src/models/article.ts with Article interface per data-model.md
-- [ ] T015 [P] Create packages/core/src/models/tag.ts with Tag interface per data-model.md
-- [ ] T016 [P] Create packages/core/src/models/cross-link.ts with CrossLink interface per data-model.md
-- [ ] T017 [P] Create packages/core/src/models/validation-error.ts with ValidationError union type per data-model.md
-- [ ] T018 Create packages/core/src/models/index.ts exporting all model types
+- [X] T013 [P] Create packages/core/src/models/front-matter.ts with FrontMatter interface per data-model.md
+- [X] T014 [P] Create packages/core/src/models/article.ts with Article interface per data-model.md
+- [X] T015 [P] Create packages/core/src/models/tag.ts with Tag interface per data-model.md
+- [X] T016 [P] Create packages/core/src/models/cross-link.ts with CrossLink interface per data-model.md
+- [X] T017 [P] Create packages/core/src/models/validation-error.ts with ValidationError union type per data-model.md
+- [X] T018 Create packages/core/src/models/index.ts exporting all model types
 
 ### Abstraction Interfaces
 
-- [ ] T019 [P] Create packages/core/src/interfaces/storage.ts with StorageAdapter interface per research.md
-- [ ] T020 [P] Create packages/core/src/interfaces/notification.ts with NotificationAdapter interface per research.md
-- [ ] T021 Create packages/core/src/interfaces/index.ts exporting all interfaces
+- [X] T019 [P] Create packages/core/src/interfaces/storage.ts with StorageAdapter interface per research.md
+- [X] T020 [P] Create packages/core/src/interfaces/notification.ts with NotificationAdapter interface per research.md
+- [X] T021 Create packages/core/src/interfaces/index.ts exporting all interfaces
 
 ### Utility Functions
 
-- [ ] T022 Create packages/core/src/utils/slug.ts with normalizeSlug and normalizeForMatching functions (lowercase, spaces/dashes/underscores → hyphens)
+- [X] T022 Create packages/core/src/utils/slug.ts with normalizeSlug and normalizeForMatching functions (lowercase, spaces/dashes/underscores → hyphens)
 
 ### Test Infrastructure
 
-- [ ] T023 Create packages/core/vitest.config.ts with test configuration
-- [ ] T024 Create packages/renderer/vitest.config.ts with test configuration
-- [ ] T025 Create packages/site/playwright.config.ts with E2E test configuration
-- [ ] T026 Create root vitest.workspace.ts to run all package tests
+- [X] T023 Create packages/core/vitest.config.ts with test configuration
+- [X] T024 Create packages/renderer/vitest.config.ts with test configuration
+- [X] T025 Create packages/site/playwright.config.ts with E2E test configuration
+- [X] T026 Create root vitest.workspace.ts to run all package tests
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
