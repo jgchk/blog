@@ -238,7 +238,7 @@ Based on plan.md monorepo structure:
 - [X] T087 Create packages/infra/bin/app.ts as CDK entry point
 - [X] T088 Add CloudWatch log groups in packages/infra/lib/blog-stack.ts for Lambda functions
 - [X] T089 Configure CloudFront cache invalidation in packages/infra/lib/blog-stack.ts
-- [ ] T089a Document GitHub webhook configuration in packages/infra/README.md (webhook URL from CDK output, content-type application/json, push events only, secret token setup)
+- [X] T089a Document GitHub webhook configuration in packages/infra/README.md (webhook URL from CDK output, content-type application/json, push events only, secret token setup)
 - [X] T089b Add webhook secret validation in packages/renderer/src/handlers/webhook.ts (verify X-Hub-Signature-256 header per GitHub webhook security)
 
 ---
