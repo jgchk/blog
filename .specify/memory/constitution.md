@@ -1,50 +1,136 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+SYNC IMPACT REPORT
+==================
+Version change: 1.1.0 → 1.1.1
+Modified principles:
+  - II. Reader Simplicity: Added themability requirements (semantic HTML, CSS-only styling)
+Added sections: None
+Removed sections: None
+Templates requiring updates:
+  - .specify/templates/plan-template.md: ✅ Compatible
+  - .specify/templates/spec-template.md: ✅ Compatible
+  - .specify/templates/tasks-template.md: ✅ Compatible
+Follow-up TODOs: None
+-->
+
+# Markdown Blog Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Author Simplicity
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+The blog MUST remove all friction from the publishing workflow. Authors write markdown files with front matter and place them in the articles folder. Publication is automatic and immediate.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+**Non-negotiable rules:**
+- No manual build steps required to publish
+- No configuration files to edit per article
+- No CLI commands to run after writing
+- No deployment step required for content changes
+- Front matter is the ONLY metadata mechanism
+- New articles visible immediately (or within seconds) after file creation
+- Invalid files are skipped with warnings, never blocking valid content
+- Drafts (marked `draft: true` in front matter) are excluded automatically
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+**Rationale**: The value of a blog is in the content, not the publishing process. Every obstacle between "idea" and "published" reduces the likelihood of writing.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### II. Reader Simplicity
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Readers MUST experience a lightweight, distraction-free interface focused entirely on content consumption and discovery. The visual design MUST be easily changeable without touching content or structure.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+**Non-negotiable rules:**
+- Pages load fast with minimal JavaScript
+- Navigation by date, tag, and category is intuitive and consistent
+- No registration, popups, or interruptions required to read content
+- Mobile and desktop experiences are equally functional
+- Cross-links between articles work seamlessly
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+**Themability requirements:**
+- HTML MUST be minimal and semantic—structure only, no presentation logic
+- All visual styling MUST be in CSS—no inline styles, no style attributes in markup
+- Swapping the stylesheet MUST completely change the site's look
+- No CSS framework classes that couple markup to specific visual styles
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+**Rationale**: Readers come for content. Complexity in the reading experience drives them away. Semantic HTML with pure CSS styling enables rapid visual experimentation without touching code.
+
+### III. Test Confidence
+
+The test suite MUST provide near-100% confidence that when tests pass, the blog functions correctly in production. Manual verification after code changes is unacceptable.
+
+**Non-negotiable rules:**
+- Unit tests cover all business logic and utilities exhaustively
+- Integration tests verify component interactions and data flow
+- E2E tests validate critical user journeys (publish, navigate, read)
+- Tests MUST be written before implementation (TDD)
+- A passing test suite means the feature works—no manual QA required
+
+**Test pyramid discipline:**
+- Unit tests: Many (fast, isolated, comprehensive coverage)
+- Integration tests: Some (verify boundaries and contracts)
+- E2E tests: Few (critical paths only, expensive to maintain)
+
+**Rationale**: Confidence enables velocity. Without test confidence, every change requires manual verification, which slows development and introduces regression risk.
+
+### IV. Minimal Complexity
+
+The codebase MUST remain simple and avoid over-engineering. Every abstraction, dependency, and architectural decision requires justification.
+
+**Non-negotiable rules:**
+- YAGNI: Do not build features "for later"
+- Prefer standard library over third-party dependencies
+- No premature abstraction—three similar lines are better than one unnecessary helper
+- Configuration MUST have sensible defaults; customization is optional, not required
+- Complexity MUST be justified in code comments or design documents
+
+**Rationale**: Complexity compounds. Today's clever abstraction becomes tomorrow's maintenance burden.
+
+### V. Incremental Development
+
+Development MUST proceed through small, deliverable increments. Each change delivers working value. No big-bang releases or multi-month plans.
+
+**Non-negotiable rules:**
+- Every increment MUST be deployable and functional on its own
+- "Good enough now" beats "perfect later"—ship and iterate
+- No grand architectural rewrites; evolve the system incrementally
+- Features are broken into independently deliverable slices
+- Each PR should represent a complete, working improvement
+- Avoid planning horizons longer than a few focused tasks
+
+**Rationale**: Small increments reduce risk, provide faster feedback, and ensure continuous delivery of value. Big-bang development delays value and increases the chance of building the wrong thing.
+
+## Development Philosophy
+
+The development approach follows from the core principles:
+
+- **Start with tests**: Define expected behavior before writing implementation
+- **Small increments**: Ship independently testable user stories
+- **Simplicity bias**: When choosing between approaches, prefer the simpler one
+- **Content-first**: Every decision should be evaluated by its impact on authors and readers
+
+## Quality Standards
+
+- All PRs MUST pass the full test suite
+- Code review MUST verify alignment with constitution principles
+- Performance budgets: Pages MUST load in under 2 seconds on average connections
+- Accessibility: WCAG 2.1 AA compliance for all reader-facing pages
+- Documentation: Features are documented in code; external docs only when necessary
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution is the authoritative guide for all development decisions on this project. When in doubt, refer to these principles.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Amendment process:**
+1. Propose changes with rationale in a PR
+2. Changes require explicit justification for why existing principles are insufficient
+3. Version increment follows semantic versioning (see below)
+4. All affected code and documentation MUST be updated in the same PR
+
+**Versioning policy:**
+- MAJOR: Principle removed or fundamentally redefined
+- MINOR: New principle added or existing principle materially expanded
+- PATCH: Clarifications, wording improvements, non-semantic changes
+
+**Compliance review:**
+- Constitution Check is a gate in the planning phase
+- PRs that violate principles MUST document the violation and justification in Complexity Tracking
+
+**Version**: 1.1.1 | **Ratified**: 2025-12-23 | **Last Amended**: 2025-12-23
