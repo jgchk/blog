@@ -131,4 +131,4 @@ posts/                       # Content directory to watch
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| *None* | - | - |
+| 4 external deps (fastify, @fastify/static, chokidar, ws) | Core feature requirements: HTTP server, file watching, WebSocket | Node http module lacks routing/static; fs.watch unreliable cross-platform; native WebSocket requires boilerplate |

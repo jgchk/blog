@@ -197,7 +197,7 @@
 - [ ] T062 Handle edge case: simultaneous file changes (batch and process together) in packages/dev-server/src/watcher.ts
 - [ ] T063 [P] Add Cache-Control: no-cache headers to all responses per http-api.md in packages/dev-server/src/server.ts
 - [ ] T064 [P] Add X-Dev-Server header to responses per http-api.md in packages/dev-server/src/server.ts
-- [ ] T065 Run quickstart.md validation scenarios to verify end-to-end functionality
+- [ ] T065 Run quickstart.md validation scenarios to verify end-to-end functionality including SC-005 timing (clone to viewing <2 minutes)
 
 ### E2E Tests (Critical Paths Only)
 

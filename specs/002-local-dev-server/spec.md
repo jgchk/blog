@@ -82,7 +82,7 @@ As a developer, I want the local rendering to match production output so that I 
 - What happens when the posts directory doesn't exist? The system should create it or display a clear error message with instructions.
 - What happens when two files are modified simultaneously? Both changes should be processed and reflected in the browser.
 - What happens when an article has invalid front matter? The system should display the parsing error clearly and skip that article without affecting others.
-- What happens when the default port is already in use? The system should either use an alternative port or display a clear error with the conflicting process information.
+- What happens when the default port is already in use? The system should display a clear error message including the port number and suggest using --port flag to specify an alternative. Process identification is platform-dependent and optional (best-effort via lsof/netstat where available).
 
 ## Requirements *(mandatory)*
 
