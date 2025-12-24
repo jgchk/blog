@@ -130,8 +130,8 @@ Based on plan.md monorepo structure:
 - [X] T045 [P] [US2] Unit test for TagIndex in packages/core/tests/unit/services/tag-index.test.ts
 - [X] T046 [P] [US2] Unit test for Tag normalization in packages/core/tests/unit/models/tag.test.ts
 - [X] T046a [P] [US2] Unit test for special character handling in tags (spaces, punctuation → URL-safe slugs) in packages/core/tests/unit/utils/tag-slug.test.ts
-- [ ] T047 [P] [US2] E2E test for tag navigation in packages/site/tests/e2e/tag-navigation.spec.ts
-- [ ] T047a [P] [US2] E2E test for /tags page in packages/site/tests/e2e/all-tags.spec.ts (FR-010: verify page lists all tags with counts, each tag links to tag detail page)
+- [X] T047 [P] [US2] E2E test for tag navigation in packages/site/tests/e2e/tag-navigation.spec.ts
+- [X] T047a [P] [US2] E2E test for /tags page in packages/site/tests/e2e/all-tags.spec.ts (FR-010: verify page lists all tags with counts, each tag links to tag detail page)
 
 ### Implementation for User Story 2
 
@@ -158,7 +158,7 @@ Based on plan.md monorepo structure:
 - [X] T054 [P] [US3] Unit test for remarkWikilinks plugin in packages/core/tests/unit/plugins/wikilinks.test.ts
 - [X] T055 [P] [US3] Unit test for CrossLinkResolver in packages/core/tests/unit/services/cross-link-resolver.test.ts
 - [X] T055a [P] [US3] Unit test for resolution order priority in packages/core/tests/unit/services/cross-link-resolver.test.ts (when slug, title, and alias all match different articles, verify slug wins; when only title and alias match, verify title wins)
-- [ ] T056 [P] [US3] E2E test for cross-link navigation in packages/site/tests/e2e/cross-links.spec.ts
+- [X] T056 [P] [US3] E2E test for cross-link navigation in packages/site/tests/e2e/cross-links.spec.ts
 
 ### Implementation for User Story 3
 
@@ -182,7 +182,7 @@ Based on plan.md monorepo structure:
 
 - [X] T062 [P] [US4] Unit test for date sorting in packages/core/tests/unit/services/article-sorter.test.ts
 - [X] T063 [P] [US4] Unit test for archive grouping in packages/core/tests/unit/services/archive-builder.test.ts
-- [ ] T064 [P] [US4] E2E test for archive navigation in packages/site/tests/e2e/archive-navigation.spec.ts
+- [X] T064 [P] [US4] E2E test for archive navigation in packages/site/tests/e2e/archive-navigation.spec.ts
 
 ### Implementation for User Story 4
 
