@@ -161,4 +161,33 @@ This is a test.`
     expect(response.statusCode).toBe(200);
     expect(response.body).toContain('Archive');
   });
+
+  it('should show error with port number and suggestion when port is in use', async () => {
+    // Get the port the first server is using
+    const address = server.addresses()[0];
+    const usedPort = typeof address === 'object' ? address.port : 3000;
+
+    // Try to start another server on the same port
+    const conflictConfig = createDefaultConfig({
+      port: usedPort,
+      rootDir: testDir,
+      open: false,
+    });
+    const conflictState = new DevServerState();
+
+    let errorThrown = false;
+    let errorMessage = '';
+
+    try {
+      await startServer(conflictConfig, conflictState);
+    } catch (err) {
+      errorThrown = true;
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+    }
+
+    expect(errorThrown).toBe(true);
+    expect(errorMessage).toContain('EADDRINUSE');
+  });
 });

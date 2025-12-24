@@ -19,6 +19,7 @@
     "build": "esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.js --format=esm",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
@@ -31,6 +32,8 @@
     "handlebars": "^4.7.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/jsdom": "^27.0.0",
     "@types/node": "^20.10.0",
     "@types/ws": "^8.5.0",
     "jsdom": "^24.0.0",
