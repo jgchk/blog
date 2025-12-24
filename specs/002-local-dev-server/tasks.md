@@ -70,6 +70,8 @@
 
 ## Phase 3: User Story 3 - Start Local Environment Easily (Priority: P3) 🎯 MVP Foundation
 
+> **Implementation Note**: User story priorities (P1-P4) reflect business value, not implementation order. US3 is implemented first because it provides the HTTP server infrastructure that US1 and US2 depend on.
+
 **Goal**: Single command startup with CLI, HTTP server, and basic page serving
 
 **Independent Test**: Run `pnpm dev`, verify server starts within 10 seconds, navigate to localhost:3000, see blog homepage

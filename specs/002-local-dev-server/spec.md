@@ -82,7 +82,11 @@ As a developer, I want the local rendering to match production output so that I 
 - What happens when the posts directory doesn't exist? The system should create it or display a clear error message with instructions.
 - What happens when two files are modified simultaneously? Both changes should be processed and reflected in the browser.
 - What happens when an article has invalid front matter? The system should display the parsing error clearly and skip that article without affecting others.
-- What happens when the default port is already in use? The system should display a clear error message including the port number and suggest using --port flag to specify an alternative. Process identification is platform-dependent and optional (best-effort via lsof/netstat where available).
+- What happens when the default port is already in use? The system MUST display a clear error message including the port number and suggest using --port flag to specify an alternative. Process identification is best-effort and platform-dependent:
+  - macOS: attempt `lsof -i :PORT`
+  - Linux: attempt `ss -tlnp` or `netstat -tlnp`
+  - Windows: attempt `netstat -ano`
+  - If process lookup fails, omit process info but still show port conflict error
 
 ## Requirements *(mandatory)*
 
@@ -105,7 +109,7 @@ As a developer, I want the local rendering to match production output so that I 
 - All dependencies (for markdown processing, etc.) are already installed via standard package management
 - The blog uses standard markdown with front matter for article metadata
 - File watching is limited to the posts directory and asset directories (not the entire repository)
-- The default local URL will be `localhost` on a standard development port (e.g., 3000)
+- The default local URL will be `http://localhost:3000` (port configurable via --port flag)
 - Hot reload functionality refers to automatic browser refresh, not module hot replacement
 - Browser support is limited to modern evergreen browsers (Chrome, Firefox, Safari, Edge latest versions)
 
