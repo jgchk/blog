@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2025-12-23
 
 ## Active Technologies
+- TypeScript 5.3+ targeting ES2022 on Node.js 20.x + Existing unified/remark stack, chokidar (file watching), ws (WebSocket), express or fastify (HTTP server) (002-local-dev-server)
+- Local filesystem (posts/, packages/site/src/) (002-local-dev-server)
 
 - TypeScript 5.3+ targeting ES2022 on AWS Lambda Node.js 20.x + unified/remark (markdown), gray-matter (front matter), AWS SDK v3 (001-markdown-blog)
 
@@ -22,6 +24,7 @@ npm test && npm run lint
 TypeScript 5.3+ targeting ES2022 on AWS Lambda Node.js 20.x: Follow standard conventions
 
 ## Recent Changes
+- 002-local-dev-server: Added TypeScript 5.3+ targeting ES2022 on Node.js 20.x + Existing unified/remark stack, chokidar (file watching), ws (WebSocket), express or fastify (HTTP server)
 
 - 001-markdown-blog: Added TypeScript 5.3+ targeting ES2022 on AWS Lambda Node.js 20.x + unified/remark (markdown), gray-matter (front matter), AWS SDK v3
 
