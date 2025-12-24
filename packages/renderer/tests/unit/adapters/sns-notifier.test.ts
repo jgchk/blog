@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 import { mockClient } from 'aws-sdk-client-mock';
 import { SNSNotificationAdapter } from '../../../src/adapters/sns-notifier.js';

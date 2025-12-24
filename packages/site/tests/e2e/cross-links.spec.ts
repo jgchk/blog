@@ -52,10 +52,6 @@ test.describe('Cross-Link Navigation', () => {
 
     // Broken links should show as [[text]] (unresolved)
     // This is a negative test - we check they're NOT converted to links
-    const brokenLinkPattern = /\[\[[^\]]+\]\]/;
-
-    const contentText = await content.textContent();
-    // If broken links exist, they should be plain text, not links
     // (This verifies the wikilinks plugin handles broken links correctly)
 
     // Also verify the content doesn't have href="#broken" or similar

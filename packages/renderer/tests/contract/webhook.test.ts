@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { GitHubWebhookHandler } from '../../src/handlers/webhook.js';
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
 import crypto from 'crypto';
