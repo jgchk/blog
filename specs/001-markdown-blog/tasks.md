@@ -213,7 +213,7 @@ Based on plan.md monorepo structure:
 - [X] T074 Implement SyncTracker in packages/renderer/src/services/sync-tracker.ts tracking sync operations
 - [X] T075 Implement SNSNotificationAdapter in packages/renderer/src/adapters/sns-notifier.ts implementing NotificationAdapter
 - [X] T076 Implement AdminHandler in packages/renderer/src/handlers/admin.ts with status, retry, articles, health endpoints per api.yaml
-- [ ] T077 Add retry logic in packages/renderer/src/services/render-service.ts for failed syncs (FR-013: 3 retries with 1s, 2s, 4s exponential backoff) - tested by T070a
+- [X] T077 Add retry logic in packages/renderer/src/services/render-service.ts for failed syncs (FR-013: 3 retries with 1s, 2s, 4s exponential backoff) - tested by T070a
 - [X] T078 Add consecutive failure detection in packages/renderer/src/services/sync-tracker.ts triggering SNS alert at 3+ failures (FR-014)
 
 ---

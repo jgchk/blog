@@ -5,14 +5,25 @@ import {
   type StorageAdapter,
   type ValidationError,
 } from '@blog/core';
+import { RetryHandler, type RetryOptions, type RetryResult } from './retry-handler.js';
 
 /**
- * Options for asset copying
+ * Options for RenderService
  */
-export interface AssetCopyOptions {
+export interface RenderServiceOptions {
   /** Source storage adapter (for reading source files) */
   sourceStorage?: StorageAdapter;
+  /** Retry options for failed operations */
+  retryOptions?: RetryOptions;
+  /** Custom sleep function for testing */
+  sleepFn?: (ms: number) => Promise<void>;
 }
+
+/**
+ * Legacy alias for AssetCopyOptions
+ * @deprecated Use RenderServiceOptions instead
+ */
+export type AssetCopyOptions = Pick<RenderServiceOptions, 'sourceStorage'>;
 
 /**
  * Result of copying assets
@@ -30,6 +41,15 @@ export type RenderResult =
   | { success: false; error: ValidationError };
 
 /**
+ * Result of publishing with retry
+ */
+export interface PublishResult {
+  success: boolean;
+  attempts: number;
+  errors?: Error[];
+}
+
+/**
  * Orchestrates the markdown → HTML rendering pipeline.
  * Per research.md specification.
  */
@@ -38,12 +58,14 @@ export class RenderService {
   private markdownParser: MarkdownParser;
   private storage: StorageAdapter;
   private sourceStorage: StorageAdapter | undefined;
+  private retryHandler: RetryHandler;
 
-  constructor(storage: StorageAdapter, options?: AssetCopyOptions) {
+  constructor(storage: StorageAdapter, options?: RenderServiceOptions) {
     this.frontMatterParser = new FrontMatterParser();
     this.markdownParser = new MarkdownParser();
     this.storage = storage;
     this.sourceStorage = options?.sourceStorage;
+    this.retryHandler = new RetryHandler(options?.retryOptions, options?.sleepFn);
   }
 
   /**
@@ -104,6 +126,40 @@ export class RenderService {
       Buffer.from(htmlPage, 'utf-8'),
       'text/html'
     );
+  }
+
+  /**
+   * Publish a rendered article to storage with retry logic.
+   * Per FR-013: 3 retries with 1s, 2s, 4s exponential backoff.
+   * @param article - The article to publish
+   * @returns PublishResult with success status and attempt count
+   */
+  async publishArticleWithRetry(article: Article): Promise<PublishResult> {
+    const result = await this.retryHandler.execute(async () => {
+      await this.publishArticle(article);
+    });
+
+    return {
+      success: result.success,
+      attempts: result.attempts,
+      errors: result.success ? undefined : result.errors,
+    };
+  }
+
+  /**
+   * Copy assets with retry logic.
+   * Per FR-013: 3 retries with exponential backoff for failed operations.
+   * @param slug - Article slug (folder name)
+   * @param sourceDir - Source directory prefix (default: 'posts')
+   * @returns RetryResult with AssetCopyResult
+   */
+  async copyAssetsWithRetry(
+    slug: string,
+    sourceDir: string = 'posts'
+  ): Promise<RetryResult<AssetCopyResult>> {
+    return this.retryHandler.execute(async () => {
+      return this.copyAssets(slug, sourceDir);
+    });
   }
 
   /**
