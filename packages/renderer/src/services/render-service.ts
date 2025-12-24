@@ -7,6 +7,22 @@ import {
 } from '@blog/core';
 
 /**
+ * Options for asset copying
+ */
+export interface AssetCopyOptions {
+  /** Source storage adapter (for reading source files) */
+  sourceStorage?: StorageAdapter;
+}
+
+/**
+ * Result of copying assets
+ */
+export interface AssetCopyResult {
+  copied: string[];
+  failed: Array<{ path: string; error: string }>;
+}
+
+/**
  * Result of rendering an article
  */
 export type RenderResult =
@@ -21,11 +37,13 @@ export class RenderService {
   private frontMatterParser: FrontMatterParser;
   private markdownParser: MarkdownParser;
   private storage: StorageAdapter;
+  private sourceStorage: StorageAdapter | undefined;
 
-  constructor(storage: StorageAdapter) {
+  constructor(storage: StorageAdapter, options?: AssetCopyOptions) {
     this.frontMatterParser = new FrontMatterParser();
     this.markdownParser = new MarkdownParser();
     this.storage = storage;
+    this.sourceStorage = options?.sourceStorage;
   }
 
   /**
@@ -86,6 +104,100 @@ export class RenderService {
       Buffer.from(htmlPage, 'utf-8'),
       'text/html'
     );
+  }
+
+  /**
+   * Copy co-located assets (images, files) from source post folder to output.
+   * Per FR-012: resolve relative paths for images and assets.
+   * @param slug - Article slug (folder name)
+   * @param sourceDir - Source directory prefix (default: 'posts')
+   */
+  async copyAssets(slug: string, sourceDir: string = 'posts'): Promise<AssetCopyResult> {
+    const result: AssetCopyResult = { copied: [], failed: [] };
+
+    if (!this.sourceStorage) {
+      return result;
+    }
+
+    const sourcePrefix = `${sourceDir}/${slug}/`;
+    const destPrefix = `articles/${slug}/`;
+
+    try {
+      // List all files in the source post folder
+      const sourceFiles = await this.sourceStorage.list(sourcePrefix);
+
+      for (const sourcePath of sourceFiles) {
+        // Skip the index.md file - only copy assets
+        if (sourcePath.endsWith('/index.md') || sourcePath.endsWith('.md')) {
+          continue;
+        }
+
+        // Get relative path from source folder
+        const relativePath = sourcePath.slice(sourcePrefix.length);
+        if (!relativePath) {
+          continue;
+        }
+
+        const destPath = `${destPrefix}${relativePath}`;
+
+        try {
+          // Read source file
+          const content = await this.sourceStorage.read(sourcePath);
+
+          // Determine content type from extension
+          const contentType = this.getContentType(relativePath);
+
+          // Write to destination
+          await this.storage.write(destPath, content, contentType);
+
+          result.copied.push(relativePath);
+        } catch (error) {
+          result.failed.push({
+            path: relativePath,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
+      }
+    } catch (error) {
+      // If we can't list the source directory, return empty result
+      // This is not necessarily an error - the directory might not have assets
+      console.warn(
+        `Could not list assets for ${slug}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+
+    return result;
+  }
+
+  /**
+   * Get MIME content type from file extension
+   */
+  private getContentType(filename: string): string {
+    const ext = filename.split('.').pop()?.toLowerCase();
+    const contentTypes: Record<string, string> = {
+      // Images
+      png: 'image/png',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      gif: 'image/gif',
+      webp: 'image/webp',
+      svg: 'image/svg+xml',
+      ico: 'image/x-icon',
+      // Documents
+      pdf: 'application/pdf',
+      // Data
+      json: 'application/json',
+      xml: 'application/xml',
+      // Web
+      html: 'text/html',
+      css: 'text/css',
+      js: 'application/javascript',
+      // Archives
+      zip: 'application/zip',
+      // Default
+    };
+
+    return contentTypes[ext ?? ''] ?? 'application/octet-stream';
   }
 
   /**

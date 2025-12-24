@@ -108,7 +108,7 @@ Based on plan.md monorepo structure:
 - [X] T037 [US1] Implement S3StorageAdapter in packages/renderer/src/adapters/s3-storage.ts implementing StorageAdapter
 - [X] T038 [US1] Implement GitHubWebhookHandler in packages/renderer/src/handlers/webhook.ts handling push events
 - [X] T039 [US1] Implement RenderService in packages/renderer/src/services/render-service.ts orchestrating parse → render → store
-- [ ] T039a [US1] Implement image/asset copying in packages/renderer/src/services/render-service.ts (copy co-located files from post folder to output, resolve relative paths per FR-012)
+- [X] T039a [US1] Implement image/asset copying in packages/renderer/src/services/render-service.ts (copy co-located files from post folder to output, resolve relative paths per FR-012)
 - [X] T040 [US1] Create packages/renderer/src/handlers/index.ts as Lambda entry point
 - [X] T041 [US1] Create esbuild configuration in packages/renderer/build.ts per research.md
 - [X] T042 [US1] Create article page template in packages/site/src/templates/article.html with semantic HTML (WCAG 2.1 AA)
