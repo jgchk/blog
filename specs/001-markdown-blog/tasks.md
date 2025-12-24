@@ -253,7 +253,7 @@ Based on plan.md monorepo structure:
 - [ ] T093 [P] Verify image/asset path resolution edge cases in packages/renderer/tests/integration/asset-paths.test.ts (spaces in filenames, subdirectories within post folder)
 - [ ] T094 Accessibility audit with Playwright axe in packages/site/tests/e2e/accessibility.spec.ts (WCAG 2.1 AA)
 - [ ] T095 Performance test in packages/site/tests/e2e/performance.spec.ts (TTFCP <2s on Fast 3G throttle, using Playwright network emulation)
-- [ ] T096 Update packages/site/src/styles/main.css with responsive design for mobile
+- [X] T096 Update packages/site/src/styles/main.css with responsive design for mobile
 - [ ] T097 Run full E2E test suite validating all user journeys
 - [ ] T098 Validate against quickstart.md scenarios
 

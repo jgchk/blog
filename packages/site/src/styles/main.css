@@ -317,16 +317,112 @@ section[aria-label="Article list"] h3 a:hover {
   text-decoration: underline;
 }
 
-/* Responsive */
+/* Responsive - Tablet */
+@media (max-width: 768px) {
+  :root {
+    --spacing-xl: 1.5rem;
+    --spacing-2xl: 2rem;
+  }
+
+  header[role="banner"],
+  main,
+  footer[role="contentinfo"] {
+    padding-left: var(--spacing-lg);
+    padding-right: var(--spacing-lg);
+  }
+
+  /* Table horizontal scroll on smaller screens */
+  .content table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Responsive - Mobile */
 @media (max-width: 600px) {
   :root {
     --font-size-base: 0.9375rem;
     --font-size-3xl: 1.75rem;
     --font-size-2xl: 1.375rem;
+    --font-size-xl: 1.125rem;
+    --spacing-md: 0.875rem;
+    --spacing-lg: 1.25rem;
+  }
+
+  header[role="banner"],
+  main,
+  footer[role="contentinfo"] {
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
   }
 
   nav[aria-label="Main navigation"] ul {
     flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  nav[aria-label="Main navigation"] a {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  /* Stack article metadata on mobile */
+  article header {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  /* Larger touch targets for tags */
+  .tags a {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+  }
+
+  /* Code blocks full width */
+  pre {
+    margin-left: calc(-1 * var(--spacing-md));
+    margin-right: calc(-1 * var(--spacing-md));
+    border-radius: 0;
+    padding: var(--spacing-md);
+  }
+
+  /* Better spacing for lists */
+  .content ul,
+  .content ol {
+    padding-left: var(--spacing-xl);
+  }
+
+  /* Images full width */
+  .content img {
+    margin-left: calc(-1 * var(--spacing-md));
+    margin-right: calc(-1 * var(--spacing-md));
+    max-width: calc(100% + var(--spacing-md) * 2);
+    border-radius: 0;
+  }
+}
+
+/* Responsive - Small Mobile */
+@media (max-width: 400px) {
+  :root {
+    --font-size-base: 0.875rem;
+    --font-size-3xl: 1.5rem;
+    --font-size-2xl: 1.25rem;
+  }
+
+  h1 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  /* Single column nav on very small screens */
+  nav[aria-label="Main navigation"] ul {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  nav[aria-label="Main navigation"] a {
+    display: block;
+    text-align: center;
   }
 }
 
