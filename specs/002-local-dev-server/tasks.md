@@ -193,9 +193,12 @@
 **Purpose**: Edge cases, error handling improvements, and documentation
 
 - [ ] T058 Handle edge case: posts directory doesn't exist (create or show helpful error) in packages/dev-server/src/config.ts
+- [ ] T058a [P] Write unit test: missing posts directory creates directory or shows helpful error in packages/dev-server/tests/unit/config.test.ts
 - [ ] T059 Handle edge case: port already in use (show process info and suggest alternative) in packages/dev-server/src/cli.ts
+- [ ] T059a [P] Write integration test: port already in use shows error with port number and --port suggestion in packages/dev-server/tests/integration/server.test.ts
 - [ ] T060 Handle edge case: malformed markdown (display error, continue serving other content) in packages/dev-server/src/renderer.ts
 - [ ] T061 Handle edge case: invalid front matter (display parsing error, skip article) in packages/dev-server/src/renderer.ts
+- [ ] T061a [P] Write unit test: invalid front matter displays parsing error and skips article in packages/dev-server/tests/unit/renderer.test.ts
 - [ ] T062 Handle edge case: simultaneous file changes (batch and process together) in packages/dev-server/src/watcher.ts
 - [ ] T063 [P] Add Cache-Control: no-cache headers to all responses per http-api.md in packages/dev-server/src/server.ts
 - [ ] T064 [P] Add X-Dev-Server header to responses per http-api.md in packages/dev-server/src/server.ts
