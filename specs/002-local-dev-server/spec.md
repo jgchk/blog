@@ -71,7 +71,7 @@ As a developer, I want the local rendering to match production output so that I 
 
 **Acceptance Scenarios**:
 
-1. **Given** an article renders locally, **When** the same article is deployed to production, **Then** the semantic HTML structure is identical (excluding environment-specific elements like URLs and asset paths)
+1. **Given** an article renders locally, **When** the same article is deployed to production, **Then** the semantic HTML structure is identical: same element hierarchy, tag names, class attributes, and text content after normalizing whitespace (excluding environment-specific elements: base URLs, asset paths, timestamps, and dev-only injected scripts like client.js)
 2. **Given** assets are referenced in articles (images, etc.), **When** viewed locally, **Then** the assets render correctly using local paths
 
 ---

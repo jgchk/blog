@@ -181,7 +181,7 @@
 
 ### Tests for User Story 4
 
-- [ ] T057a [US4] Write integration test: rendered article semantic HTML structure matches @blog/core output (validates US4.1 "identical" criterion) in packages/dev-server/tests/integration/rendering.test.ts
+- [ ] T057a [US4] Write integration test: rendered article semantic HTML structure matches @blog/core output—compare element hierarchy, tag names, classes, and normalized text content; exclude base URLs, asset paths, and dev-injected scripts—in packages/dev-server/tests/integration/rendering.test.ts
 - [ ] T057b [US4] Write unit test: asset path rewriting produces correct local URLs in packages/dev-server/tests/unit/renderer.test.ts
 
 **Checkpoint**: Local and production rendering produce structurally identical output
