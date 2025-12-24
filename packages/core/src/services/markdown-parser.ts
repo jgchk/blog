@@ -4,6 +4,24 @@ import remarkGfm from 'remark-gfm';
 import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
+import type { ArticleIndex } from './article-index.js';
+import { remarkWikilinks } from '../plugins/wikilinks.js';
+
+/**
+ * Options for configuring the MarkdownParser
+ */
+export interface MarkdownParserOptions {
+  /** Optional ArticleIndex for resolving [[wikilinks]] */
+  articleIndex?: ArticleIndex;
+}
+
+/**
+ * Result of parsing markdown, includes broken links if wikilinks are enabled
+ */
+export interface ParseResult {
+  html: string;
+  brokenLinks: string[];
+}
 
 /**
  * Parses markdown to HTML using the unified/remark pipeline.
@@ -11,15 +29,42 @@ import rehypeStringify from 'rehype-stringify';
  */
 export class MarkdownParser {
   private processor: Processor;
+  private articleIndex: ArticleIndex | undefined;
 
-  constructor() {
+  constructor(options?: MarkdownParserOptions) {
+    this.articleIndex = options?.articleIndex;
+    this.processor = this.buildProcessor();
+  }
+
+  /**
+   * Build the unified processor pipeline
+   */
+  private buildProcessor(): Processor {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.processor = unified()
+    let processor = unified()
       .use(remarkParse)
-      .use(remarkGfm)
+      .use(remarkGfm);
+
+    // Add wikilinks plugin if articleIndex is provided
+    if (this.articleIndex) {
+      processor = processor.use(remarkWikilinks, { articleIndex: this.articleIndex });
+    }
+
+    processor = processor
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeHighlight, { detect: true, ignoreMissing: true })
-      .use(rehypeStringify, { allowDangerousHtml: true }) as unknown as Processor;
+      .use(rehypeStringify, { allowDangerousHtml: true });
+
+    return processor as unknown as Processor;
+  }
+
+  /**
+   * Update the article index and rebuild the processor
+   * Useful when the index changes during a batch render
+   */
+  setArticleIndex(articleIndex: ArticleIndex): void {
+    this.articleIndex = articleIndex;
+    this.processor = this.buildProcessor();
   }
 
   /**
@@ -34,6 +79,25 @@ export class MarkdownParser {
 
     const result = await this.processor.process(markdown);
     return String(result);
+  }
+
+  /**
+   * Parse markdown and return full result including broken links
+   * @param markdown - The markdown content (without front matter)
+   * @returns ParseResult with HTML and any broken wikilinks
+   */
+  async parseWithMetadata(markdown: string): Promise<ParseResult> {
+    if (!markdown.trim()) {
+      return { html: '', brokenLinks: [] };
+    }
+
+    const result = await this.processor.process(markdown);
+    const brokenLinks = (result.data as { brokenLinks?: string[] })?.brokenLinks ?? [];
+
+    return {
+      html: String(result),
+      brokenLinks,
+    };
   }
 
   /**

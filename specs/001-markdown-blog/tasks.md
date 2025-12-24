@@ -165,7 +165,7 @@ Based on plan.md monorepo structure:
 - [X] T057 [US3] Implement ArticleIndex in packages/core/src/services/article-index.ts with resolve(query) method enforcing FR-005 priority order: slug → title → aliases (bySlug, byTitle, byAlias are internal; resolve() is the public API)
 - [X] T058 [US3] Implement remarkWikilinks plugin in packages/core/src/plugins/wikilinks.ts per research.md
 - [X] T059 [US3] Implement CrossLinkResolver in packages/core/src/services/cross-link-resolver.ts with resolution order: slug → title → aliases
-- [ ] T060 [US3] Integrate wikilinks plugin into MarkdownParser pipeline in packages/core/src/services/markdown-parser.ts
+- [X] T060 [US3] Integrate wikilinks plugin into MarkdownParser pipeline in packages/core/src/services/markdown-parser.ts
 - [X] T061 [US3] Handle broken links in packages/core/src/plugins/wikilinks.ts (display as plain text or marked as broken per FR-005)
 
 **Checkpoint**: User Stories 1, 2, AND 3 should all work independently

@@ -7,6 +7,10 @@ export type { ValidationResult } from './article-validator.js';
 export { PostScanner } from './post-scanner.js';
 
 export { MarkdownParser } from './markdown-parser.js';
+export type {
+  MarkdownParserOptions,
+  ParseResult as MarkdownParseResult,
+} from './markdown-parser.js';
 
 export { TagIndex } from './tag-index.js';
 export type { TagIndexJSON } from './tag-index.js';
