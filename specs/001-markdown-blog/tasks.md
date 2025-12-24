@@ -250,9 +250,9 @@ Based on plan.md monorepo structure:
 - [X] T090 [P] Add draft filtering in packages/core/src/services/article-validator.ts (FR-008: exclude draft: true)
 - [X] T091 [P] Integrate invalid file handling in packages/core/src/services/article-validator.ts (FR-011: skip with warnings, log to CloudWatch) - unit tests covered by T028a
 - [X] T092 [P] Add excerpt generation in packages/core/src/services/markdown-parser.ts (first 160 chars or custom)
-- [ ] T093 [P] Verify image/asset path resolution edge cases in packages/renderer/tests/integration/asset-paths.test.ts (spaces in filenames, subdirectories within post folder)
-- [ ] T094 Accessibility audit with Playwright axe in packages/site/tests/e2e/accessibility.spec.ts (WCAG 2.1 AA)
-- [ ] T095 Performance test in packages/site/tests/e2e/performance.spec.ts (TTFCP <2s on Fast 3G throttle, using Playwright network emulation)
+- [X] T093 [P] Verify image/asset path resolution edge cases in packages/renderer/tests/integration/asset-paths.test.ts (spaces in filenames, subdirectories within post folder)
+- [X] T094 Accessibility audit with Playwright axe in packages/site/tests/e2e/accessibility.spec.ts (WCAG 2.1 AA)
+- [X] T095 Performance test in packages/site/tests/e2e/performance.spec.ts (TTFCP <2s on Fast 3G throttle, using Playwright network emulation)
 - [X] T096 Update packages/site/src/styles/main.css with responsive design for mobile
 - [ ] T097 Run full E2E test suite validating all user journeys
 - [ ] T098 Validate against quickstart.md scenarios
