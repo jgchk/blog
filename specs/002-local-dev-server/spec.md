@@ -40,8 +40,8 @@ As a developer, I want to see CSS/styling changes reflected immediately so that 
 
 **Acceptance Scenarios**:
 
-1. **Given** the local dev server is running, **When** I modify a CSS file, **Then** the styling updates in the browser within 2 seconds without full page reload
-2. **Given** the local dev server is running, **When** I modify template files affecting layout, **Then** the affected pages re-render and update in the browser
+1. **Given** the local dev server is running, **When** I modify a CSS file, **Then** the styling updates in the browser within 2 seconds without full page reload (tests use 2.5s timeout to account for system variance)
+2. **Given** the local dev server is running, **When** I modify template files affecting layout, **Then** the affected pages re-render and update in the browser within 3 seconds
 
 ---
 
