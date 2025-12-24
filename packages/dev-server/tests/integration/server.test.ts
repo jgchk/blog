@@ -134,6 +134,16 @@ This is a test.`
     expect(response.body).toContain('Test Article');
   });
 
+  it('should serve article with trailing slash', async () => {
+    const response = await server.inject({
+      method: 'GET',
+      url: '/articles/test-article/',
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toContain('Test Article');
+  });
+
   it('should add Cache-Control header to responses', async () => {
     const response = await server.inject({
       method: 'GET',

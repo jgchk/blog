@@ -98,7 +98,7 @@ export async function createServer(
   state: DevServerState
 ): Promise<FastifyInstance> {
   const paths = resolveConfigPaths(config);
-  const fastify = Fastify({ logger: false });
+  const fastify = Fastify({ logger: false, ignoreTrailingSlash: true });
 
   // Register WebSocket plugin
   await fastify.register(fastifyWebsocket);
