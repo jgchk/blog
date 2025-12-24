@@ -205,7 +205,7 @@ Based on plan.md monorepo structure:
 - [X] T070 [P] Unit test for SyncStatus tracking in packages/renderer/tests/unit/services/sync-tracker.test.ts
 - [X] T070a [P] Unit test for exponential backoff timing in packages/renderer/tests/unit/services/retry-handler.test.ts (verify 1s, 2s, 4s delays per FR-013, mock timers)
 - [X] T071 [P] Unit test for SNS alerting in packages/renderer/tests/unit/adapters/sns-notifier.test.ts
-- [ ] T072 [P] Contract test for admin endpoints in packages/renderer/tests/contract/admin-api.test.ts
+- [X] T072 [P] Contract test for admin endpoints in packages/renderer/tests/contract/admin-api.test.ts
 
 ### Implementation for Admin Features
 
