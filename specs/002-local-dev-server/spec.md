@@ -71,7 +71,7 @@ As a developer, I want the local rendering to match production output so that I 
 
 **Acceptance Scenarios**:
 
-1. **Given** an article renders locally, **When** the same article is deployed to production, **Then** the visual output is identical (excluding environment-specific elements like URLs)
+1. **Given** an article renders locally, **When** the same article is deployed to production, **Then** the semantic HTML structure is identical (excluding environment-specific elements like URLs and asset paths)
 2. **Given** assets are referenced in articles (images, etc.), **When** viewed locally, **Then** the assets render correctly using local paths
 
 ---
@@ -86,7 +86,8 @@ As a developer, I want the local rendering to match production output so that I 
   - macOS: attempt `lsof -i :PORT`
   - Linux: attempt `ss -tlnp` or `netstat -tlnp`
   - Windows: attempt `netstat -ano`
-  - If process lookup fails, omit process info but still show port conflict error
+  - If process lookup fails or is unsupported, omit process info but still show port conflict error
+  - **Testing scope**: Integration tests verify the error message format on the development platform (macOS); cross-platform process lookup is not tested but gracefully degrades
 
 ## Requirements *(mandatory)*
 
