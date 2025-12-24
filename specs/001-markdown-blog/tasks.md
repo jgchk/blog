@@ -224,8 +224,8 @@ Based on plan.md monorepo structure:
 
 ### Tests for Infrastructure
 
-- [ ] T079 [P] CDK snapshot tests in packages/infra/tests/snapshot.test.ts
-- [ ] T080 [P] CDK assertion tests in packages/infra/tests/assertions.test.ts
+- [X] T079 [P] CDK snapshot tests in packages/infra/tests/snapshot.test.ts
+- [X] T080 [P] CDK assertion tests in packages/infra/tests/assertions.test.ts
 
 ### Implementation for Infrastructure
 
