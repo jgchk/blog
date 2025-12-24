@@ -1,0 +1,42 @@
+{
+  "name": "@blog/dev-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    }
+  },
+  "bin": {
+    "blog-dev": "./dist/cli.js"
+  },
+  "scripts": {
+    "start": "tsx src/cli.ts",
+    "build": "esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.js --format=esm",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@blog/core": "workspace:*",
+    "@fastify/static": "^7.0.0",
+    "@fastify/websocket": "^10.0.0",
+    "chokidar": "^3.6.0",
+    "fastify": "^4.28.0",
+    "handlebars": "^4.7.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/ws": "^8.5.0",
+    "jsdom": "^24.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0",
+    "ws": "^8.18.0"
+  }
+}

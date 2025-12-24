@@ -12,7 +12,7 @@
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "typecheck": "pnpm -r typecheck",
-    "dev": "pnpm --filter @blog/site dev",
+    "dev": "pnpm --filter @blog/dev-server start",
     "clean": "pnpm -r clean"
   },
   "devDependencies": {
