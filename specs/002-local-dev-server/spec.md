@@ -5,6 +5,13 @@
 **Status**: Draft
 **Input**: User description: "Local development environment with file watching and hot reload for iterating on blog content and styling"
 
+## Clarifications
+
+### Session 2025-12-24
+
+- Q: What mechanism should be used for browser refresh/reload notifications? → A: WebSocket-based live reload
+- Q: What browser support is required for the local dev environment? → A: Modern evergreen browsers only (Chrome, Firefox, Safari, Edge latest)
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Preview Article Changes Instantly (Priority: P1)
@@ -84,7 +91,7 @@ As a developer, I want the local rendering to match production output so that I 
 - **FR-001**: System MUST watch the posts directory for file changes (create, modify, delete)
 - **FR-002**: System MUST automatically trigger article rendering when a markdown file changes
 - **FR-003**: System MUST serve rendered HTML files via a local web server
-- **FR-004**: System MUST notify the browser to refresh/reload when content changes
+- **FR-004**: System MUST notify the browser to refresh/reload when content changes via WebSocket-based live reload
 - **FR-005**: System MUST process articles using the same rendering pipeline as production
 - **FR-006**: System MUST serve static assets (images, CSS) from local directories
 - **FR-007**: System MUST display clear error messages when rendering fails without crashing
@@ -100,6 +107,7 @@ As a developer, I want the local rendering to match production output so that I 
 - File watching is limited to the posts directory and asset directories (not the entire repository)
 - The default local URL will be `localhost` on a standard development port (e.g., 3000)
 - Hot reload functionality refers to automatic browser refresh, not module hot replacement
+- Browser support is limited to modern evergreen browsers (Chrome, Firefox, Safari, Edge latest versions)
 
 ## Success Criteria *(mandatory)*
 
