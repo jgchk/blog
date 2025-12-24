@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/002-local-dev-server/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: No test tasks included - tests were not explicitly requested in the feature specification.
+**Tests**: TDD-compliant test tasks included per constitution principle III. Tests are written before/alongside implementation.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -57,6 +57,13 @@
 - [ ] T019 Create DevServerState class managing articles Map, articleIndex, and client connections in packages/dev-server/src/state.ts
 - [ ] T020 Implement live reload client script per websocket-api.md contract in packages/dev-server/src/client.ts
 
+### Unit Tests (Phase 2)
+
+- [ ] T020a [P] Write unit tests for DevServerConfig validation (port range, directory existence) in packages/dev-server/tests/unit/config.test.ts
+- [ ] T020b [P] Write unit tests for FileChangeEvent categorization (markdown, css, template, asset) in packages/dev-server/tests/unit/watcher.test.ts
+- [ ] T020c [P] Write unit tests for slug extraction from file paths in packages/dev-server/tests/unit/watcher.test.ts
+- [ ] T020d [P] Write unit tests for RenderError construction and message formatting in packages/dev-server/tests/unit/renderer.test.ts
+
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
@@ -88,6 +95,14 @@
 - [ ] T035 [US3] Implement signal handlers (SIGINT, SIGTERM) for graceful shutdown per cli-interface.md in packages/dev-server/src/cli.ts
 - [ ] T036 [US3] Implement shutdown sequence: close watcher, close WebSocket clients, close HTTP server per research.md in packages/dev-server/src/cli.ts
 
+### Tests for User Story 3
+
+- [ ] T036a [US3] Write integration test: server starts and responds to GET / with 200 in packages/dev-server/tests/integration/server.test.ts
+- [ ] T036b [US3] Write integration test: GET /articles/:slug returns 404 for nonexistent article in packages/dev-server/tests/integration/server.test.ts
+- [ ] T036c [US3] Write integration test: server injects client.js script into HTML responses in packages/dev-server/tests/integration/server.test.ts
+- [ ] T036d [US3] Write unit test: CLI argument parsing (--port, --no-open, --help) in packages/dev-server/tests/unit/cli.test.ts
+- [ ] T036e [US3] Write integration test: graceful shutdown closes all connections in packages/dev-server/tests/integration/shutdown.test.ts
+
 **Checkpoint**: Server starts with single command, serves static content, handles shutdown cleanly
 
 ---
@@ -113,6 +128,14 @@
 - [ ] T047 [US1] Implement RenderError handling: log to console, send error message to clients, skip broken article in packages/dev-server/src/renderer.ts
 - [ ] T048 [US1] Add console output for file change events per cli-interface.md format in packages/dev-server/src/watcher.ts
 
+### Tests for User Story 1
+
+- [ ] T048a [US1] Write unit test: debouncing batches rapid file changes in packages/dev-server/tests/unit/watcher.test.ts
+- [ ] T048b [US1] Write integration test: markdown file change triggers WebSocket 'reload' broadcast in packages/dev-server/tests/integration/live-reload.test.ts
+- [ ] T048c [US1] Write integration test: new article added updates index and broadcasts reload in packages/dev-server/tests/integration/live-reload.test.ts
+- [ ] T048d [US1] Write integration test: deleted article removed from index and broadcasts reload in packages/dev-server/tests/integration/live-reload.test.ts
+- [ ] T048e [US1] Write unit test: RenderError logged to console without crashing server in packages/dev-server/tests/unit/renderer.test.ts
+
 **Checkpoint**: Markdown file changes trigger automatic browser reload within 3 seconds
 
 ---
@@ -131,6 +154,11 @@
 - [ ] T052 [US2] Handle template file 'change' event: re-render all articles, broadcast reload in packages/dev-server/src/watcher.ts
 - [ ] T053 [US2] Add console output for CSS and template change events in packages/dev-server/src/watcher.ts
 
+### Tests for User Story 2
+
+- [ ] T053a [US2] Write integration test: CSS file change broadcasts 'css' message (not 'reload') in packages/dev-server/tests/integration/live-reload.test.ts
+- [ ] T053b [US2] Write integration test: template file change triggers full reload in packages/dev-server/tests/integration/live-reload.test.ts
+
 **Checkpoint**: CSS changes update browser styles without reload, template changes trigger full reload
 
 ---
@@ -148,6 +176,11 @@
 - [ ] T056 [US4] Implement asset path rewriting for local URLs (production uses CDN paths) in packages/dev-server/src/renderer.ts
 - [ ] T057 [US4] Add wikilink resolution using ArticleIndex (matching production behavior) in packages/dev-server/src/renderer.ts
 
+### Tests for User Story 4
+
+- [ ] T057a [US4] Write integration test: rendered article HTML structure matches @blog/core output in packages/dev-server/tests/integration/rendering.test.ts
+- [ ] T057b [US4] Write unit test: asset path rewriting produces correct local URLs in packages/dev-server/tests/unit/renderer.test.ts
+
 **Checkpoint**: Local and production rendering produce structurally identical output
 
 ---
@@ -164,6 +197,11 @@
 - [ ] T063 [P] Add Cache-Control: no-cache headers to all responses per http-api.md in packages/dev-server/src/server.ts
 - [ ] T064 [P] Add X-Dev-Server header to responses per http-api.md in packages/dev-server/src/server.ts
 - [ ] T065 Run quickstart.md validation scenarios to verify end-to-end functionality
+
+### E2E Tests (Critical Paths Only)
+
+- [ ] T066 [E2E] Write E2E test: start server → edit markdown file → verify browser receives reload within 3s in packages/dev-server/tests/e2e/content-reload.test.ts
+- [ ] T067 [E2E] Write E2E test: start server → edit CSS file → verify styles update without page reload in packages/dev-server/tests/e2e/css-reload.test.ts
 
 ---
 
@@ -193,6 +231,9 @@
 - Server routes before watcher integration
 - Watcher before WebSocket broadcast
 - Core implementation before edge case handling
+- Unit tests written before or alongside implementation
+- Integration tests verify completed functionality
+- E2E tests run after feature story is complete
 
 ### Parallel Opportunities
 
