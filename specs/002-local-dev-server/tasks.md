@@ -55,7 +55,7 @@
 - [ ] T017 [P] Implement renderArchive function for archive page in packages/dev-server/src/renderer.ts
 - [ ] T018 [P] Implement renderTagPage function for tag pages in packages/dev-server/src/renderer.ts
 - [ ] T019 Create DevServerState class managing articles Map, articleIndex, and client connections in packages/dev-server/src/state.ts
-- [ ] T020 Implement live reload client script per websocket-api.md contract in packages/dev-server/src/client.ts
+- [ ] T020 Implement live reload client script handling 'reload' (full page) and 'css' (stylesheet injection) messages per websocket-api.md contract in packages/dev-server/src/client.ts
 
 ### Unit Tests (Phase 2)
 
@@ -158,6 +158,7 @@
 
 - [ ] T053a [US2] Write integration test: CSS file change broadcasts 'css' message (not 'reload') in packages/dev-server/tests/integration/live-reload.test.ts
 - [ ] T053b [US2] Write integration test: template file change triggers full reload in packages/dev-server/tests/integration/live-reload.test.ts
+- [ ] T053c [US2] Write integration test: CSS file change triggers browser update within 2 seconds in packages/dev-server/tests/integration/live-reload.test.ts
 
 **Checkpoint**: CSS changes update browser styles without reload, template changes trigger full reload
 
@@ -296,13 +297,13 @@ Task: "Implement GET /articles/:slug/:asset route in packages/dev-server/src/ser
 
 Recommended sequence for one developer:
 
-1. Phase 1: Setup (~30 min)
-2. Phase 2: Foundational - types first, then renderer (~2 hours)
-3. Phase 3: US3 - CLI + server (~3 hours) ← **First testable milestone**
-4. Phase 4: US1 - watcher + websocket (~2 hours) ← **Core value delivered**
-5. Phase 5: US2 - CSS hot reload (~1 hour)
-6. Phase 6: US4 - rendering verification (~1 hour)
-7. Phase 7: Polish (~1 hour)
+1. Phase 1: Setup
+2. Phase 2: Foundational - types first, then renderer
+3. Phase 3: US3 - CLI + server ← **First testable milestone**
+4. Phase 4: US1 - watcher + websocket ← **Core value delivered**
+5. Phase 5: US2 - CSS hot reload
+6. Phase 6: US4 - rendering verification
+7. Phase 7: Polish
 
 ---
 
