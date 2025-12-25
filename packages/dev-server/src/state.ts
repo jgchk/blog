@@ -17,6 +17,7 @@ export class DevServerState implements DevServerStateData {
   articleIndex: ArticleIndex | null = null;
   indexHtml = '';
   archiveHtml = '';
+  allTagsHtml = '';
   tagPages: Map<string, string> = new Map();
   clients: Set<WebSocket> = new Set();
   watcher: FSWatcher | null = null;
@@ -139,6 +140,7 @@ export class DevServerState implements DevServerStateData {
     this.articleIndex = null;
     this.indexHtml = '';
     this.archiveHtml = '';
+    this.allTagsHtml = '';
     this.tagPages.clear();
     this.clients.clear();
     this.watcher = null;

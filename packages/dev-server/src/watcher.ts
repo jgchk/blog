@@ -103,6 +103,7 @@ async function handleMarkdownChange(
     // Clear cached pages
     state.indexHtml = '';
     state.archiveHtml = '';
+    state.allTagsHtml = '';
     state.tagPages.clear();
 
     console.log(`${formatTime()} Reloading browsers...`);
@@ -130,6 +131,7 @@ async function handleMarkdownChange(
   // Clear cached pages
   state.indexHtml = '';
   state.archiveHtml = '';
+  state.allTagsHtml = '';
   state.tagPages.clear();
 
   console.log(`${formatTime()} Reloading browsers...`);
@@ -180,6 +182,7 @@ async function handleTemplateChange(
   // Clear cached pages (they'll be re-rendered on demand)
   state.indexHtml = '';
   state.archiveHtml = '';
+  state.allTagsHtml = '';
   state.tagPages.clear();
 
   console.log(`${formatTime()} Reloading browsers...`);

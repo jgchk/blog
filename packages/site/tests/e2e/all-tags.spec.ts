@@ -67,8 +67,8 @@ test.describe('/tags Page', () => {
     // Go to homepage
     await page.goto('/');
 
-    // Navigation should include link to tags
-    const navTagsLink = page.locator('nav a[href*="/tags"]');
+    // Navigation should include link to tags (exact /tags/ path)
+    const navTagsLink = page.locator('nav a[href="/tags/"]');
     await expect(navTagsLink).toBeVisible();
 
     // Click should navigate to tags page
@@ -80,8 +80,8 @@ test.describe('/tags Page', () => {
     // Navigate to an article
     await page.goto('/articles/example-post/');
 
-    // Should be able to navigate to tags page via nav
-    const navTagsLink = page.locator('nav a[href*="/tags"]');
+    // Should be able to navigate to tags page via nav (exact /tags/ path)
+    const navTagsLink = page.locator('nav a[href="/tags/"]');
     await expect(navTagsLink).toBeVisible();
   });
 

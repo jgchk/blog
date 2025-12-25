@@ -24,8 +24,8 @@
 
 **Purpose**: Move template to correct location and prepare project structure
 
-- [ ] T001 Move template from `packages/site/src/templates/partials/tag-list.html` to `packages/site/src/templates/tags.html`
-- [ ] T002 Delete `packages/site/src/templates/partials/tag-list.html` after confirming template move
+- [X] T001 Move template from `packages/site/src/templates/partials/tag-list.html` to `packages/site/src/templates/tags.html`
+- [X] T002 Delete `packages/site/src/templates/partials/tag-list.html` after confirming template move
 
 ---
 
@@ -35,8 +35,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Add `allTagsHtml: string = ''` property to DevServerState class in `packages/dev-server/src/state.ts`
-- [ ] T004 Add `allTagsHtml = ''` reset in `reset()` method in `packages/dev-server/src/state.ts`
+- [X] T003 Add `allTagsHtml: string = ''` property to DevServerState class in `packages/dev-server/src/state.ts`
+- [X] T004 Add `allTagsHtml = ''` reset in `reset()` method in `packages/dev-server/src/state.ts`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -50,12 +50,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T005 [US1] Implement `renderAllTags()` function in `packages/dev-server/src/renderer.ts` following `renderArchive()` pattern (note: TagIndex already filters orphaned tags and handles URL encoding)
-- [ ] T005a [US1] Add total tag count display (e.g., "Showing 15 tags") to `packages/site/src/templates/tags.html` header section
-- [ ] T006 [US1] Add `/tags` route handler in `packages/dev-server/src/server.ts` following `/archive` pattern
-- [ ] T007 [US1] Add `allTagsHtml` cache invalidation in `packages/dev-server/src/watcher.ts` on article changes
-- [ ] T008 [US1] Update `tags.html` template with empty state message "No tags yet. Check back after articles are published." in `packages/site/src/templates/tags.html`
-- [ ] T008a [US1] Verify TagIndex filters tags with zero articles and properly URL-encodes special characters in tag names
+- [X] T005 [US1] Implement `renderAllTags()` function in `packages/dev-server/src/renderer.ts` following `renderArchive()` pattern (note: TagIndex already filters orphaned tags and handles URL encoding)
+- [X] T005a [US1] Add total tag count display (e.g., "Showing 15 tags") to `packages/site/src/templates/tags.html` header section
+- [X] T006 [US1] Add `/tags` route handler in `packages/dev-server/src/server.ts` following `/archive` pattern
+- [X] T007 [US1] Add `allTagsHtml` cache invalidation in `packages/dev-server/src/watcher.ts` on article changes
+- [X] T008 [US1] Update `tags.html` template with empty state message "No tags yet. Check back after articles are published." in `packages/site/src/templates/tags.html`
+- [X] T008a [US1] Verify TagIndex filters tags with zero articles and properly URL-encodes special characters in tag names
 
 **Checkpoint**: User Story 1 (Browse All Tags) fully functional and testable
 
@@ -69,8 +69,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T009 [US2] Verify navigation partial includes Tags link in `packages/site/src/templates/partials/navigation.html` (may already exist)
-- [ ] T010 [US2] Add `aria-current="page"` handling for Tags link when on `/tags/` page in `packages/site/src/templates/tags.html`
+- [X] T009 [US2] Verify navigation partial includes Tags link in `packages/site/src/templates/partials/navigation.html` (may already exist)
+- [X] T010 [US2] Add `aria-current="page"` handling for Tags link when on `/tags/` page in `packages/site/src/templates/tags.html`
 
 **Checkpoint**: User Stories 1 AND 2 both work independently
 
@@ -84,10 +84,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T011 [US3] Add `renderAllTagsPage()` function to `packages/renderer/src/services/render-service.ts` that:
+- [X] T011 [US3] Add `renderAllTagsPage()` function to `packages/renderer/src/services/render-service.ts` that:
   - Compiles `tags.html` template with TagIndex data
   - Returns rendered HTML string
-- [ ] T012 [US3] Integrate all-tags generation into main render pipeline in `packages/renderer/src/services/render-service.ts`:
+- [X] T012 [US3] Integrate all-tags generation into main render pipeline in `packages/renderer/src/services/render-service.ts`:
   - Call `renderAllTagsPage()` after tag pages are generated
   - Write output to `{outputDir}/tags/index.html`
   - Log generation status consistent with other pages
@@ -100,14 +100,14 @@
 
 **Purpose**: Final verification and E2E test validation
 
-- [ ] T013 Run E2E tests: `pnpm --filter @blog/site test:e2e tests/e2e/all-tags.spec.ts`
-- [ ] T014 Verify accessibility compliance per NFR-001 and SC-006:
+- [X] T013 Run E2E tests: `pnpm --filter @blog/site test:e2e tests/e2e/all-tags.spec.ts`
+- [X] T014 Verify accessibility compliance per NFR-001 and SC-006:
   - Run axe-core against `/tags/` page (zero violations at AA level)
   - Confirm single `<h1>` page title with proper heading hierarchy
   - Verify all tag links are keyboard-focusable with visible focus indicators
   - Test skip-link navigates to main content
   - Confirm `<main>` landmark present and properly labeled
-- [ ] T015 Verify live reload works when articles are added/modified/removed
+- [X] T015 Verify live reload works when articles are added/modified/removed
 
 ---
 

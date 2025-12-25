@@ -11,6 +11,7 @@ import {
   renderIndex,
   renderArchive,
   renderTagPage,
+  renderAllTags,
   getAllTags,
   scanAndRenderAll,
 } from './renderer.js';
@@ -206,6 +207,20 @@ export async function createServer(
       return sendHtml(reply, state.archiveHtml);
     } catch (err) {
       console.error('Error rendering archive:', err);
+      return sendHtml(reply.status(500), render500(String(err)));
+    }
+  });
+
+  // GET /tags - All tags page
+  fastify.get('/tags', async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      if (!state.allTagsHtml) {
+        const articles = state.getAllArticles();
+        state.allTagsHtml = await renderAllTags(config, articles);
+      }
+      return sendHtml(reply, state.allTagsHtml);
+    } catch (err) {
+      console.error('Error rendering all tags:', err);
       return sendHtml(reply.status(500), render500(String(err)));
     }
   });

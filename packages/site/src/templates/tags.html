@@ -22,7 +22,8 @@
 
   <main id="main-content" role="main">
     <h1>All Tags</h1>
-    <p>{{totalTags}} tags across all articles</p>
+    {{#if tags.length}}
+    <p>Showing {{totalTags}} tags</p>
 
     <nav aria-label="Tag cloud">
       <ul class="tag-cloud" role="list">
@@ -35,6 +36,9 @@
         {{/each}}
       </ul>
     </nav>
+    {{else}}
+    <p>No tags yet. Check back after articles are published.</p>
+    {{/if}}
   </main>
 
   <footer role="contentinfo">

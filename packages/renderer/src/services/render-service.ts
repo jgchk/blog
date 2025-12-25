@@ -1,6 +1,7 @@
 import {
   FrontMatterParser,
   MarkdownParser,
+  normalizeTagSlug,
   type Article,
   type StorageAdapter,
   type ValidationError,
@@ -254,6 +255,105 @@ export class RenderService {
     };
 
     return contentTypes[ext ?? ''] ?? 'application/octet-stream';
+  }
+
+  /**
+   * Render all tags page from articles
+   * Per FR-006: Tags sorted alphabetically by name
+   * @param articles - Array of articles to extract tags from
+   * @returns Rendered HTML string
+   */
+  renderAllTagsPage(articles: Article[]): string {
+    // Build tag data with counts
+    const tagMap = new Map<string, { name: string; slug: string; count: number }>();
+
+    for (const article of articles) {
+      for (const tag of article.tags) {
+        const slug = normalizeTagSlug(tag);
+        const existing = tagMap.get(slug);
+        if (existing) {
+          existing.count++;
+        } else {
+          tagMap.set(slug, { name: tag, slug, count: 1 });
+        }
+      }
+    }
+
+    // Sort alphabetically by name (case-insensitive)
+    const sortedTags = Array.from(tagMap.values()).sort((a, b) =>
+      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+    );
+
+    return this.wrapAllTagsInTemplate(sortedTags);
+  }
+
+  /**
+   * Publish rendered all-tags page to storage
+   * Outputs to tags/index.html
+   * @param articles - Array of articles to extract tags from
+   */
+  async publishAllTagsPage(articles: Article[]): Promise<void> {
+    const html = this.renderAllTagsPage(articles);
+
+    await this.storage.write(
+      'tags/index.html',
+      Buffer.from(html, 'utf-8'),
+      'text/html'
+    );
+  }
+
+  /**
+   * Wrap all tags HTML in a full page template
+   */
+  private wrapAllTagsInTemplate(tags: Array<{ name: string; slug: string; count: number }>): string {
+    const year = new Date().getFullYear();
+    const totalTags = tags.length;
+
+    const tagListHtml = tags.length > 0
+      ? `<p>Showing ${totalTags} tags</p>
+    <nav aria-label="Tag cloud">
+      <ul class="tag-cloud" role="list">
+        ${tags.map(tag => `<li>
+          <a href="/tags/${tag.slug}.html" aria-label="${this.escapeHtml(tag.name)} (${tag.count} articles)">
+            ${this.escapeHtml(tag.name)} <span class="tag-count">(${tag.count})</span>
+          </a>
+        </li>`).join('\n        ')}
+      </ul>
+    </nav>`
+      : '<p>No tags yet. Check back after articles are published.</p>';
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="All tags on the blog">
+  <title>All Tags</title>
+  <link rel="stylesheet" href="/assets/styles/main.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header role="banner">
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/archive.html">Archive</a></li>
+        <li><a href="/tags/" aria-current="page">Tags</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main-content" role="main">
+    <h1>All Tags</h1>
+    ${tagListHtml}
+  </main>
+
+  <footer role="contentinfo">
+    <p>&copy; ${year} Blog. All rights reserved.</p>
+  </footer>
+</body>
+</html>`;
   }
 
   /**

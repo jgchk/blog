@@ -326,6 +326,48 @@ export function getAllTags(articles: RenderedArticle[]): string[] {
 }
 
 /**
+ * Render the all tags page.
+ * Per FR-006: Tags sorted alphabetically by name.
+ */
+export async function renderAllTags(
+  config: DevServerConfig,
+  articles: RenderedArticle[]
+): Promise<string> {
+  const paths = resolveConfigPaths(config);
+  registerHelpers();
+
+  // Build tag data with counts
+  const tagMap = new Map<string, { name: string; slug: string; count: number }>();
+
+  for (const article of articles) {
+    if (article.error) continue;
+
+    for (const tag of article.metadata.tags) {
+      const slug = normalizeTagSlug(tag);
+      const existing = tagMap.get(slug);
+      if (existing) {
+        existing.count++;
+      } else {
+        tagMap.set(slug, { name: tag, slug, count: 1 });
+      }
+    }
+  }
+
+  // Sort alphabetically by name (case-insensitive)
+  const sortedTags = Array.from(tagMap.values()).sort((a, b) =>
+    a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+  );
+
+  const template = loadTemplate(paths.templatesDir, 'tags');
+
+  return template({
+    totalTags: sortedTags.length,
+    tags: sortedTags,
+    year: new Date().getFullYear(),
+  });
+}
+
+/**
  * Scan posts directory and render all articles.
  */
 export async function scanAndRenderAll(
