@@ -2,8 +2,10 @@ import {
   FrontMatterParser,
   MarkdownParser,
   normalizeTagSlug,
+  TagIndex,
   type Article,
   type StorageAdapter,
+  type Tag,
   type ValidationError,
 } from '@blog/core';
 import { RetryHandler, type RetryOptions, type RetryResult } from './retry-handler.js';
@@ -300,6 +302,131 @@ export class RenderService {
       Buffer.from(html, 'utf-8'),
       'text/html'
     );
+  }
+
+  /**
+   * Render a single tag page with its articles
+   * Per FR-007: Tag page displays tag name, article count, and article list sorted by date descending
+   * @param tag - Tag entity with slug and name
+   * @param articles - Articles with this tag
+   * @returns Rendered HTML string
+   */
+  renderTagPage(tag: Tag, articles: Article[]): string {
+    // Sort articles by date (newest first)
+    const sortedArticles = [...articles].sort(
+      (a, b) => b.date.getTime() - a.date.getTime()
+    );
+
+    return this.wrapTagPageInTemplate(tag, sortedArticles);
+  }
+
+  /**
+   * Publish a single tag page to storage
+   * Outputs to tags/{slug}.html
+   * Per FR-005: Tag slug is normalized to lowercase
+   * @param tag - Tag entity
+   * @param articles - Articles with this tag
+   */
+  async publishTagPage(tag: Tag, articles: Article[]): Promise<void> {
+    // Skip tags with no articles (orphaned tags)
+    if (articles.length === 0) {
+      console.warn(`Skipping tag "${tag.name}" - no articles found`);
+      return;
+    }
+
+    const html = this.renderTagPage(tag, articles);
+    // Ensure slug is lowercase for S3 key consistency
+    const slug = tag.slug.toLowerCase();
+
+    await this.storage.write(
+      `tags/${slug}.html`,
+      Buffer.from(html, 'utf-8'),
+      'text/html'
+    );
+  }
+
+  /**
+   * Publish all individual tag pages to storage
+   * Iterates through all tags in the TagIndex and generates a page for each
+   * @param tagIndex - Complete tag index
+   * @param articles - All articles in the system
+   */
+  async publishAllTagPages(tagIndex: TagIndex, articles: Article[]): Promise<void> {
+    const allTags = tagIndex.getAllTags();
+
+    for (const tag of allTags) {
+      // Get articles for this specific tag
+      const tagArticles = articles.filter((article) =>
+        article.tags.some((t) => normalizeTagSlug(t) === tag.slug)
+      );
+
+      await this.publishTagPage(tag, tagArticles);
+    }
+  }
+
+  /**
+   * Wrap tag page HTML in a full page template
+   * Per FR-007: TagPageContext structure
+   * Per FR-008: Article links use /articles/{slug}/ pattern, tag links use /tags/{slug}.html pattern
+   */
+  private wrapTagPageInTemplate(tag: Tag, articles: Article[]): string {
+    const year = new Date().getFullYear();
+    const articleCount = articles.length;
+    const isPlural = articleCount !== 1;
+
+    const articleListHtml =
+      articles.length > 0
+        ? `<section aria-label="Tagged articles">
+      ${articles
+        .map(
+          (article) => `<article>
+        <h2><a href="/articles/${article.slug}/">${this.escapeHtml(article.title)}</a></h2>
+        <time datetime="${article.date.toISOString().split('T')[0]}">${this.formatDate(article.date)}</time>
+        <p>${this.escapeHtml(article.excerpt)}</p>
+      </article>`
+        )
+        .join('\n      ')}
+    </section>`
+        : '<p>No articles found with this tag.</p>';
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Articles tagged with ${this.escapeHtml(tag.name)}">
+  <title>Tag: ${this.escapeHtml(tag.name)}</title>
+  <link rel="stylesheet" href="/assets/styles/main.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header role="banner">
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/archive.html">Archive</a></li>
+        <li><a href="/tags/">Tags</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main-content" role="main">
+    <h1>Tag: ${this.escapeHtml(tag.name)}</h1>
+    <p>${articleCount} ${isPlural ? 'articles' : 'article'} tagged with "${this.escapeHtml(tag.name)}"</p>
+
+    ${articleListHtml}
+
+    <nav aria-label="Tag navigation">
+      <a href="/tags/">View all tags</a>
+    </nav>
+  </main>
+
+  <footer role="contentinfo">
+    <p>&copy; ${year} Blog. All rights reserved.</p>
+  </footer>
+</body>
+</html>`;
   }
 
   /**
