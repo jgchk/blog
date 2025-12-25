@@ -200,4 +200,61 @@ This is a test.`
     expect(errorThrown).toBe(true);
     expect(errorMessage).toContain('EADDRINUSE');
   });
+
+  describe('Tag Page Routes (FR-005, FR-006)', () => {
+    it('should strip .html extension and serve tag page', async () => {
+      const response = await server.inject({
+        method: 'GET',
+        url: '/tags/test.html',
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('text/html');
+      expect(response.body).toContain('Tag');
+    });
+
+    it('should match tags case-insensitively (FR-005)', async () => {
+      // Test uppercase
+      const responseUpper = await server.inject({
+        method: 'GET',
+        url: '/tags/TEST.html',
+      });
+      expect(responseUpper.statusCode).toBe(200);
+
+      // Test mixed case
+      const responseMixed = await server.inject({
+        method: 'GET',
+        url: '/tags/Test.html',
+      });
+      expect(responseMixed.statusCode).toBe(200);
+
+      // Test lowercase
+      const responseLower = await server.inject({
+        method: 'GET',
+        url: '/tags/test.html',
+      });
+      expect(responseLower.statusCode).toBe(200);
+    });
+
+    it('should return 404 for unknown tags (FR-006)', async () => {
+      const response = await server.inject({
+        method: 'GET',
+        url: '/tags/nonexistent.html',
+      });
+
+      expect(response.statusCode).toBe(404);
+      expect(response.body).toContain('404');
+      expect(response.body).toContain('nonexistent');
+    });
+
+    it('should handle tag without .html extension', async () => {
+      const response = await server.inject({
+        method: 'GET',
+        url: '/tags/test',
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toContain('Tag');
+    });
+  });
 });
