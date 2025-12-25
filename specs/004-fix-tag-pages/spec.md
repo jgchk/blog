@@ -63,7 +63,8 @@ A reader viewing a tag page wants to see useful information about the tag and ea
 - What happens when a tag has no articles (orphaned tag)?
   - Tag should not appear in the all-tags page; direct navigation returns 404
 - How does case sensitivity work for tag URLs?
-  - Tag matching should be case-insensitive (e.g., `/tags/TypeScript.html` and `/tags/typescript.html` resolve to the same content)
+  - Tag URL matching is case-insensitive (e.g., `/tags/TypeScript.html` and `/tags/typescript.html` resolve to the same content)
+  - The rendered page displays the canonical tag name from TagIndex (preserving original author casing, e.g., "TypeScript" not "typescript")
 
 ## Requirements *(mandatory)*
 

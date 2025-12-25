@@ -60,7 +60,7 @@
 - [ ] T012 [US1] Manual test: Start dev server and verify `/tags/typescript.html` returns 200 with tag content
 - [ ] T013 [US1] Manual test: Verify `/tags/nonexistent.html` returns 404
 - [ ] T014 [US1] Manual test: Verify `/tags/TypeScript.html` (mixed case) returns same content as lowercase
-- [ ] T015 [US1] Manual test: Verify `/tags/c-plus-plus.html` resolves correctly for special character tags
+- [ ] T015 [US1] Manual test: Verify URL-encoded special character tags resolve correctly (e.g., `/tags/c-plus-plus.html` for "C++" tag, `/tags/node-js.html` for "Node.js" tag) and display the original tag name
 - [ ] T016 [US1] Manual test: Verify tag with zero published articles returns 404 (orphaned tag edge case)
 
 **Checkpoint**: User Story 1 complete - dev server tag pages work correctly
@@ -103,6 +103,8 @@
 - [ ] T026 [US3] Verify articles are sorted by date (newest first) in both dev server and production renders
 - [ ] T027 [US3] Verify article links in tag pages navigate correctly to `/articles/{slug}/`
 - [ ] T028 [US3] Manual test: Check tag page displays tag name, article count, and article list
+- [ ] T028a [US3] Verify rendered tag page link hrefs match pattern `/tags/{slug}.html` in both dev server and production output (FR-008 explicit coverage)
+- [ ] T028b [US3] Verify rendered article page tag links use correct href pattern `/tags/{slug}.html` (FR-008 explicit coverage)
 - [ ] T029 [US3] Verify tag links on all-tags page navigate to correct tag pages (FR-008) - covered by `all-tags.spec.ts` E2E in T031
 - [ ] T030 [US3] Verify tag links on article pages navigate to correct tag pages (FR-008) - covered by `tag-navigation.spec.ts` E2E in T031
 
