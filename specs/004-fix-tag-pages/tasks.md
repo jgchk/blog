@@ -52,9 +52,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Identify the tag route handler in `packages/dev-server/src/server.ts` (approximately line 229)
-- [ ] T008 [US1] Add `.html` extension stripping logic: `const tagSlug = tag.replace(/\.html$/, '');` in `packages/dev-server/src/server.ts`
-- [ ] T009 [US1] Update tag matching to use `tagSlug` instead of `tag` in the `find()` call in `packages/dev-server/src/server.ts`
+- [X] T007 [US1] Identify the tag route handler in `packages/dev-server/src/server.ts` (approximately line 229)
+- [X] T008 [US1] Add `.html` extension stripping logic: `const tagSlug = tag.replace(/\.html$/, '');` in `packages/dev-server/src/server.ts`
+- [X] T009 [US1] Update tag matching to use `tagSlug` instead of `tag` in the `find()` call in `packages/dev-server/src/server.ts`
 - [ ] T010 [US1] Add unit tests in `packages/dev-server/tests/unit/server.test.ts` covering: (a) `.html` extension stripping, (b) case-insensitive slug matching (FR-005), (c) 404 response for unknown tags (FR-006)
 - [ ] T011 [US1] Verify case-insensitive matching: ensure `tagSlug.toLowerCase()` is used before `TagIndex.getTagBySlug()` lookup in `packages/dev-server/src/server.ts` (TagIndex stores slugs in lowercase; caller must normalize)
 - [ ] T012 [US1] Manual test: Start dev server and verify `/tags/typescript.html` returns 200 with tag content
