@@ -82,7 +82,7 @@
 - [ ] T020a [US2] Handle error cases in render methods: missing template returns clear error, empty tag (no articles) skips rendering with warning log
 - [ ] T021 [US2] Add call to `publishAllTagPages()` in the render workflow after `publishAllTagsPage()` in `packages/renderer/src/services/render-service.ts` or handler
 - [ ] T022 [US2] Export new methods from render-service module if needed
-- [ ] T022a [US2] Add unit tests in `packages/renderer/tests/unit/services/render-service.test.ts` covering: (a) renderTagPage returns valid HTML with correct TagPageContext fields, (b) renderTagPage sorts articles by date descending, (c) publishTagPage writes to S3 key `tags/{slug}.html`, (d) publishAllTagPages calls publishTagPage for each tag from TagIndex, (e) renderTagPage throws clear error when template missing, (f) publishAllTagPages skips tags with zero articles and logs warning
+- [ ] T022a [US2] Add unit tests in `packages/renderer/tests/unit/services/render-service.test.ts` covering: (a) renderTagPage returns valid HTML with correct TagPageContext fields, (b) renderTagPage sorts articles by date descending, (c) publishTagPage writes to S3 key `tags/{slug}.html`, (d) publishAllTagPages calls publishTagPage for each tag from TagIndex, (e) renderTagPage throws clear error when template missing, (f) publishAllTagPages skips tags with zero articles and logs warning, (g) rendered HTML contains article links matching `/articles/{slug}/` pattern (FR-008), (h) rendered HTML contains tag links matching `/tags/{slug}.html` pattern (FR-008), (i) publishTagPage normalizes tag slug to lowercase for S3 key (FR-005)
 - [ ] T023 [US2] Run renderer tests: `pnpm --filter @blog/renderer test`
 - [ ] T024 [US2] Manual test: Run build and verify tag HTML files are generated in output
 
@@ -106,8 +106,6 @@
 - [ ] T028 [US3] Manual test: Check tag page displays tag name, article count, and article list
 - [ ] T028a [US3] Verify rendered tag page link hrefs match pattern `/tags/{slug}.html` in both dev server and production output (FR-008 explicit coverage)
 - [ ] T028b [US3] Verify rendered article page tag links use correct href pattern `/tags/{slug}.html` (FR-008 explicit coverage)
-- [ ] T029 [US3] Verify tag links on all-tags page navigate to correct tag pages (FR-008) - covered by `all-tags.spec.ts` E2E in T031
-- [ ] T030 [US3] Verify tag links on article pages navigate to correct tag pages (FR-008) - covered by `tag-navigation.spec.ts` E2E in T031
 
 **Checkpoint**: User Story 3 complete - tag page content displays correctly
 
@@ -117,7 +115,7 @@
 
 **Purpose**: Final validation and cleanup
 
-- [ ] T031 Run existing E2E tests: `pnpm --filter @blog/site test:e2e` (includes tag-navigation.spec.ts and all-tags.spec.ts)
+- [ ] T029 Run existing E2E tests validating FR-008 link resolution: `pnpm --filter @blog/site test:e2e` (includes `all-tags.spec.ts` for tag page links and `tag-navigation.spec.ts` for article page tag links)
 - [ ] T032 Run full test suite: `pnpm test`
 - [ ] T033 Run verification checklist from `specs/004-fix-tag-pages/quickstart.md`
 - [ ] T034 Code review: Ensure no new dependencies were added per plan constraints
