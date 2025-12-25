@@ -6,6 +6,7 @@ import type { FastifyInstance } from 'fastify';
 import { createServer, startServer } from '../../src/server.js';
 import { DevServerState } from '../../src/state.js';
 import { createDefaultConfig } from '../../src/config.js';
+import { scanAndRenderAll } from '../../src/renderer.js';
 import type { DevServerConfig } from '../../src/types.js';
 
 describe('Server Integration', () => {
@@ -254,6 +255,41 @@ This is a test.`
       });
 
       expect(response.statusCode).toBe(200);
+      expect(response.body).toContain('Tag');
+    });
+
+    it('should match multi-word tags with spaces via hyphenated slug URL', async () => {
+      // Create an article with a multi-word tag containing spaces
+      writeFileSync(
+        join(testDir, 'posts', 'test-article', 'index.md'),
+        `---
+title: Test Article
+date: 2025-01-15
+tags:
+  - Getting Started
+---
+
+# Test Article
+
+This is a test.`
+      );
+
+      // Re-scan articles to pick up the new tag
+      const { articles } = await scanAndRenderAll(config);
+      state.articles.clear();
+      state.tagPages.clear();
+      for (const [slug, article] of articles) {
+        state.addArticle(article);
+      }
+
+      // Access via hyphenated slug URL (spaces become dashes)
+      const response = await server.inject({
+        method: 'GET',
+        url: '/tags/getting-started.html',
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('text/html');
       expect(response.body).toContain('Tag');
     });
   });

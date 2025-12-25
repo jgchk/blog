@@ -5,6 +5,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { resolve, extname } from 'node:path';
 import type { DevServerConfig, RenderedArticle, ServerMessage } from './types.js';
 import { resolveConfigPaths } from './config.js';
+import { normalizeTagSlug } from '@blog/core';
 import { DevServerState } from './state.js';
 import { getClientScript, injectClientScript } from './client.js';
 import {
@@ -235,9 +236,9 @@ export async function createServer(
       const articles = state.getAllArticles();
       const allTags = getAllTags(articles);
 
-      // Check if tag exists (case-insensitive)
+      // Check if tag exists by comparing normalized slugs
       const matchedTag = allTags.find(
-        (t) => t.toLowerCase() === tagSlug.toLowerCase()
+        (t) => normalizeTagSlug(t) === tagSlug.toLowerCase()
       );
 
       if (!matchedTag) {
