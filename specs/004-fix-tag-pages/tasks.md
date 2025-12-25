@@ -116,9 +116,9 @@
 **Purpose**: Final validation and cleanup
 
 - [ ] T029 Run existing E2E tests validating FR-008 link resolution: `pnpm --filter @blog/site test:e2e` (includes `all-tags.spec.ts` for tag page links and `tag-navigation.spec.ts` for article page tag links)
-- [ ] T032 Run full test suite: `pnpm test`
-- [ ] T033 Run verification checklist from `specs/004-fix-tag-pages/quickstart.md`
-- [ ] T034 Code review: Ensure no new dependencies were added per plan constraints
+- [ ] T030 Run full test suite: `pnpm test`
+- [ ] T031 Run verification checklist from `specs/004-fix-tag-pages/quickstart.md`
+- [ ] T032 Code review: Ensure no new dependencies were added per plan constraints
 
 ---
 
