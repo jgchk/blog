@@ -198,8 +198,8 @@ export async function createServer(
     }
   );
 
-  // GET /archive - Archive page
-  fastify.get('/archive', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /archive and /archive.html - Archive page
+  const archiveHandler = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       if (!state.archiveHtml) {
         const articles = state.getAllArticles();
@@ -210,7 +210,9 @@ export async function createServer(
       console.error('Error rendering archive:', err);
       return sendHtml(reply.status(500), render500(String(err)));
     }
-  });
+  };
+  fastify.get('/archive', archiveHandler);
+  fastify.get('/archive.html', archiveHandler);
 
   // GET /tags - All tags page
   fastify.get('/tags', async (request: FastifyRequest, reply: FastifyReply) => {

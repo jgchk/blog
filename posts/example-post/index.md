@@ -10,8 +10,6 @@ aliases:
 draft: false
 ---
 
-# Welcome to My Blog
-
 This is my first blog post using the lightweight markdown blog system.
 
 ## Features

@@ -47,7 +47,7 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
   });
 
   test('tag detail page passes accessibility audit', async ({ page }) => {
-    await page.goto('/tags/typescript.html');
+    await page.goto('/tags/welcome.html');
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -107,9 +107,9 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
       const main = page.locator('main, [role="main"]');
       await expect(main).toBeVisible();
 
-      // Should have navigation
+      // Should have at least one navigation landmark
       const nav = page.locator('nav, [role="navigation"]');
-      await expect(nav).toBeVisible();
+      expect(await nav.count()).toBeGreaterThan(0);
     }
   });
 

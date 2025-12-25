@@ -42,8 +42,8 @@ test.describe('Tag Navigation', () => {
   });
 
   test('tag page lists articles with that tag', async ({ page }) => {
-    // Navigate directly to a tag page
-    await page.goto('/tags/typescript.html');
+    // Navigate directly to a tag page (using existing tag from example post)
+    await page.goto('/tags/welcome.html');
 
     // Should have heading with tag name
     const heading = page.locator('h1');
