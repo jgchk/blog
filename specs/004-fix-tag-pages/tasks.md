@@ -24,9 +24,9 @@
 
 **Purpose**: Project initialization and verification
 
-- [ ] T001 Verify feature branch `004-fix-tag-pages` is checked out and up-to-date
-- [ ] T002 Run `pnpm install` to ensure dependencies are current
-- [ ] T003 Verify existing tests pass with `pnpm --filter @blog/core test`
+- [X] T001 Verify feature branch `004-fix-tag-pages` is checked out and up-to-date
+- [X] T002 Run `pnpm install` to ensure dependencies are current
+- [X] T003 Verify existing tests pass with `pnpm --filter @blog/core test`
 
 ---
 
