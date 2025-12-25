@@ -5,6 +5,16 @@
 **Status**: Draft
 **Input**: User description: "Implement All Tags page (tag index) for dev-server and production renderer - missing feature per FR-010"
 
+## Clarifications
+
+### Session 2025-12-25
+
+- Q: How should tags be visually displayed on the all tags page? → A: Simple list with count badges (e.g., "TypeScript (12)")
+- Q: How should tag case be handled for matching and URLs? → A: Case-insensitive (normalize to lowercase for URLs and grouping)
+- Q: What level of accessibility support is required for the tags page? → A: Full WCAG 2.1 AA compliance required
+- Q: What functionality should be explicitly out of scope for this feature? → A: Tag search/filter, tag management UI, related tags suggestions
+- Q: When no articles have tags, what should the all tags page display? → A: Display message: "No tags yet. Check back after articles are published."
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Browse All Tags (Priority: P1)
@@ -55,9 +65,20 @@ As a blog publisher, I want the all tags page to be generated during production 
 
 ### Edge Cases
 
-- What happens when no articles have any tags? The page should display gracefully with a message like "No tags found" or show an empty list
+- What happens when no articles have any tags? The page displays the message: "No tags yet. Check back after articles are published."
 - What happens when a tag has zero articles (orphaned tag)? Only tags with at least one article should be displayed
 - How does the page handle special characters in tag names? Tags should be URL-encoded properly for links
+- How is tag case handled? Tags are case-insensitive; normalized to lowercase for URLs and grouping (e.g., "TypeScript" and "typescript" are treated as the same tag, linking to `/tags/typescript.html`)
+
+## Out of Scope
+
+The following functionality is explicitly excluded from this feature:
+
+- **Tag search/filter**: No client-side or server-side filtering/search of tags on the all tags page
+- **Tag management UI**: No ability to create, edit, rename, merge, or delete tags from this page
+- **Related tags suggestions**: No "related tags" or "similar tags" recommendations
+
+These may be considered for future enhancements but are not part of this implementation.
 
 ## Requirements *(mandatory)*
 
@@ -69,9 +90,14 @@ As a blog publisher, I want the all tags page to be generated during production 
 - **FR-004**: The all tags page MUST display the count of articles for each tag
 - **FR-005**: The all tags page MUST display the total number of unique tags on the blog
 - **FR-006**: Tags MUST be sorted alphabetically for consistent display
+- **FR-006a**: Tags MUST be displayed as a simple list with count badges (e.g., "TypeScript (12)")
 - **FR-007**: The all tags page MUST use the existing site template system for consistent styling
 - **FR-008**: The dev-server MUST update the all tags page when articles are added, modified, or removed (live reload)
 - **FR-009**: Site navigation MUST include a link to the all tags page
+
+### Non-Functional Requirements
+
+- **NFR-001**: The all tags page MUST comply with WCAG 2.1 AA accessibility standards, including semantic HTML structure, keyboard navigability, sufficient color contrast, and screen reader compatibility
 
 ### Key Entities
 
@@ -87,6 +113,7 @@ As a blog publisher, I want the all tags page to be generated during production 
 - **SC-003**: All tag links correctly navigate to the corresponding tag page
 - **SC-004**: The page displays correctly in the dev-server and matches the production-generated version
 - **SC-005**: E2E tests in `packages/site/tests/e2e/all-tags.spec.ts` pass successfully
+- **SC-006**: The page passes automated WCAG 2.1 AA accessibility checks (e.g., axe-core)
 
 ## Assumptions
 
