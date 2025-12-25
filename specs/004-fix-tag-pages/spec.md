@@ -59,7 +59,7 @@ A reader viewing a tag page wants to see useful information about the tag and ea
 - What happens when a tag slug contains special characters (e.g., "C++")?
   - System should handle URL-encoded slugs correctly by decoding them before matching
 - How does the system handle requests for non-existent tags?
-  - System should return a 404 page for tags that don't exist
+  - System should return the generic site 404 page (no custom "tag not found" message)
 - What happens when a tag has no articles (orphaned tag)?
   - Tag should not appear in the all-tags page; direct navigation returns 404
 - How does case sensitivity work for tag URLs?
@@ -93,6 +93,21 @@ A reader viewing a tag page wants to see useful information about the tag and ea
 - **SC-003**: All existing E2E tests for tag navigation pass in both dev server and production build contexts
 - **SC-004**: Production build generates one HTML file per unique tag in the `tags/` output directory
 - **SC-005**: Tag pages load and display content correctly on first request (no JavaScript-dependent rendering required)
+
+## Out of Scope
+
+- Pagination for tag pages with many articles
+- Tag filtering or search functionality on the all-tags page
+- Sorting options for articles within tag pages
+- Tag management or editing capabilities
+- Any UI/UX enhancements beyond fixing broken functionality
+
+## Clarifications
+
+### Session 2025-12-25
+
+- Q: Are there any related tag enhancements explicitly OUT of scope for this fix? → A: Fix only - no enhancements (pagination, filtering, sorting excluded)
+- Q: What should the 404 page display for non-existent tags? → A: Generic site 404 page (consistent with other missing pages)
 
 ## Assumptions
 
