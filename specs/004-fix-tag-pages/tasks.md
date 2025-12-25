@@ -36,9 +36,9 @@
 
 **Note**: This is a bug fix with no new foundational work required. All infrastructure (TagIndex, templates, models) already exists and is functional.
 
-- [ ] T004 Verify `packages/core/src/services/tag-index.ts` TagIndex exports `getAllTags()` and tag lookup method (check actual method name: `getTagBySlug()` or `getTag()`)
-- [ ] T005 [P] Verify `packages/site/src/templates/tag.html` template exists and is correctly structured
-- [ ] T006 [P] Verify dev server starts successfully with `pnpm --filter @blog/dev-server dev` and confirm `/tags/` page works
+- [X] T004 Verify `packages/core/src/services/tag-index.ts` TagIndex exports `getAllTags()` and tag lookup method (check actual method name: `getTagBySlug()` or `getTag()`)
+- [X] T005 [P] Verify `packages/site/src/templates/tag.html` template exists and is correctly structured
+- [X] T006 [P] Verify dev server starts successfully with `pnpm --filter @blog/dev-server dev` and confirm `/tags/` page works
 
 **Checkpoint**: Foundation verified - user story implementation can now begin
 
