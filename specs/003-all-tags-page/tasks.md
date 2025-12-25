@@ -50,11 +50,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T005 [US1] Implement `renderAllTags()` function in `packages/dev-server/src/renderer.ts` following `renderArchive()` pattern
+- [ ] T005 [US1] Implement `renderAllTags()` function in `packages/dev-server/src/renderer.ts` following `renderArchive()` pattern (note: TagIndex already filters orphaned tags and handles URL encoding)
 - [ ] T005a [US1] Add total tag count display (e.g., "Showing 15 tags") to `packages/site/src/templates/tags.html` header section
 - [ ] T006 [US1] Add `/tags` route handler in `packages/dev-server/src/server.ts` following `/archive` pattern
 - [ ] T007 [US1] Add `allTagsHtml` cache invalidation in `packages/dev-server/src/watcher.ts` on article changes
 - [ ] T008 [US1] Update `tags.html` template with empty state message "No tags yet. Check back after articles are published." in `packages/site/src/templates/tags.html`
+- [ ] T008a [US1] Verify TagIndex filters tags with zero articles and properly URL-encodes special characters in tag names
 
 **Checkpoint**: User Story 1 (Browse All Tags) fully functional and testable
 
@@ -138,7 +139,7 @@
 - T003 and T004 are sequential (same file)
 - T005, T006, T007 affect different files but have logical dependency (renderer needed for route)
 - T009 and T010 can run in parallel with US1 tasks (different files)
-- T011, T012, T013 are sequential (same service file)
+- T011, T012 are sequential (same service file)
 
 ---
 
