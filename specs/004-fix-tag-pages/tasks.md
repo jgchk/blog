@@ -55,10 +55,13 @@
 - [ ] T007 [US1] Identify the tag route handler in `packages/dev-server/src/server.ts` (approximately line 229)
 - [ ] T008 [US1] Add `.html` extension stripping logic: `const tagSlug = tag.replace(/\.html$/, '');` in `packages/dev-server/src/server.ts`
 - [ ] T009 [US1] Update tag matching to use `tagSlug` instead of `tag` in the `find()` call in `packages/dev-server/src/server.ts`
-- [ ] T010 [US1] Verify case-insensitive matching is preserved (lowercase comparison) in `packages/dev-server/src/server.ts`
-- [ ] T011 [US1] Manual test: Start dev server and verify `/tags/typescript.html` returns 200 with tag content
-- [ ] T012 [US1] Manual test: Verify `/tags/nonexistent.html` returns 404
-- [ ] T013 [US1] Manual test: Verify `/tags/TypeScript.html` (mixed case) returns same content as lowercase
+- [ ] T010 [US1] Add unit test in `packages/dev-server/tests/unit/server.test.ts` verifying `.html` stripping and case-insensitive slug matching
+- [ ] T011 [US1] Verify case-insensitive matching is preserved (lowercase comparison) in `packages/dev-server/src/server.ts`
+- [ ] T012 [US1] Manual test: Start dev server and verify `/tags/typescript.html` returns 200 with tag content
+- [ ] T013 [US1] Manual test: Verify `/tags/nonexistent.html` returns 404
+- [ ] T014 [US1] Manual test: Verify `/tags/TypeScript.html` (mixed case) returns same content as lowercase
+- [ ] T015 [US1] Manual test: Verify `/tags/c-plus-plus.html` resolves correctly for special character tags
+- [ ] T016 [US1] Manual test: Verify tag with zero published articles returns 404 (orphaned tag edge case)
 
 **Checkpoint**: User Story 1 complete - dev server tag pages work correctly
 
@@ -72,14 +75,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T014 [US2] Review existing `renderAllTagsPage()` method pattern in `packages/renderer/src/services/render-service.ts`
-- [ ] T015 [US2] Implement `renderTagPage(tag: Tag, articles: Article[]): Promise<string>` method in `packages/renderer/src/services/render-service.ts`
-- [ ] T016 [US2] Implement `publishTagPage(tag: Tag, articles: Article[]): Promise<void>` method in `packages/renderer/src/services/render-service.ts`
-- [ ] T017 [US2] Implement `publishAllTagPages(tagIndex: TagIndex, articles: Article[]): Promise<void>` method in `packages/renderer/src/services/render-service.ts`
-- [ ] T018 [US2] Add call to `publishAllTagPages()` in the render workflow after `publishAllTagsPage()` in `packages/renderer/src/services/render-service.ts` or handler
-- [ ] T019 [US2] Export new methods from render-service module if needed
-- [ ] T020 [US2] Run renderer tests: `pnpm --filter @blog/renderer test`
-- [ ] T021 [US2] Manual test: Run build and verify tag HTML files are generated in output
+- [ ] T017 [US2] Review existing `renderAllTagsPage()` method pattern in `packages/renderer/src/services/render-service.ts`
+- [ ] T018 [US2] Implement `renderTagPage(tag: Tag, articles: Article[]): Promise<string>` method in `packages/renderer/src/services/render-service.ts`
+- [ ] T019 [US2] Implement `publishTagPage(tag: Tag, articles: Article[]): Promise<void>` method in `packages/renderer/src/services/render-service.ts`
+- [ ] T020 [US2] Implement `publishAllTagPages(tagIndex: TagIndex, articles: Article[]): Promise<void>` method in `packages/renderer/src/services/render-service.ts`
+- [ ] T021 [US2] Add call to `publishAllTagPages()` in the render workflow after `publishAllTagsPage()` in `packages/renderer/src/services/render-service.ts` or handler
+- [ ] T022 [US2] Export new methods from render-service module if needed
+- [ ] T023 [US2] Run renderer tests: `pnpm --filter @blog/renderer test`
+- [ ] T024 [US2] Manual test: Run build and verify tag HTML files are generated in output
 
 **Checkpoint**: User Story 2 complete - production builds generate tag pages
 
@@ -95,10 +98,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T022 [US3] Verify `TagPageContext` interface matches template expectations per `specs/004-fix-tag-pages/data-model.md`
-- [ ] T023 [US3] Verify articles are sorted by date (newest first) in both dev server and production renders
-- [ ] T024 [US3] Verify article links in tag pages navigate correctly to `/articles/{slug}/`
-- [ ] T025 [US3] Manual test: Check tag page displays tag name, article count, and article list
+- [ ] T025 [US3] Verify `TagPageContext` interface matches template expectations per `specs/004-fix-tag-pages/data-model.md`
+- [ ] T026 [US3] Verify articles are sorted by date (newest first) in both dev server and production renders
+- [ ] T027 [US3] Verify article links in tag pages navigate correctly to `/articles/{slug}/`
+- [ ] T028 [US3] Manual test: Check tag page displays tag name, article count, and article list
+- [ ] T029 [US3] Verify tag links on all-tags page navigate to correct tag pages (FR-008)
+- [ ] T030 [US3] Verify tag links on article pages navigate to correct tag pages (FR-008)
 
 **Checkpoint**: User Story 3 complete - tag page content displays correctly
 
@@ -108,10 +113,10 @@
 
 **Purpose**: Final validation and cleanup
 
-- [ ] T026 Run existing E2E tests: `pnpm --filter @blog/site test:e2e` (includes tag-navigation.spec.ts and all-tags.spec.ts)
-- [ ] T027 Run full test suite: `pnpm test`
-- [ ] T028 Run verification checklist from `specs/004-fix-tag-pages/quickstart.md`
-- [ ] T029 Code review: Ensure no new dependencies were added per plan constraints
+- [ ] T031 Run existing E2E tests: `pnpm --filter @blog/site test:e2e` (includes tag-navigation.spec.ts and all-tags.spec.ts)
+- [ ] T032 Run full test suite: `pnpm test`
+- [ ] T033 Run verification checklist from `specs/004-fix-tag-pages/quickstart.md`
+- [ ] T034 Code review: Ensure no new dependencies were added per plan constraints
 
 ---
 
@@ -143,8 +148,8 @@
 
 ```bash
 # US1 and US2 can run in parallel - different packages:
-Developer A: T007-T013 (packages/dev-server/src/server.ts)
-Developer B: T014-T021 (packages/renderer/src/services/render-service.ts)
+Developer A: T007-T016 (packages/dev-server/src/server.ts)
+Developer B: T017-T024 (packages/renderer/src/services/render-service.ts)
 ```
 
 ---

@@ -50,7 +50,7 @@ pnpm --filter @blog/site test:e2e
 
 ## Implementation Order
 
-### Fix 1: Dev Server Route (5 mins)
+### Fix 1: Dev Server Route
 
 **File**: `packages/dev-server/src/server.ts`
 
@@ -77,7 +77,7 @@ curl http://localhost:3000/tags/typescript.html
 # Should return HTML with tag page content
 ```
 
-### Fix 2: Production Renderer (30 mins)
+### Fix 2: Production Renderer
 
 **File**: `packages/renderer/src/services/render-service.ts`
 
