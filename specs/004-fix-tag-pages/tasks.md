@@ -36,7 +36,7 @@
 
 **Note**: This is a bug fix with no new foundational work required. All infrastructure (TagIndex, templates, models) already exists and is functional.
 
-- [ ] T004 Verify `packages/core/src/services/tag-index.ts` TagIndex exports `getAllTags()` and `getTagBySlug()` methods
+- [ ] T004 Verify `packages/core/src/services/tag-index.ts` TagIndex exports `getAllTags()` and tag lookup method (check actual method name: `getTagBySlug()` or `getTag()`)
 - [ ] T005 [P] Verify `packages/site/src/templates/tag.html` template exists and is correctly structured
 - [ ] T006 [P] Verify dev server starts successfully with `pnpm --filter @blog/dev-server dev` and confirm `/tags/` page works
 
@@ -76,7 +76,7 @@
 ### Implementation for User Story 2
 
 - [ ] T017 [US2] Review existing `renderAllTagsPage()` method pattern in `packages/renderer/src/services/render-service.ts`
-- [ ] T018 [US2] Implement `renderTagPage(tag: Tag, articles: Article[]): Promise<string>` method in `packages/renderer/src/services/render-service.ts`
+- [ ] T018 [US2] Implement `renderTagPage(tag: Tag, articles: Article[]): Promise<string>` method in `packages/renderer/src/services/render-service.ts` using existing `tag.html` template (FR-007)
 - [ ] T019 [US2] Implement `publishTagPage(tag: Tag, articles: Article[]): Promise<void>` method in `packages/renderer/src/services/render-service.ts`
 - [ ] T020 [US2] Implement `publishAllTagPages(tagIndex: TagIndex, articles: Article[]): Promise<void>` method in `packages/renderer/src/services/render-service.ts`
 - [ ] T020a [US2] Handle error cases in render methods: missing template returns clear error, empty tag (no articles) skips rendering with warning log
@@ -100,7 +100,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Verify `TagPageContext` interface matches template expectations per `specs/004-fix-tag-pages/data-model.md`
+- [ ] T025 [US3] Verify `TagPageContext` interface matches `tag.html` template expectations per `specs/004-fix-tag-pages/data-model.md` (FR-007)
 - [ ] T026 [US3] Verify articles are sorted by date (newest first) in both dev server and production renders
 - [ ] T027 [US3] Verify article links in tag pages navigate correctly to `/articles/{slug}/`
 - [ ] T028 [US3] Manual test: Check tag page displays tag name, article count, and article list
