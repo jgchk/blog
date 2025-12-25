@@ -55,7 +55,7 @@
 - [ ] T007 [US1] Identify the tag route handler in `packages/dev-server/src/server.ts` (approximately line 229)
 - [ ] T008 [US1] Add `.html` extension stripping logic: `const tagSlug = tag.replace(/\.html$/, '');` in `packages/dev-server/src/server.ts`
 - [ ] T009 [US1] Update tag matching to use `tagSlug` instead of `tag` in the `find()` call in `packages/dev-server/src/server.ts`
-- [ ] T010 [US1] Add unit test in `packages/dev-server/tests/unit/server.test.ts` verifying `.html` stripping and case-insensitive slug matching
+- [ ] T010 [US1] Add unit tests in `packages/dev-server/tests/unit/server.test.ts` covering: (a) `.html` extension stripping, (b) case-insensitive slug matching (FR-005), (c) 404 response for unknown tags (FR-006)
 - [ ] T011 [US1] Verify case-insensitive matching is preserved (lowercase comparison) in `packages/dev-server/src/server.ts`
 - [ ] T012 [US1] Manual test: Start dev server and verify `/tags/typescript.html` returns 200 with tag content
 - [ ] T013 [US1] Manual test: Verify `/tags/nonexistent.html` returns 404
@@ -79,6 +79,7 @@
 - [ ] T018 [US2] Implement `renderTagPage(tag: Tag, articles: Article[]): Promise<string>` method in `packages/renderer/src/services/render-service.ts`
 - [ ] T019 [US2] Implement `publishTagPage(tag: Tag, articles: Article[]): Promise<void>` method in `packages/renderer/src/services/render-service.ts`
 - [ ] T020 [US2] Implement `publishAllTagPages(tagIndex: TagIndex, articles: Article[]): Promise<void>` method in `packages/renderer/src/services/render-service.ts`
+- [ ] T020a [US2] Handle error cases in render methods: missing template returns clear error, empty tag (no articles) skips rendering with warning log
 - [ ] T021 [US2] Add call to `publishAllTagPages()` in the render workflow after `publishAllTagsPage()` in `packages/renderer/src/services/render-service.ts` or handler
 - [ ] T022 [US2] Export new methods from render-service module if needed
 - [ ] T023 [US2] Run renderer tests: `pnpm --filter @blog/renderer test`
@@ -102,8 +103,8 @@
 - [ ] T026 [US3] Verify articles are sorted by date (newest first) in both dev server and production renders
 - [ ] T027 [US3] Verify article links in tag pages navigate correctly to `/articles/{slug}/`
 - [ ] T028 [US3] Manual test: Check tag page displays tag name, article count, and article list
-- [ ] T029 [US3] Verify tag links on all-tags page navigate to correct tag pages (FR-008)
-- [ ] T030 [US3] Verify tag links on article pages navigate to correct tag pages (FR-008)
+- [ ] T029 [US3] Verify tag links on all-tags page navigate to correct tag pages (FR-008) - covered by `all-tags.spec.ts` E2E in T031
+- [ ] T030 [US3] Verify tag links on article pages navigate to correct tag pages (FR-008) - covered by `tag-navigation.spec.ts` E2E in T031
 
 **Checkpoint**: User Story 3 complete - tag page content displays correctly
 
