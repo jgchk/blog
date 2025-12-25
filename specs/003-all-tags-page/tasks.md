@@ -100,14 +100,14 @@
 
 **Purpose**: Final verification and E2E test validation
 
-- [ ] T014 Run E2E tests: `pnpm --filter @blog/site test:e2e tests/e2e/all-tags.spec.ts`
-- [ ] T015 Verify accessibility compliance per NFR-001 and SC-006:
+- [ ] T013 Run E2E tests: `pnpm --filter @blog/site test:e2e tests/e2e/all-tags.spec.ts`
+- [ ] T014 Verify accessibility compliance per NFR-001 and SC-006:
   - Run axe-core against `/tags/` page (zero violations at AA level)
   - Confirm single `<h1>` page title with proper heading hierarchy
   - Verify all tag links are keyboard-focusable with visible focus indicators
   - Test skip-link navigates to main content
   - Confirm `<main>` landmark present and properly labeled
-- [ ] T016 Verify live reload works when articles are added/modified/removed
+- [ ] T015 Verify live reload works when articles are added/modified/removed
 
 ---
 
