@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { FastifyInstance } from 'fastify';
-import { createServer, startServer } from '../../src/server.js';
+import { startServer } from '../../src/server.js';
 import { DevServerState } from '../../src/state.js';
 import { createDefaultConfig } from '../../src/config.js';
 import { scanAndRenderAll } from '../../src/renderer.js';
@@ -278,7 +278,7 @@ This is a test.`
       const { articles } = await scanAndRenderAll(config);
       state.articles.clear();
       state.tagPages.clear();
-      for (const [slug, article] of articles) {
+      for (const [, article] of articles) {
         state.addArticle(article);
       }
 

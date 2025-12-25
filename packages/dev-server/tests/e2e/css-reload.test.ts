@@ -195,7 +195,6 @@ Test content.`
     });
 
     // Modify CSS file to change text color to red
-    const startTime = Date.now();
     writeFileSync(
       join(testDir, 'packages', 'site', 'src', 'styles', 'main.css'),
       `body {

@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { JSDOM } from 'jsdom';
-import { MarkdownParser, FrontMatterParser, ArticleIndex } from '@blog/core';
+import { MarkdownParser, FrontMatterParser } from '@blog/core';
 import { renderArticle } from '../../src/renderer.js';
 import { createDefaultConfig } from '../../src/config.js';
 import type { DevServerConfig } from '../../src/types.js';
@@ -121,7 +121,6 @@ This is **bold** text.`;
 
     // Parse both as DOM and compare structure
     const devDom = new JSDOM(result.article.html);
-    const coreDom = new JSDOM(`<div>${coreHtml}</div>`);
 
     // The dev server wraps in template, core is just content
     // Compare the content section

@@ -3,7 +3,7 @@ import fastifyStatic from '@fastify/static';
 import fastifyWebsocket from '@fastify/websocket';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, extname } from 'node:path';
-import type { DevServerConfig, RenderedArticle, ServerMessage } from './types.js';
+import type { DevServerConfig, ServerMessage } from './types.js';
 import { resolveConfigPaths } from './config.js';
 import { normalizeTagSlug } from '@blog/core';
 import { DevServerState } from './state.js';

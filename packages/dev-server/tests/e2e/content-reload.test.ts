@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, unlinkSync } from 'node:fs';
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawn, ChildProcess } from 'node:child_process';
@@ -164,7 +164,6 @@ This is the original content.`
     });
 
     // Modify the markdown file
-    const startTime = Date.now();
     writeFileSync(
       join(testDir, 'posts', 'test-article', 'index.md'),
       `---

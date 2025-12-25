@@ -1,10 +1,9 @@
 import chokidar, { type FSWatcher } from 'chokidar';
-import { join, relative, dirname, basename } from 'node:path';
+import { join, relative } from 'node:path';
 import type { DevServerConfig, FileChangeEvent, ServerMessage } from './types.js';
 import { resolveConfigPaths } from './config.js';
 import { DevServerState } from './state.js';
-import { renderArticle, renderIndex, renderArchive, renderTagPage, getAllTags, clearTemplateCache } from './renderer.js';
-import { formatRenderError } from './types.js';
+import { renderArticle, clearTemplateCache } from './renderer.js';
 
 /**
  * Categorize a file change event.
@@ -86,7 +85,6 @@ async function handleMarkdownChange(
   config: DevServerConfig,
   state: DevServerState
 ): Promise<void> {
-  const paths = resolveConfigPaths(config);
   const slug = event.slug;
 
   if (!slug) {
@@ -171,7 +169,7 @@ async function handleTemplateChange(
 
   // Re-render all articles
   const paths = resolveConfigPaths(config);
-  for (const [slug, article] of state.articles) {
+  for (const [slug] of state.articles) {
     const indexPath = join(paths.postsDir, slug, 'index.md');
     const result = await renderArticle(config, indexPath, state.articleIndex ?? undefined);
     if ('article' in result) {
