@@ -230,16 +230,18 @@ export async function createServer(
     '/tags/:tag',
     async (request, reply) => {
       const { tag } = request.params;
+      // Strip .html extension from URL parameter (e.g., "typescript.html" -> "typescript")
+      const tagSlug = tag.replace(/\.html$/, '');
       const articles = state.getAllArticles();
       const allTags = getAllTags(articles);
 
       // Check if tag exists (case-insensitive)
       const matchedTag = allTags.find(
-        (t) => t.toLowerCase() === tag.toLowerCase()
+        (t) => t.toLowerCase() === tagSlug.toLowerCase()
       );
 
       if (!matchedTag) {
-        return sendHtml(reply.status(404), render404(`Tag "${tag}"`));
+        return sendHtml(reply.status(404), render404(`Tag "${tagSlug}"`));
       }
 
       try {
