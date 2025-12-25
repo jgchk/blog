@@ -51,6 +51,7 @@
 ### Implementation for User Story 1
 
 - [ ] T005 [US1] Implement `renderAllTags()` function in `packages/dev-server/src/renderer.ts` following `renderArchive()` pattern
+- [ ] T005a [US1] Add total tag count display (e.g., "Showing 15 tags") to `packages/site/src/templates/tags.html` header section
 - [ ] T006 [US1] Add `/tags` route handler in `packages/dev-server/src/server.ts` following `/archive` pattern
 - [ ] T007 [US1] Add `allTagsHtml` cache invalidation in `packages/dev-server/src/watcher.ts` on article changes
 - [ ] T008 [US1] Update `tags.html` template with empty state message "No tags yet. Check back after articles are published." in `packages/site/src/templates/tags.html`
@@ -82,9 +83,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T011 [US3] Add `renderAllTagsPage()` function to `packages/renderer/src/services/render-service.ts`
-- [ ] T012 [US3] Call `renderAllTagsPage()` in main render pipeline in `packages/renderer/src/services/render-service.ts`
-- [ ] T013 [US3] Write output to `{output}/tags/index.html` in production renderer
+- [ ] T011 [US3] Add `renderAllTagsPage()` function to `packages/renderer/src/services/render-service.ts` that:
+  - Compiles `tags.html` template with TagIndex data
+  - Returns rendered HTML string
+- [ ] T012 [US3] Integrate all-tags generation into main render pipeline in `packages/renderer/src/services/render-service.ts`:
+  - Call `renderAllTagsPage()` after tag pages are generated
+  - Write output to `{outputDir}/tags/index.html`
+  - Log generation status consistent with other pages
 
 **Checkpoint**: All user stories (dev-server + production) fully functional
 
@@ -95,7 +100,12 @@
 **Purpose**: Final verification and E2E test validation
 
 - [ ] T014 Run E2E tests: `pnpm --filter @blog/site test:e2e tests/e2e/all-tags.spec.ts`
-- [ ] T015 Verify accessibility compliance (semantic HTML, ARIA labels, keyboard navigation)
+- [ ] T015 Verify accessibility compliance per NFR-001 and SC-006:
+  - Run axe-core against `/tags/` page (zero violations at AA level)
+  - Confirm single `<h1>` page title with proper heading hierarchy
+  - Verify all tag links are keyboard-focusable with visible focus indicators
+  - Test skip-link navigates to main content
+  - Confirm `<main>` landmark present and properly labeled
 - [ ] T016 Verify live reload works when articles are added/modified/removed
 
 ---
