@@ -136,7 +136,7 @@ jobs:
         id: get-url
         run: |
           DOMAIN=$(aws cloudformation describe-stacks \
-            --stack-name BlogStack \
+            --stack-name BlogStack-prod \
             --query 'Stacks[0].Outputs[?OutputKey==`DistributionDomain`].OutputValue' \
             --output text)
           echo "domain=$DOMAIN" >> $GITHUB_OUTPUT
