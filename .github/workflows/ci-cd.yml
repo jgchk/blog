@@ -141,6 +141,42 @@ jobs:
             --output text)
           echo "domain=$DOMAIN" >> $GITHUB_OUTPUT
 
+      - name: Configure GitHub Webhook
+        env:
+          GH_TOKEN: ${{ secrets.WEBHOOK_PAT }}
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+        run: |
+          # Get webhook URL from stack outputs
+          WEBHOOK_URL=$(aws cloudformation describe-stacks \
+            --stack-name BlogStack-prod \
+            --query 'Stacks[0].Outputs[?OutputKey==`WebhookUrl`].OutputValue' \
+            --output text)
+
+          echo "Configuring webhook for: $WEBHOOK_URL"
+
+          # Check for existing webhook pointing to our API
+          HOOK_ID=$(gh api repos/${{ github.repository }}/hooks \
+            --jq '.[] | select(.config.url | contains("webhook/github")) | .id' 2>/dev/null || echo "")
+
+          if [ -n "$HOOK_ID" ]; then
+            echo "Updating existing webhook (ID: $HOOK_ID)"
+            gh api repos/${{ github.repository }}/hooks/$HOOK_ID -X PATCH \
+              -f config[url]="$WEBHOOK_URL" \
+              -f config[content_type]="json" \
+              -f config[secret]="$WEBHOOK_SECRET"
+          else
+            echo "Creating new webhook"
+            gh api repos/${{ github.repository }}/hooks -X POST \
+              -f name="web" \
+              -f config[url]="$WEBHOOK_URL" \
+              -f config[content_type]="json" \
+              -f config[secret]="$WEBHOOK_SECRET" \
+              -f 'events[]=push' \
+              -F active=true
+          fi
+
+          echo "Webhook configured successfully"
+
   smoke-test:
     name: Smoke Tests
     needs: deploy
