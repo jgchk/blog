@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AWS IAM Trust Policy for GitHub Actions OIDC",
+  "description": "Trust policy to attach to the IAM role that GitHub Actions will assume via OIDC. Replace ACCOUNT_ID and OWNER/REPO with actual values.",
+  "type": "object",
+  "properties": {
+    "Version": {
+      "const": "2012-10-17"
+    },
+    "Statement": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "Effect": {
+            "const": "Allow"
+          },
+          "Principal": {
+            "type": "object",
+            "properties": {
+              "Federated": {
+                "type": "string",
+                "pattern": "^arn:aws:iam::\\d{12}:oidc-provider/token\\.actions\\.githubusercontent\\.com$"
+              }
+            }
+          },
+          "Action": {
+            "const": "sts:AssumeRoleWithWebIdentity"
+          },
+          "Condition": {
+            "type": "object",
+            "properties": {
+              "StringEquals": {
+                "type": "object",
+                "properties": {
+                  "token.actions.githubusercontent.com:aud": {
+                    "const": "sts.amazonaws.com"
+                  }
+                }
+              },
+              "StringLike": {
+                "type": "object",
+                "properties": {
+                  "token.actions.githubusercontent.com:sub": {
+                    "type": "string",
+                    "pattern": "^repo:[^:]+/[^:]+:ref:refs/heads/main$"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "example": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+        },
+        "Action": "sts:AssumeRoleWithWebIdentity",
+        "Condition": {
+          "StringEquals": {
+            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+          },
+          "StringLike": {
+            "token.actions.githubusercontent.com:sub": "repo:myorg/blog:ref:refs/heads/main"
+          }
+        }
+      }
+    ]
+  }
+}

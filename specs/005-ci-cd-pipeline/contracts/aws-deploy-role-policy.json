@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AWS IAM Policy for CDK Deployment Role",
+  "description": "Minimum permissions required for the GitHub Actions role to deploy via CDK. This policy allows assuming the CDK bootstrap roles created by `cdk bootstrap`.",
+  "type": "object",
+  "properties": {
+    "Version": {
+      "const": "2012-10-17"
+    },
+    "Statement": {
+      "type": "array"
+    }
+  },
+  "example": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "AssumeCDKRoles",
+        "Effect": "Allow",
+        "Action": "sts:AssumeRole",
+        "Resource": [
+          "arn:aws:iam::*:role/cdk-*-deploy-role-*",
+          "arn:aws:iam::*:role/cdk-*-lookup-role-*",
+          "arn:aws:iam::*:role/cdk-*-file-publishing-role-*",
+          "arn:aws:iam::*:role/cdk-*-image-publishing-role-*"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    "This policy uses wildcard patterns to match CDK bootstrap role names.",
+    "The bootstrap roles handle actual AWS resource creation with their own policies.",
+    "For tighter security, replace wildcards with specific account ID and region."
+  ]
+}

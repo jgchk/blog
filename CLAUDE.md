@@ -9,6 +9,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-23
 - In-memory cache (dev-server), static HTML files (production) (003-all-tags-page)
 - TypeScript 5.3+ targeting ES2022 on Node.js 20.x + Fastify 4.28.0 (dev-server HTTP), Handlebars 4.7.8 (templates), @blog/core (TagIndex, models), AWS SDK v3 (production renderer) (004-fix-tag-pages)
 - In-memory cache (dev-server), S3 static files (production) (004-fix-tag-pages)
+- TypeScript 5.3+ targeting ES2022 on Node.js 20.x + GitHub Actions, AWS CDK 2.120.0, pnpm 8.15.0 (005-ci-cd-pipeline)
+- N/A (workflow files stored in `.github/workflows/`) (005-ci-cd-pipeline)
 
 - TypeScript 5.3+ targeting ES2022 on AWS Lambda Node.js 20.x + unified/remark (markdown), gray-matter (front matter), AWS SDK v3 (001-markdown-blog)
 
@@ -28,9 +30,9 @@ npm test && npm run lint
 TypeScript 5.3+ targeting ES2022 on AWS Lambda Node.js 20.x: Follow standard conventions
 
 ## Recent Changes
+- 005-ci-cd-pipeline: Added TypeScript 5.3+ targeting ES2022 on Node.js 20.x + GitHub Actions, AWS CDK 2.120.0, pnpm 8.15.0
 - 004-fix-tag-pages: Added TypeScript 5.3+ targeting ES2022 on Node.js 20.x + Fastify 4.28.0 (dev-server HTTP), Handlebars 4.7.8 (templates), @blog/core (TagIndex, models), AWS SDK v3 (production renderer)
 - 003-all-tags-page: Added TypeScript 5.3+ targeting ES2022 on Node.js 20.x + Fastify (HTTP), Handlebars (templates), @blog/core (TagIndex, models)
-- 002-local-dev-server: Added TypeScript 5.3+ targeting ES2022 on Node.js 20.x + Existing unified/remark stack, chokidar (file watching), ws (WebSocket), express or fastify (HTTP server)
 
 
 <!-- MANUAL ADDITIONS START -->
