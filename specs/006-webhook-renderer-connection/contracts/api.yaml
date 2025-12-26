@@ -1,0 +1,520 @@
+openapi: 3.0.3
+info:
+  title: Blog Webhook & Admin API
+  description: |
+    API for GitHub webhook integration and administrative operations.
+
+    ## Authentication
+    - **Webhook endpoint**: Public, uses HMAC-SHA256 signature validation
+    - **Admin endpoints**: AWS IAM authentication required
+  version: 2.0.0
+  contact:
+    name: Blog Admin
+
+servers:
+  - url: https://{api-id}.execute-api.{region}.amazonaws.com/v1
+    description: Production API Gateway
+    variables:
+      api-id:
+        default: abc123
+      region:
+        default: us-east-1
+
+paths:
+  /webhook/github:
+    post:
+      summary: Receive GitHub push webhook
+      description: |
+        Receives push events from GitHub and triggers rendering for affected posts.
+
+        **Security**: Validates X-Hub-Signature-256 header against configured secret.
+
+        **Processing**:
+        1. Validates signature
+        2. Filters for push events to main branch
+        3. Extracts changed files in posts/ directory
+        4. Triggers incremental rendering
+        5. Returns sync ID for status tracking
+      operationId: handleGitHubWebhook
+      tags:
+        - Webhook
+      parameters:
+        - name: X-Hub-Signature-256
+          in: header
+          required: true
+          description: HMAC-SHA256 signature of request body
+          schema:
+            type: string
+            example: sha256=abc123...
+        - name: X-GitHub-Event
+          in: header
+          required: true
+          description: GitHub event type
+          schema:
+            type: string
+            example: push
+        - name: X-GitHub-Delivery
+          in: header
+          required: false
+          description: Unique delivery ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GitHubPushEvent'
+      responses:
+        '200':
+          description: Webhook processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid signature
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/status:
+    get:
+      summary: Get recent sync operations
+      description: Returns a list of recent sync operations, sorted by start time descending.
+      operationId: getRecentSyncs
+      tags:
+        - Admin
+      security:
+        - aws_iam: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of syncs to return (1-50)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: List of sync operations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncStatusList'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/status/{syncId}:
+    get:
+      summary: Get specific sync operation
+      description: Returns details of a specific sync operation by ID.
+      operationId: getSyncById
+      tags:
+        - Admin
+      security:
+        - aws_iam: []
+      parameters:
+        - name: syncId
+          in: path
+          required: true
+          description: Sync operation ID
+          schema:
+            type: string
+            example: sync-1703577600000-abc123
+      responses:
+        '200':
+          description: Sync operation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncStatus'
+        '404':
+          description: Sync operation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/render:
+    post:
+      summary: Trigger full site render
+      description: |
+        Triggers a full render of all posts in the repository.
+
+        **Use cases**:
+        - Initial deployment
+        - Template changes
+        - Disaster recovery
+
+        **Note**: This operation may take several minutes for large blogs.
+      operationId: triggerFullRender
+      tags:
+        - Admin
+      security:
+        - aws_iam: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FullRenderRequest'
+      responses:
+        '202':
+          description: Render initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RenderAcceptedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Render already in progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/retry/{syncId}:
+    post:
+      summary: Retry failed sync operation
+      description: |
+        Retries a previously failed sync operation.
+        Only available for syncs in 'failed' status.
+      operationId: retrySyncOperation
+      tags:
+        - Admin
+      security:
+        - aws_iam: []
+      parameters:
+        - name: syncId
+          in: path
+          required: true
+          description: Sync operation ID to retry
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Retry initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RenderAcceptedResponse'
+        '404':
+          description: Sync operation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Sync operation is not in failed state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/health:
+    get:
+      summary: Get system health status
+      description: Returns health status of the blog rendering system.
+      operationId: getHealth
+      tags:
+        - Admin
+      security:
+        - aws_iam: []
+      responses:
+        '200':
+          description: System health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+components:
+  securitySchemes:
+    aws_iam:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: AWS IAM authentication via Signature Version 4
+
+  schemas:
+    GitHubPushEvent:
+      type: object
+      required:
+        - ref
+        - commits
+        - repository
+      properties:
+        ref:
+          type: string
+          description: Git reference (branch)
+          example: refs/heads/main
+        commits:
+          type: array
+          items:
+            $ref: '#/components/schemas/GitHubCommit'
+        repository:
+          $ref: '#/components/schemas/GitHubRepository'
+
+    GitHubCommit:
+      type: object
+      required:
+        - id
+        - added
+        - modified
+        - removed
+      properties:
+        id:
+          type: string
+          description: Commit SHA
+          example: abc123def456
+        added:
+          type: array
+          items:
+            type: string
+          description: Files added in this commit
+          example:
+            - posts/new-article/index.md
+        modified:
+          type: array
+          items:
+            type: string
+          description: Files modified in this commit
+          example:
+            - posts/existing-article/index.md
+        removed:
+          type: array
+          items:
+            type: string
+          description: Files removed in this commit
+          example:
+            - posts/old-article/index.md
+
+    GitHubRepository:
+      type: object
+      required:
+        - full_name
+      properties:
+        full_name:
+          type: string
+          description: Repository owner/name
+          example: owner/blog-content
+        clone_url:
+          type: string
+          format: uri
+          description: HTTPS clone URL
+          example: https://github.com/owner/blog-content.git
+
+    WebhookResponse:
+      type: object
+      required:
+        - status
+      properties:
+        syncId:
+          type: string
+          description: Sync operation ID (when accepted)
+          example: sync-1703577600000-abc123
+        status:
+          type: string
+          enum:
+            - accepted
+            - ignored
+          description: Whether the webhook triggered processing
+        message:
+          type: string
+          description: Human-readable status message
+          example: Processing 3 files
+
+    FullRenderRequest:
+      type: object
+      properties:
+        force:
+          type: boolean
+          default: false
+          description: Force re-render even if content unchanged
+        repository:
+          type: string
+          description: Override repository (owner/repo format)
+          example: owner/blog-content
+
+    RenderAcceptedResponse:
+      type: object
+      required:
+        - syncId
+        - status
+      properties:
+        syncId:
+          type: string
+          description: New sync operation ID
+          example: sync-1703577600000-abc123
+        status:
+          type: string
+          enum:
+            - accepted
+          description: Request accepted for processing
+        message:
+          type: string
+          description: Human-readable message
+          example: Full render initiated
+
+    SyncStatus:
+      type: object
+      required:
+        - syncId
+        - commitHash
+        - status
+        - articlesProcessed
+        - articlesFailed
+        - errors
+        - consecutiveFailures
+        - startedAt
+      properties:
+        syncId:
+          type: string
+          example: sync-1703577600000-abc123
+        commitHash:
+          type: string
+          example: abc123def456
+        status:
+          type: string
+          enum:
+            - pending
+            - in_progress
+            - completed
+            - failed
+        articlesProcessed:
+          type: integer
+          minimum: 0
+          example: 5
+        articlesFailed:
+          type: integer
+          minimum: 0
+          example: 0
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncError'
+        consecutiveFailures:
+          type: integer
+          minimum: 0
+          example: 0
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    SyncError:
+      type: object
+      required:
+        - articleSlug
+        - errorType
+        - message
+      properties:
+        articleSlug:
+          type: string
+          example: broken-article
+        errorType:
+          type: string
+          enum:
+            - parse
+            - render
+            - storage
+            - unknown
+        message:
+          type: string
+          example: Invalid front matter YAML
+
+    SyncStatusList:
+      type: object
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncStatus'
+        total:
+          type: integer
+          minimum: 0
+
+    HealthStatus:
+      type: object
+      required:
+        - status
+        - components
+        - consecutiveFailures
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+            - degraded
+          description: Overall system status
+        components:
+          type: object
+          properties:
+            s3:
+              $ref: '#/components/schemas/ComponentStatus'
+            cloudfront:
+              $ref: '#/components/schemas/ComponentStatus'
+            sns:
+              $ref: '#/components/schemas/ComponentStatus'
+        lastSyncAt:
+          type: string
+          format: date-time
+          nullable: true
+        consecutiveFailures:
+          type: integer
+          minimum: 0
+
+    ComponentStatus:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+            - unhealthy
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: Invalid webhook signature
+
+tags:
+  - name: Webhook
+    description: GitHub webhook endpoints
+  - name: Admin
+    description: Administrative operations (IAM auth required)
