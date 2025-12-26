@@ -4,8 +4,12 @@ import remarkGfm from 'remark-gfm';
 import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
+import type { Root } from 'mdast';
 import type { ArticleIndex } from './article-index.js';
 import { remarkWikilinks } from '../plugins/wikilinks.js';
+
+/** Fully-configured markdown-to-HTML processor type */
+type MarkdownProcessor = Processor<Root, Root, Root, Root, string>;
 
 /**
  * Options for configuring the MarkdownParser
@@ -28,7 +32,7 @@ export interface ParseResult {
  * Per research.md specification.
  */
 export class MarkdownParser {
-  private processor: Processor;
+  private processor: MarkdownProcessor;
   private articleIndex: ArticleIndex | undefined;
 
   constructor(options?: MarkdownParserOptions) {
@@ -39,23 +43,20 @@ export class MarkdownParser {
   /**
    * Build the unified processor pipeline
    */
-  private buildProcessor(): Processor {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let processor = unified()
+  private buildProcessor(): MarkdownProcessor {
+    const baseProcessor = unified()
       .use(remarkParse)
       .use(remarkGfm);
 
     // Add wikilinks plugin if articleIndex is provided
-    if (this.articleIndex) {
-      processor = processor.use(remarkWikilinks, { articleIndex: this.articleIndex });
-    }
+    const withWikilinks = this.articleIndex
+      ? baseProcessor.use(remarkWikilinks, { articleIndex: this.articleIndex })
+      : baseProcessor;
 
-    processor = processor
+    return withWikilinks
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeHighlight, { detect: true, ignoreMissing: true })
-      .use(rehypeStringify, { allowDangerousHtml: true });
-
-    return processor as unknown as Processor;
+      .use(rehypeStringify, { allowDangerousHtml: true }) as MarkdownProcessor;
   }
 
   /**

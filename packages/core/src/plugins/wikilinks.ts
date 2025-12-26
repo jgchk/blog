@@ -1,5 +1,13 @@
 import { visit } from 'unist-util-visit';
+import type { VFile } from 'vfile';
 import type { ArticleIndex } from '../services/article-index.js';
+
+// Extend VFile's DataMap to include our brokenLinks property
+declare module 'vfile' {
+  interface DataMap {
+    brokenLinks: string[];
+  }
+}
 
 // Type definitions inline to avoid mdast/vfile type issues
 interface TextNode {
@@ -18,10 +26,6 @@ interface RootNode {
   children: Array<{ children?: Array<TextNode | LinkNode> }>;
 }
 
-interface VFileData {
-  data: { brokenLinks?: string[] };
-}
-
 interface WikilinksOptions {
   articleIndex: ArticleIndex;
 }
@@ -33,7 +37,7 @@ interface WikilinksOptions {
 export function remarkWikilinks(options: WikilinksOptions) {
   const { articleIndex } = options;
 
-  return (tree: RootNode, file: VFileData) => {
+  return (tree: RootNode, file: VFile) => {
     const brokenLinks: string[] = [];
 
     visit(tree, 'text', (node: TextNode, index: number | undefined, parent: { children: Array<TextNode | LinkNode> } | undefined) => {
