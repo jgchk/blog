@@ -1,6 +1,5 @@
-# CI/CD Workflow Contract
-# This is the target workflow configuration for the CI/CD pipeline feature.
-# File location: .github/workflows/ci-cd.yml
+# CI/CD Workflow
+# Runs quality checks on PRs, deploys to AWS on merge to main
 
 name: CI/CD
 

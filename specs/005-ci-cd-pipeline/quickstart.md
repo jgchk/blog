@@ -137,7 +137,7 @@ Add these secrets:
 | Secret Name | Value |
 |-------------|-------|
 | `AWS_DEPLOY_ROLE_ARN` | `arn:aws:iam::YOUR_ACCOUNT_ID:role/GitHubActions-CDK-Deploy` |
-| `GITHUB_WEBHOOK_SECRET` | Your GitHub webhook secret (used by the blog render Lambda) |
+| `WEBHOOK_SECRET` | Your webhook secret (used by the blog render Lambda). Note: Cannot use `GITHUB_WEBHOOK_SECRET` as GitHub reserves the `GITHUB_` prefix. |
 
 ---
 

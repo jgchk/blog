@@ -315,8 +315,7 @@ Rely on GitHub's built-in notification system: PR status checks plus commit stat
 | Secret Name | Purpose |
 |-------------|---------|
 | `AWS_DEPLOY_ROLE_ARN` | ARN of OIDC role for deployment |
-| `AWS_ACCOUNT_ID` | AWS account ID for CDK context |
-| `GITHUB_WEBHOOK_SECRET` | Secret for GitHub webhook validation |
+| `WEBHOOK_SECRET` | Secret for GitHub webhook validation (cannot use `GITHUB_` prefix) |
 
 ---
 
