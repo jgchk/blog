@@ -170,9 +170,11 @@ async function main(): Promise<void> {
 
   // Find repo root and create config
   const rootDir = findRepoRoot();
+  // Automatically disable browser opening in CI environments
+  const isCI = process.env['CI'] === 'true' || process.env['CI'] === '1';
   const config: DevServerConfig = createDefaultConfig({
     port: args.port ?? parseInt(process.env['PORT'] ?? '3000', 10),
-    open: !args.noOpen,
+    open: !args.noOpen && !isCI,
     rootDir,
   });
 

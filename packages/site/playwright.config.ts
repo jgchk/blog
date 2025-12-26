@@ -11,6 +11,14 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
     trace: 'on-first-retry',
   },
+  webServer: process.env.BASE_URL
+    ? undefined
+    : {
+        command: 'pnpm --filter @blog/dev-server start',
+        url: 'http://localhost:3000',
+        reuseExistingServer: !process.env.CI,
+        timeout: 120000,
+      },
   projects: [
     {
       name: 'chromium',
