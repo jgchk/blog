@@ -81,8 +81,13 @@
 
 ### E2E Testing Job (Docker Container Approach)
 
-> **Note**: E2E tests run in a separate job using the Playwright Docker container for faster execution (no browser installation). See research.md Section 10 for rationale.
+> **Note**: E2E tests run in a separate job using the Playwright Docker container for faster execution (no browser installation). Tests run against the dev-server started via Playwright's `webServer` config (see T016a-prereq). See research.md Section 10 for rationale.
 
+- [ ] T016a-prereq [US1] Add `webServer` configuration to `packages/site/playwright.config.ts`:
+  - `command: 'pnpm --filter @blog/dev-server start'`
+  - `url: 'http://localhost:3000'`
+  - `reuseExistingServer: !process.env.CI`
+  - `timeout: 120000` (2 minutes for server startup)
 - [ ] T016a [P] [US1] Add `e2e` job to `.github/workflows/ci-cd.yml` with:
   - `name: E2E Tests`
   - `runs-on: ubuntu-latest`
@@ -133,6 +138,7 @@
   - `if: github.ref == 'refs/heads/main' && github.event_name == 'push'`
   - `runs-on: ubuntu-latest`
   - `environment: production`
+  - `outputs.cloudfront_domain: ${{ steps.get-url.outputs.domain }}`
 - [ ] T019 [US3] Add permissions block to deploy job with `contents: read` and `id-token: write` for OIDC in `.github/workflows/ci-cd.yml`
 - [ ] T020 [US3] Add checkout step using `actions/checkout@v4` to deploy job in `.github/workflows/ci-cd.yml`
 - [ ] T021 [US3] Add pnpm setup step using `pnpm/action-setup@v4` to deploy job in `.github/workflows/ci-cd.yml`
@@ -146,8 +152,37 @@
   - `env.GITHUB_WEBHOOK_SECRET: ${{ secrets.GITHUB_WEBHOOK_SECRET }}`
   - `working-directory: packages/infra`
   - `run: npx cdk deploy --require-approval never -c environment=prod`
+  - Add `id: cdk-deploy` to capture outputs
+- [ ] T026a [US3] Add step to extract CloudFront URL from CDK outputs after deploy:
+  - `id: get-url`
+  - `run: echo "url=$(aws cloudformation describe-stacks ...)" >> $GITHUB_OUTPUT`
 
-**Checkpoint**: At this point, User Stories 1, 2, AND 3 should work - merges to main trigger deployment after CI passes
+### Post-Deploy Smoke Tests
+
+> **Note**: After successful deployment, run E2E tests against the live production URL to validate the real infrastructure works.
+
+- [ ] T026b [US3] Add `smoke-test` job to `.github/workflows/ci-cd.yml` with:
+  - `name: Smoke Tests`
+  - `needs: deploy`
+  - `if: github.ref == 'refs/heads/main' && github.event_name == 'push'`
+  - `runs-on: ubuntu-latest`
+  - `timeout-minutes: 10`
+  - `container.image: mcr.microsoft.com/playwright:v1.49.0-noble`
+  - `container.options: --user 1001 --ipc=host`
+- [ ] T026c [US3] Add checkout step using `actions/checkout@v4` to smoke-test job
+- [ ] T026d [US3] Add pnpm setup step using `pnpm/action-setup@v4` to smoke-test job
+- [ ] T026e [US3] Add Node.js setup step using `actions/setup-node@v4` with node-version 20 and cache pnpm to smoke-test job
+- [ ] T026f [US3] Add dependency installation step `pnpm install --frozen-lockfile` to smoke-test job
+- [ ] T026g [US3] Add smoke test step with:
+  - `env.BASE_URL: https://${{ needs.deploy.outputs.cloudfront_domain }}`
+  - `run: pnpm test:e2e`
+- [ ] T026h [US3] Add Playwright report upload step for smoke tests using `actions/upload-artifact@v4` with:
+  - `if: ${{ !cancelled() }}`
+  - `name: smoke-test-report`
+  - `path: playwright-report/`
+  - `retention-days: 30`
+
+**Checkpoint**: At this point, User Stories 1, 2, AND 3 should work - merges to main trigger deployment after CI passes, then smoke tests validate production
 
 ---
 
@@ -176,11 +211,13 @@
 - [ ] T030 Run verification checklist from quickstart.md to confirm end-to-end functionality:
   - PR to main triggers CI job and E2E job (in parallel)
   - CI job completes lint, typecheck, test, build steps
-  - E2E job completes Playwright tests and uploads report artifact
+  - E2E job starts dev-server and completes Playwright tests against it
+  - E2E job uploads report artifact
   - Failed lint/test/e2e blocks PR merge
   - Merge to main triggers Deploy job (after both CI and E2E pass)
   - Deploy job successfully runs `cdk deploy`
-  - Blog is updated after successful deployment
+  - Smoke test job runs E2E tests against live production URL
+  - Blog is updated and validated after successful deployment
 
 ---
 
@@ -200,8 +237,10 @@
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
   - CI job tasks (T009-T016) and E2E job tasks (T016a-T016g) can be implemented in parallel
+  - T016a-prereq (webServer config) must be completed before E2E tests can run
 - **User Story 2 (P1)**: Extends US1's ci job - depends on T016 completion
 - **User Story 3 (P2)**: Adds deploy job with `needs: [ci, e2e]` - depends on US1 and US2 completion
+  - Smoke test job (T026b-T026h) depends on deploy job completion
 - **User Story 4 (P3)**: Mostly automatic - can verify at any point after workflow exists
 
 ### Within User Story 3 (Deploy Job)
@@ -264,10 +303,13 @@ This is more efficient than building the file piece by piece, as the contract al
 
 - [P] tasks = different files/resources, no dependencies
 - [Story] label maps task to specific user story for traceability
-- This feature primarily modifies ONE file: `.github/workflows/ci-cd.yml`
+- This feature primarily modifies TWO files: `.github/workflows/ci-cd.yml` and `packages/site/playwright.config.ts`
 - AWS setup tasks (T001-T006) are manual/console operations, not code changes
 - The contract file `contracts/ci-cd-workflow.yml` contains the complete target configuration
 - Commit workflow file after each phase or logical group of changes
 - Use `quickstart.md` verification checklist after each checkpoint
 - E2E tests use Docker container approach (see research.md Section 10) for faster execution
-- CI and E2E jobs run in parallel; deploy depends on both passing
+- **E2E Testing Strategy (two-phase)**:
+  - PR E2E tests: Run against dev-server started via Playwright's `webServer` config
+  - Post-deploy smoke tests: Run against live production URL after CDK deploy
+- CI and E2E jobs run in parallel; deploy depends on both passing; smoke tests depend on deploy

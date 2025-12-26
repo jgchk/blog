@@ -123,6 +123,7 @@ As a developer, I want to see the status of pipeline runs and access logs, so th
 - Q: How should concurrent deployments be handled? → A: Cancel in-progress deployment, run new one (latest wins)
 - Q: Which environments should the CI/CD pipeline deploy to? → A: Production only (main → prod)
 - Q: What is the expected rollback behavior if a deployment fails mid-way? → A: Rely on CDK's built-in rollback (automatic on failure, manual `cdk deploy --rollback` if needed)
+- Q: What do E2E tests run against in CI without a staging environment? → A: Two-phase approach: (1) PR E2E tests run against dev-server started in CI (validates rendering logic), (2) Post-deploy smoke tests run against production URL after successful deployment (validates real infrastructure)
 
 ## Assumptions
 
