@@ -211,8 +211,8 @@
 
 **Purpose**: Final configuration and documentation updates
 
-- [ ] T029 Configure branch protection rule on `main` requiring `CI` and `E2E Tests` status checks to pass before merge
-  - **Note**: Requires GitHub Pro for private repos, or repo must be public
+- [X] T029 Configure branch protection rule on `main` requiring `CI` and `E2E Tests` status checks to pass before merge
+  - Configured via GitHub API: `CI/CD / CI` and `CI/CD / E2E Tests` required, strict mode enabled
 - [X] T030 Run verification checklist from quickstart.md to confirm end-to-end functionality:
   - [X] PR to main triggers CI job and E2E job (in parallel)
   - [X] CI job completes lint, typecheck, test, build steps
