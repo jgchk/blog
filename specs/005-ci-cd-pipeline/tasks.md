@@ -212,16 +212,17 @@
 **Purpose**: Final configuration and documentation updates
 
 - [ ] T029 Configure branch protection rule on `main` requiring `CI` and `E2E Tests` status checks to pass before merge
-- [ ] T030 Run verification checklist from quickstart.md to confirm end-to-end functionality:
-  - PR to main triggers CI job and E2E job (in parallel)
-  - CI job completes lint, typecheck, test, build steps
-  - E2E job starts dev-server and completes Playwright tests against it
-  - E2E job uploads report artifact
-  - Failed lint/test/e2e blocks PR merge
-  - Merge to main triggers Deploy job (after both CI and E2E pass)
-  - Deploy job successfully runs `cdk deploy`
-  - Smoke test job runs E2E tests against live production URL
-  - Blog is updated and validated after successful deployment
+  - **Note**: Requires GitHub Pro for private repos, or repo must be public
+- [X] T030 Run verification checklist from quickstart.md to confirm end-to-end functionality:
+  - [X] PR to main triggers CI job and E2E job (in parallel)
+  - [X] CI job completes lint, typecheck, test, build steps
+  - [X] E2E job starts dev-server and completes Playwright tests against it
+  - [X] E2E job uploads report artifact (configured, uploads on failure)
+  - [ ] Failed lint/test/e2e blocks PR merge (requires branch protection - GitHub Pro)
+  - [ ] Merge to main triggers Deploy job (pending: merge PR to verify)
+  - [ ] Deploy job successfully runs `cdk deploy` (pending: merge PR to verify)
+  - [ ] Smoke test job runs E2E tests against live production URL (pending: merge PR to verify)
+  - [ ] Blog is updated and validated after successful deployment (pending: merge PR to verify)
 
 ---
 
