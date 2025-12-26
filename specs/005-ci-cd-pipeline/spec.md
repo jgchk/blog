@@ -111,7 +111,7 @@ As a developer, I want to see the status of pipeline runs and access logs, so th
 - **SC-001**: All pull requests receive automated feedback within 10 minutes of creation or update
 - **SC-002**: Zero deployments of code that fails lint or test checks reach production
 - **SC-003**: Successful deployments complete within 20 minutes of merge to main branch
-- **SC-004**: Pipeline failures include sufficient information for developers to diagnose issues without additional investigation 90% of the time
+- **SC-004**: Pipeline failures include sufficient information for developers to diagnose issues: step name, exit code, and relevant error output are visible in logs
 - **SC-005**: The blog remains accessible during and after deployments (zero-downtime deployment via CloudFront cached content serving requests while CDK updates backend resources)
 - **SC-006**: Developers can determine pipeline status for any commit within 30 seconds
 

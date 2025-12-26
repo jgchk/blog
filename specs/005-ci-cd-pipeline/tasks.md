@@ -32,7 +32,7 @@
 
 - [ ] T001 Create AWS OIDC Identity Provider (Console or CLI per quickstart.md Step 2)
 - [ ] T002 Create IAM role `GitHubActions-CDK-Deploy` with trust policy from contracts/aws-oidc-trust-policy.json
-- [ ] T003 Attach CDK deployment policy from contracts/aws-deploy-role-policy.json to the IAM role
+- [ ] T003 Attach CDK deployment policy from `specs/005-ci-cd-pipeline/contracts/aws-deploy-role-policy.json` to the IAM role
 - [ ] T004 Bootstrap CDK in target AWS account/region if not already done (`cdk bootstrap`)
 - [ ] T005 [P] Configure GitHub secret `AWS_DEPLOY_ROLE_ARN` with the IAM role ARN
 - [ ] T006 [P] Configure GitHub secret `GITHUB_WEBHOOK_SECRET` for webhook validation
@@ -156,9 +156,10 @@
   - `working-directory: packages/infra`
   - `run: npx cdk deploy --require-approval never -c environment=prod`
   - Add `id: cdk-deploy` to capture outputs
-- [ ] T026a [US3] Add step to extract CloudFront URL from CDK outputs after deploy:
+- [ ] T026a [US3] Add step to extract CloudFront URL from CDK outputs after deploy (per `contracts/ci-cd-workflow.yml` L136-143):
   - `id: get-url`
-  - `run: echo "url=$(aws cloudformation describe-stacks ...)" >> $GITHUB_OUTPUT`
+  - Extract domain using: `aws cloudformation describe-stacks --stack-name BlogStack --query 'Stacks[0].Outputs[?OutputKey==\`DistributionDomain\`].OutputValue' --output text`
+  - Output to GitHub: `echo "domain=$DOMAIN" >> $GITHUB_OUTPUT`
 
 ### Post-Deploy Smoke Tests
 
