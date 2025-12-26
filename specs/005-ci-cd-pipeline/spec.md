@@ -76,7 +76,7 @@ As a developer, I want to see the status of pipeline runs and access logs, so th
 ### Edge Cases
 
 - What happens when the pipeline runs concurrently on multiple PRs? The pipeline should handle concurrent runs without conflicts.
-- How does the system handle deployment failures mid-way? The deployment should be atomic - either fully succeed or roll back without leaving the blog in a broken state.
+- How does the system handle deployment failures mid-way? CDK's built-in rollback handles this automatically - if `cdk deploy` fails, CloudFormation rolls back to the previous stack state. Manual rollback via `cdk deploy --rollback` is available if needed.
 - What happens if AWS credentials expire or become invalid? The pipeline should fail with a clear error message indicating credential issues.
 - How does the system handle very large changesets that exceed build time limits? The pipeline should have reasonable timeout limits and fail gracefully with clear messaging.
 - What happens if a deployment is triggered while another is in progress? The pipeline cancels the in-progress deployment and runs the new one (latest wins strategy), using GitHub Actions `concurrency` settings with `cancel-in-progress: true`.
@@ -121,6 +121,7 @@ As a developer, I want to see the status of pipeline runs and access logs, so th
 - Q: What notification channels should the CI/CD pipeline use? → A: GitHub Actions notifications only (PR checks, commit statuses)
 - Q: How should concurrent deployments be handled? → A: Cancel in-progress deployment, run new one (latest wins)
 - Q: Which environments should the CI/CD pipeline deploy to? → A: Production only (main → prod)
+- Q: What is the expected rollback behavior if a deployment fails mid-way? → A: Rely on CDK's built-in rollback (automatic on failure, manual `cdk deploy --rollback` if needed)
 
 ## Assumptions
 
