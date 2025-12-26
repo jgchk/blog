@@ -79,7 +79,29 @@
 - [ ] T015 [US1] Add typecheck step `pnpm typecheck` to ci job in `.github/workflows/ci-cd.yml`
 - [ ] T016 [US1] Add test step `pnpm test` to ci job in `.github/workflows/ci-cd.yml`
 
-**Checkpoint**: At this point, User Story 1 should be fully functional - PRs trigger CI job with lint/typecheck/test
+### E2E Testing Job (Docker Container Approach)
+
+> **Note**: E2E tests run in a separate job using the Playwright Docker container for faster execution (no browser installation). See research.md Section 10 for rationale.
+
+- [ ] T016a [P] [US1] Add `e2e` job to `.github/workflows/ci-cd.yml` with:
+  - `name: E2E Tests`
+  - `runs-on: ubuntu-latest`
+  - `timeout-minutes: 15`
+  - `container.image: mcr.microsoft.com/playwright:v1.49.0-noble`
+  - `container.options: --user 1001 --ipc=host`
+  - `permissions.contents: read`
+- [ ] T016b [US1] Add checkout step using `actions/checkout@v4` to e2e job in `.github/workflows/ci-cd.yml`
+- [ ] T016c [US1] Add pnpm setup step using `pnpm/action-setup@v4` to e2e job in `.github/workflows/ci-cd.yml`
+- [ ] T016d [US1] Add Node.js setup step using `actions/setup-node@v4` with node-version 20 and cache pnpm to e2e job in `.github/workflows/ci-cd.yml`
+- [ ] T016e [US1] Add dependency installation step `pnpm install --frozen-lockfile` to e2e job in `.github/workflows/ci-cd.yml`
+- [ ] T016f [US1] Add e2e test step `pnpm test:e2e` to e2e job in `.github/workflows/ci-cd.yml`
+- [ ] T016g [US1] Add Playwright report upload step using `actions/upload-artifact@v4` with:
+  - `if: ${{ !cancelled() }}`
+  - `name: playwright-report`
+  - `path: playwright-report/`
+  - `retention-days: 30`
+
+**Checkpoint**: At this point, User Story 1 should be fully functional - PRs trigger CI job with lint/typecheck/test AND E2E job with Playwright tests (running in parallel)
 
 ---
 
@@ -107,7 +129,7 @@
 
 - [ ] T018 [US3] Add `deploy` job to `.github/workflows/ci-cd.yml` with:
   - `name: Deploy`
-  - `needs: ci`
+  - `needs: [ci, e2e]`
   - `if: github.ref == 'refs/heads/main' && github.event_name == 'push'`
   - `runs-on: ubuntu-latest`
   - `environment: production`
@@ -150,12 +172,13 @@
 
 **Purpose**: Final configuration and documentation updates
 
-- [ ] T029 Configure branch protection rule on `main` requiring `CI` status check to pass before merge
+- [ ] T029 Configure branch protection rule on `main` requiring `CI` and `E2E Tests` status checks to pass before merge
 - [ ] T030 Run verification checklist from quickstart.md to confirm end-to-end functionality:
-  - PR to main triggers CI job
+  - PR to main triggers CI job and E2E job (in parallel)
   - CI job completes lint, typecheck, test, build steps
-  - Failed lint/test blocks PR merge
-  - Merge to main triggers Deploy job
+  - E2E job completes Playwright tests and uploads report artifact
+  - Failed lint/test/e2e blocks PR merge
+  - Merge to main triggers Deploy job (after both CI and E2E pass)
   - Deploy job successfully runs `cdk deploy`
   - Blog is updated after successful deployment
 
@@ -176,8 +199,9 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+  - CI job tasks (T009-T016) and E2E job tasks (T016a-T016g) can be implemented in parallel
 - **User Story 2 (P1)**: Extends US1's ci job - depends on T016 completion
-- **User Story 3 (P2)**: Adds deploy job with `needs: ci` - depends on US2 completion (T017)
+- **User Story 3 (P2)**: Adds deploy job with `needs: [ci, e2e]` - depends on US1 and US2 completion
 - **User Story 4 (P3)**: Mostly automatic - can verify at any point after workflow exists
 
 ### Within User Story 3 (Deploy Job)
@@ -190,7 +214,9 @@ Sequential order matters:
 
 - **Phase 1**: T005 and T006 can run in parallel (different GitHub secrets)
 - **Phase 3**: T010-T013 are setup steps that could be written together, but must maintain order in YAML
+- **Phase 3**: T016a is marked [P] - E2E job can be implemented in parallel with CI job tasks
 - **Phase 5**: T020-T024 mirror the ci job setup and could be written quickly together
+- **Runtime**: CI and E2E jobs run in parallel during workflow execution
 
 ---
 
@@ -243,3 +269,5 @@ This is more efficient than building the file piece by piece, as the contract al
 - The contract file `contracts/ci-cd-workflow.yml` contains the complete target configuration
 - Commit workflow file after each phase or logical group of changes
 - Use `quickstart.md` verification checklist after each checkpoint
+- E2E tests use Docker container approach (see research.md Section 10) for faster execution
+- CI and E2E jobs run in parallel; deploy depends on both passing

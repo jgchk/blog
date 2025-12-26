@@ -176,8 +176,21 @@ cp specs/005-ci-cd-pipeline/contracts/ci-cd-workflow.yml .github/workflows/ci-cd
 4. Enable:
    - [x] Require status checks to pass before merging
    - [x] Require branches to be up to date before merging
-5. Select required status checks: `CI`
+5. Select required status checks: `CI` and `E2E Tests`
 6. Click **Create**
+
+---
+
+## Zero-Downtime Behavior
+
+The deployment achieves zero-downtime through CloudFront's caching behavior:
+
+1. **During `cdk deploy`**: CloudFront continues serving cached content from its edge locations
+2. **Lambda updates**: New Lambda versions are deployed atomically; API Gateway switches to new version instantly
+3. **S3 content**: Existing content remains available; new content is added without deleting old files
+4. **Cache invalidation**: Not performed automatically by CDK; content updates rely on TTL expiration or manual invalidation
+
+**To verify zero-downtime**: During a deployment, open the blog in a browser and refresh periodically. The site should remain accessible throughout.
 
 ---
 
@@ -208,9 +221,11 @@ cp specs/005-ci-cd-pipeline/contracts/ci-cd-workflow.yml .github/workflows/ci-cd
 
 After setup, verify:
 
-- [ ] PR to main triggers CI job
+- [ ] PR to main triggers CI job and E2E job (in parallel)
 - [ ] CI job completes lint, typecheck, test, build steps
-- [ ] Failed lint/test blocks PR merge (after branch protection enabled)
-- [ ] Merge to main triggers Deploy job
+- [ ] E2E job completes Playwright tests and uploads report artifact
+- [ ] Failed lint/test/e2e blocks PR merge (after branch protection enabled)
+- [ ] Merge to main triggers Deploy job (after both CI and E2E pass)
 - [ ] Deploy job successfully runs `cdk deploy`
 - [ ] Blog is updated after successful deployment
+- [ ] Blog remains accessible during deployment (zero-downtime via CloudFront caching)

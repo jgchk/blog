@@ -328,6 +328,65 @@ Rely on GitHub's built-in notification system: PR status checks plus commit stat
 
 ---
 
+## 10. Playwright E2E Testing in GitHub Actions
+
+### Decision
+Use Docker container approach with official Playwright image for e2e tests.
+
+### Rationale
+- **Eliminates browser installation time**: Standard `npx playwright install --with-deps` takes 2-3.5 minutes; Docker has browsers pre-installed
+- **More reliable**: No apt-get failures or missing OS dependencies
+- **Consistent environment**: Important for visual regression testing if added later
+- **Official recommendation**: Playwright docs recommend Docker for CI environments
+
+### Implementation
+```yaml
+e2e:
+  name: E2E Tests
+  runs-on: ubuntu-latest
+  timeout-minutes: 15
+  container:
+    image: mcr.microsoft.com/playwright:v1.49.0-noble
+    options: --user 1001 --ipc=host
+  permissions:
+    contents: read
+  steps:
+    - uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'pnpm'
+    - run: pnpm install --frozen-lockfile
+    - run: pnpm test:e2e
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
+```
+
+### Container Options Explained
+| Option | Purpose |
+|--------|---------|
+| `--user 1001` | Ensures proper permissions during test execution |
+| `--ipc=host` | Prevents Chromium from running out of memory and crashing |
+
+### Alternatives Considered
+| Alternative | Why Rejected |
+|-------------|--------------|
+| `npx playwright install --with-deps` | 2-3.5 minute overhead, can timeout |
+| Caching browser binaries | Not recommended by Playwright; restoration time ≈ download time |
+| `microsoft/playwright-github-action` | Deprecated and archived (Jan 2025) |
+
+### Performance Impact
+- Docker pull: ~15-30 seconds (cached after first run)
+- Browser installation: 0 seconds (pre-installed)
+- Total e2e job overhead vs non-Docker: **~2-3 minutes faster**
+
+---
+
 ## Pre-Implementation Checklist
 
 - [ ] AWS OIDC Identity Provider created

@@ -14,7 +14,7 @@ Implement a GitHub Actions CI/CD pipeline that automatically runs lint, test, an
 **Language/Version**: TypeScript 5.3+ targeting ES2022 on Node.js 20.x
 **Primary Dependencies**: GitHub Actions, AWS CDK 2.120.0, pnpm 8.15.0
 **Storage**: N/A (workflow files stored in `.github/workflows/`)
-**Testing**: Vitest (unit), Playwright (e2e), ESLint (lint)
+**Testing**: Vitest (unit), Playwright (e2e via Docker container), ESLint (lint)
 **Target Platform**: GitHub Actions runners (ubuntu-latest), deploying to AWS (Lambda Node.js 20.x)
 **Project Type**: Monorepo with pnpm workspaces
 **Performance Goals**: Quality checks within 10 minutes, full deployment within 20 minutes (per SC-001, SC-003)
