@@ -14,7 +14,7 @@ export default defineConfig({
   webServer: process.env.BASE_URL
     ? undefined
     : {
-        command: 'pnpm --filter @blog/dev-server start',
+        command: 'pnpm --filter @blog/dev-server start -- --no-open',
         url: 'http://localhost:3000',
         reuseExistingServer: !process.env.CI,
         timeout: 120000,
