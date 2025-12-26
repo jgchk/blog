@@ -88,6 +88,9 @@
   - `url: 'http://localhost:3000'`
   - `reuseExistingServer: !process.env.CI`
   - `timeout: 120000` (2 minutes for server startup)
+- [ ] T016a-prereq2 [US1] Add `baseURL` configuration to `packages/site/playwright.config.ts`:
+  - `use.baseURL: process.env.BASE_URL || 'http://localhost:3000'`
+  - This allows E2E tests to run against dev-server (default) or production URL (via BASE_URL env var)
 - [ ] T016a [P] [US1] Add `e2e` job to `.github/workflows/ci-cd.yml` with:
   - `name: E2E Tests`
   - `runs-on: ubuntu-latest`

@@ -112,7 +112,7 @@ As a developer, I want to see the status of pipeline runs and access logs, so th
 - **SC-002**: Zero deployments of code that fails lint or test checks reach production
 - **SC-003**: Successful deployments complete within 20 minutes of merge to main branch
 - **SC-004**: Pipeline failures include sufficient information for developers to diagnose issues without additional investigation 90% of the time
-- **SC-005**: The blog remains accessible during and after deployments (zero-downtime deployment)
+- **SC-005**: The blog remains accessible during and after deployments (zero-downtime deployment via CloudFront cached content serving requests while CDK updates backend resources)
 - **SC-006**: Developers can determine pipeline status for any commit within 30 seconds
 
 ## Clarifications
