@@ -16,7 +16,7 @@
   },
   "scripts": {
     "start": "tsx src/cli.ts",
-    "build": "esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.js --format=esm",
+    "build": "esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.js --format=esm --external:fsevents",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
