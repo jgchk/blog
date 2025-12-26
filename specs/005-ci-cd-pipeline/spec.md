@@ -79,7 +79,7 @@ As a developer, I want to see the status of pipeline runs and access logs, so th
 - How does the system handle deployment failures mid-way? The deployment should be atomic - either fully succeed or roll back without leaving the blog in a broken state.
 - What happens if AWS credentials expire or become invalid? The pipeline should fail with a clear error message indicating credential issues.
 - How does the system handle very large changesets that exceed build time limits? The pipeline should have reasonable timeout limits and fail gracefully with clear messaging.
-- What happens if a deployment is triggered while another is in progress? The pipeline should queue deployments or cancel the older one to prevent conflicts.
+- What happens if a deployment is triggered while another is in progress? The pipeline cancels the in-progress deployment and runs the new one (latest wins strategy), using GitHub Actions `concurrency` settings with `cancel-in-progress: true`.
 
 ## Requirements *(mandatory)*
 
@@ -94,7 +94,7 @@ As a developer, I want to see the status of pipeline runs and access logs, so th
 - **FR-007**: Pipeline MUST provide clear, actionable error messages when any step fails
 - **FR-008**: Pipeline MUST complete all quality checks (lint, test, build) within 15 minutes for typical changes
 - **FR-009**: Pipeline MUST securely handle AWS credentials without exposing them in logs
-- **FR-010**: Pipeline MUST notify the team when deployments succeed or fail
+- **FR-010**: Pipeline MUST notify the team via GitHub Actions native notifications (PR status checks, commit statuses) when deployments succeed or fail
 
 ### Key Entities
 
@@ -114,13 +114,28 @@ As a developer, I want to see the status of pipeline runs and access logs, so th
 - **SC-005**: The blog remains accessible during and after deployments (zero-downtime deployment)
 - **SC-006**: Developers can determine pipeline status for any commit within 30 seconds
 
+## Clarifications
+
+### Session 2025-12-26
+- Q: What is the AWS deployment target and strategy? → A: CDK-based deployment using existing `@packages/infra` stack (S3 + CloudFront + Lambda + API Gateway)
+- Q: What notification channels should the CI/CD pipeline use? → A: GitHub Actions notifications only (PR checks, commit statuses)
+- Q: How should concurrent deployments be handled? → A: Cancel in-progress deployment, run new one (latest wins)
+- Q: Which environments should the CI/CD pipeline deploy to? → A: Production only (main → prod)
+
 ## Assumptions
 
 - The blog codebase already has lint configuration (based on `pnpm lint` command in CLAUDE.md)
 - The blog codebase already has tests configured (based on `npm test` command in CLAUDE.md)
 - The blog has an existing build process that produces deployable artifacts
-- AWS infrastructure for hosting the blog already exists (S3, Lambda, etc. as mentioned in CLAUDE.md)
+- AWS infrastructure is defined in `packages/infra/` using AWS CDK, consisting of:
+  - S3 bucket for rendered content with versioning enabled
+  - CloudFront distribution for CDN with HTTPS redirect
+  - Lambda functions for rendering (via GitHub webhook) and admin operations
+  - API Gateway for webhook and admin endpoints
+  - SNS topic for alerts
+- Deployment means running `cdk deploy` which updates infrastructure and Lambda code from `packages/renderer/dist`
+- Content rendering is triggered separately via GitHub webhooks to the render Lambda (not part of CI/CD deploy step)
 - GitHub repository has the ability to configure GitHub Actions workflows
 - AWS credentials will be stored as GitHub repository secrets
-- The main branch is the production deployment branch
+- The main branch is the production deployment branch (single environment: prod only, no staging)
 - Team notifications will use GitHub's built-in notification system
