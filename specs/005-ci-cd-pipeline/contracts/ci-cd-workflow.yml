@@ -18,6 +18,7 @@ jobs:
   ci:
     name: CI
     runs-on: ubuntu-latest
+    timeout-minutes: 15 # FR-008: quality checks within 15 minutes
     permissions:
       contents: read
     steps:
@@ -54,6 +55,7 @@ jobs:
     needs: ci
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 20 # SC-003: deployment within 20 minutes
     permissions:
       contents: read
       id-token: write # Required for OIDC authentication

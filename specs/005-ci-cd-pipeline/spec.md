@@ -85,10 +85,11 @@ As a developer, I want to see the status of pipeline runs and access logs, so th
 
 ### Functional Requirements
 
-- **FR-001**: Pipeline MUST automatically trigger on pull request creation and updates to run lint, test, and build steps
+- **FR-001**: Pipeline MUST automatically trigger on pull request creation and updates to run lint, typecheck, test, and build steps
 - **FR-002**: Pipeline MUST automatically trigger on merges to the main branch to run the full lint, test, build, and deploy sequence
 - **FR-003**: Pipeline MUST fail and prevent merge if lint checks find violations
 - **FR-004**: Pipeline MUST fail and prevent merge if any test fails
+- **FR-004a**: Pipeline MUST fail and prevent merge if TypeScript type checking finds errors
 - **FR-005**: Pipeline MUST fail and prevent deployment if the build step fails
 - **FR-006**: Pipeline MUST deploy successfully built artifacts to the AWS environment
 - **FR-007**: Pipeline MUST provide clear, actionable error messages when any step fails
@@ -126,7 +127,7 @@ As a developer, I want to see the status of pipeline runs and access logs, so th
 ## Assumptions
 
 - The blog codebase already has lint configuration (based on `pnpm lint` command in CLAUDE.md)
-- The blog codebase already has tests configured (based on `npm test` command in CLAUDE.md)
+- The blog codebase already has tests configured (based on `pnpm test` command)
 - The blog has an existing build process that produces deployable artifacts
 - AWS infrastructure is defined in `packages/infra/` using AWS CDK, consisting of:
   - S3 bucket for rendered content with versioning enabled

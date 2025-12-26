@@ -51,6 +51,9 @@
   - Trigger configuration: `on.push.branches: [main]` and `on.pull_request.branches: [main]`
   - Concurrency group: `"${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"`
   - `cancel-in-progress: true`
+- [ ] T008a Add timeout configuration to workflow in `.github/workflows/ci-cd.yml`:
+  - `jobs.ci.timeout-minutes: 15` (FR-008: quality checks within 15 minutes)
+  - `jobs.deploy.timeout-minutes: 20` (SC-003: deployment within 20 minutes)
 
 **Checkpoint**: Base workflow file exists and triggers on PR/push events
 
