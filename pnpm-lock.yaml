@@ -161,6 +161,9 @@ importers:
       aws-cdk:
         specifier: ^2.120.0
         version: 2.1100.1
+      tsx:
+        specifier: ^4.7.0
+        version: 4.21.0
       typescript:
         specifier: ^5.3.0
         version: 5.9.3
