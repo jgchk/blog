@@ -46,13 +46,13 @@
 
 ### SyncOrchestrator Core (Required by US1, US2, US3, US4)
 
-- [ ] T009 [P] Define SyncRequest, SyncResult, and RenderNotification types in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T010 [P] Unit test for SyncOrchestrator constructor and dependency injection in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
-- [ ] T011 Implement SyncOrchestrator skeleton with isSyncInProgress() and getCurrentSync() in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T011a [P] Unit test for SyncOrchestrator generates unique syncId and tracks status in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
-- [ ] T011b Implement syncId generation (UUID) and status tracking (pending/running/completed/failed) in SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T011c Add affected files list tracking to SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T012 Export SyncOrchestrator from packages/renderer/src/services/index.ts
+- [x] T009 [P] Define SyncRequest, SyncResult, and RenderNotification types in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T010 [P] Unit test for SyncOrchestrator constructor and dependency injection in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
+- [x] T011 Implement SyncOrchestrator skeleton with isSyncInProgress() and getCurrentSync() in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T011a [P] Unit test for SyncOrchestrator generates unique syncId and tracks status in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
+- [x] T011b Implement syncId generation (UUID) and status tracking (pending/running/completed/failed) in SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T011c Add affected files list tracking to SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T012 Export SyncOrchestrator from packages/renderer/src/services/index.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
