@@ -37,12 +37,12 @@
 
 ### GitHubContentFetcher (Required by US1, US2, US3)
 
-- [ ] T003 [P] Unit test for GitHubContentFetcher.fetchFile in packages/renderer/tests/unit/adapters/github-content.test.ts
-- [ ] T004 [P] Unit test for GitHubContentFetcher.listDirectory in packages/renderer/tests/unit/adapters/github-content.test.ts
-- [ ] T005 [P] Unit test for GitHubContentFetcher.listPostSlugs in packages/renderer/tests/unit/adapters/github-content.test.ts
-- [ ] T006 [P] Unit test for GitHubContentFetcher.fetchPostFiles in packages/renderer/tests/unit/adapters/github-content.test.ts
-- [ ] T007 Implement GitHubContentFetcher adapter in packages/renderer/src/adapters/github-content.ts
-- [ ] T008 Export GitHubContentFetcher from packages/renderer/src/adapters/index.ts
+- [x] T003 [P] Unit test for GitHubContentFetcher.fetchFile in packages/renderer/tests/unit/adapters/github-content.test.ts
+- [x] T004 [P] Unit test for GitHubContentFetcher.listDirectory in packages/renderer/tests/unit/adapters/github-content.test.ts
+- [x] T005 [P] Unit test for GitHubContentFetcher.listPostSlugs in packages/renderer/tests/unit/adapters/github-content.test.ts
+- [x] T006 [P] Unit test for GitHubContentFetcher.fetchPostFiles in packages/renderer/tests/unit/adapters/github-content.test.ts
+- [x] T007 Implement GitHubContentFetcher adapter in packages/renderer/src/adapters/github-content.ts
+- [x] T008 Export GitHubContentFetcher from packages/renderer/src/adapters/index.ts
 
 ### SyncOrchestrator Core (Required by US1, US2, US3, US4)
 
