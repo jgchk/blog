@@ -19,6 +19,7 @@ Connect the existing GitHub webhook handler to the rendering pipeline so that pu
 **Project Type**: Monorepo with 5 packages (@blog/core, @blog/renderer, @blog/dev-server, @blog/infra, @blog/site)
 **Performance Goals**: Posts visible within 60 seconds of push; full render of 500 posts without timeout
 **Constraints**: Lambda 15-minute max execution; public GitHub repo (no auth needed to fetch)
+**Async Pattern**: API Gateway invokes render Lambda asynchronously for webhook events; Lambda returns 202 Accepted immediately while processing continues. This satisfies FR-010 without additional application-level async handling.
 **Scale/Scope**: Up to 500 posts; typical push affects 1-5 files
 
 ## Constitution Check
@@ -115,7 +116,7 @@ packages/
 │   ├── src/
 │   │   ├── adapters/     # S3StorageAdapter, SnsNotifierAdapter
 │   │   ├── handlers/     # webhook.ts, admin.ts (Lambda entry points)
-│   │   └── services/     # RenderService, SyncTracker, RetryHandler
+│   │   └── services/     # SyncOrchestrator
 │   └── tests/
 │       ├── contract/     # webhook.test.ts, admin-api.test.ts
 │       ├── integration/  # render-pipeline.test.ts

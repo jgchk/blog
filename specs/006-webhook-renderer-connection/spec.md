@@ -74,8 +74,8 @@ As a blog administrator, I want to know when rendering completes or fails, so th
 - What happens when a pushed file is not valid markdown? The system logs an error for that file but continues processing other files.
 - What happens when the repository is inaccessible during rendering? The operation fails gracefully with an error notification.
 - What happens when a push contains changes to non-post files (e.g., templates, config)? Only files in the `posts/` directory trigger rendering; other changes are ignored by the incremental webhook handler.
-- What happens when multiple pushes occur in rapid succession? Each push is processed independently; concurrent operations should not corrupt content.
-- What happens when co-located assets have very large file sizes? Large files are handled up to a reasonable limit (documented in assumptions).
+- What happens when multiple pushes occur in rapid succession? Each push is processed independently. For different posts, operations run concurrently without interference. For the same post, S3's last-write-wins semantics apply—the final push's content becomes authoritative. No application-level locking is required.
+- What happens when co-located assets have very large file sizes? Individual files up to 10MB are handled; larger files are skipped with a warning logged. Posts with cumulative assets exceeding 50MB are processed but may approach Lambda memory limits; a warning is logged when total exceeds 25MB.
 
 ## Requirements *(mandatory)*
 
@@ -98,20 +98,28 @@ As a blog administrator, I want to know when rendering completes or fails, so th
 
 - **Post**: A markdown file with front matter metadata, located in `posts/{slug}/index.md`, representing a single blog article.
 - **Post Assets**: Images and other files co-located with a post in its directory (e.g., `posts/{slug}/hero.jpg`).
-- **Sync Operation**: A tracked rendering job with a unique identifier, start time, status, and list of affected files.
+- **Sync Operation**: A tracked rendering job with a unique identifier, start time, status, and list of affected files. Sync operations are tracked in-memory for the duration of the Lambda invocation and logged to CloudWatch for post-hoc analysis. No persistent storage of sync state is required.
 - **Webhook Event**: An incoming notification from the source code platform indicating changes have been pushed.
-- **Render Notification**: A message sent after rendering completes or fails, containing status and summary information.
+- **Render Notification**: A message sent after rendering completes or fails, containing:
+  - `type`: "success" | "failure"
+  - `syncId`: Unique identifier for the sync operation
+  - `timestamp`: ISO 8601 completion time
+  - `summary`: Object with `postsRendered`, `postsDeleted`, `assetsCopied` counts (success) or `error` message (failure)
+  - `duration`: Milliseconds elapsed
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: New posts are visible on the public blog within 60 seconds of pushing to main branch.
+- **SC-001**: New posts are visible on the public blog within 60 seconds of pushing to main branch under normal operating conditions (single post, assets under 5MB total).
 - **SC-002**: 100% of webhook-triggered operations complete without manual intervention during normal operation.
-- **SC-003**: Full site render completes all posts without timeout for blogs with up to 500 posts.
+- **SC-003**: Full site render completes all posts without timeout for blogs with up to 500 posts (target: under 10 minutes with Lambda 15-minute limit as hard ceiling).
 - **SC-004**: Administrators receive render status notifications within 30 seconds of operation completion.
-- **SC-005**: Zero posts are lost or corrupted when multiple pushes occur within a 10-second window.
+- **SC-005**: Zero posts are lost or corrupted when multiple pushes occur within a 10-second window. Each push is processed independently; operations on different posts may run concurrently, while operations on the same post are serialized by S3's eventual consistency model.
 - **SC-006**: Post deletions are reflected on the public site within 60 seconds of push.
+- **SC-007**: Render operation timing is logged to CloudWatch, enabling verification of 60-second latency target.
+
+**SC-001 Verification Note**: The 60-second latency target (SC-001) is verified through CloudWatch log analysis using timing data from SC-007, not through automated tests. This avoids flaky timing-dependent tests while providing production observability.
 
 ## Clarifications
 
@@ -125,7 +133,7 @@ As a blog administrator, I want to know when rendering completes or fails, so th
 - The source repository is a public GitHub repository (no authentication required to fetch content).
 - Posts follow the convention `posts/{slug}/index.md` with optional co-located assets.
 - The rendering service has network access to fetch content from the repository.
-- The notification system is already configured and operational.
+- The SNS topic for notifications is already provisioned in the CDK stack (created by feature 005-ci-cd-pipeline); this feature adds message formatting and publishing logic. The topic ARN is provided via the `NOTIFICATION_TOPIC_ARN` environment variable. See `packages/infra/lib/blog-stack.ts` for the existing topic definition.
 - Co-located asset files are limited to reasonable sizes (under 10MB each) for practical transfer times.
 - The webhook secret is properly configured for request validation.
 - Tag pages functionality already exists and can be invoked as part of the rendering process.
