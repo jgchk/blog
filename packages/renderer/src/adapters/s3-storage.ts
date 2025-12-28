@@ -102,6 +102,20 @@ export class S3StorageAdapter implements StorageAdapter {
   }
 
   /**
+   * Delete all objects with a given prefix.
+   * Useful for deleting entire directories (e.g., articles/slug/)
+   */
+  async deletePrefix(prefix: string): Promise<string[]> {
+    const keys = await this.list(prefix);
+
+    for (const key of keys) {
+      await this.delete(key);
+    }
+
+    return keys;
+  }
+
+  /**
    * Infer content type from file extension
    */
   private inferContentType(key: string): string {

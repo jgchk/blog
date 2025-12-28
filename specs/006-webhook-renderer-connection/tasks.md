@@ -68,30 +68,30 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T013 [P] [US1] Unit test for SyncOrchestrator.sync() incremental mode in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
-- [ ] T014 [P] [US1] Unit test for asset copying in SyncOrchestrator in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
-- [ ] T015 [P] [US1] Contract test for POST /webhook/github triggers sync in packages/renderer/tests/contract/webhook.test.ts
-- [ ] T016 [P] [US1] Integration test for incremental sync flow in packages/renderer/tests/integration/sync-orchestrator.test.ts
-- [ ] T016a [P] [US1] Unit test for concurrent sync operations do not corrupt state in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
-- [ ] T016b [P] [US1] Integration test simulating two concurrent pushes affecting different posts complete without corruption in packages/renderer/tests/integration/sync-orchestrator.test.ts
+- [x] T013 [P] [US1] Unit test for SyncOrchestrator.sync() incremental mode in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
+- [x] T014 [P] [US1] Unit test for asset copying in SyncOrchestrator in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
+- [x] T015 [P] [US1] Contract test for POST /webhook/github triggers sync in packages/renderer/tests/contract/webhook.test.ts
+- [x] T016 [P] [US1] Integration test for incremental sync flow in packages/renderer/tests/integration/sync-orchestrator.test.ts
+- [x] T016a [P] [US1] Unit test for concurrent sync operations do not corrupt state in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
+- [x] T016b [P] [US1] Integration test simulating two concurrent pushes affecting different posts complete without corruption in packages/renderer/tests/integration/sync-orchestrator.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T017 [US1] Implement SyncOrchestrator.sync() for incremental rendering in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T018 [US1] Add fetchAndRenderPost() helper method to SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T019 [US1] Add copyPostAssets() method to SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T019a [P] [US1] Unit test for copyPostAssets skips files >10MB with warning logged in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
-- [ ] T019b [US1] Add file size check (10MB limit) to copyPostAssets() with warning log in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T019c [P] [US1] Unit test for copyPostAssets logs warning when cumulative size exceeds 25MB in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
-- [ ] T019d [US1] Add cumulative size tracking with 25MB warning threshold to copyPostAssets() in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T020 [US1] Add tag page regeneration to sync() completion in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T021 [US1] Add CloudFront cache invalidation to sync() completion in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T022 [US1] Update webhook handler to call SyncOrchestrator.sync() in packages/renderer/src/handlers/webhook.ts
-- [ ] T022a [P] [US1] Unit test for webhook signature validation in packages/renderer/tests/unit/handlers/webhook.test.ts
-- [ ] T022b [US1] Implement webhook signature validation using WEBHOOK_SECRET in packages/renderer/src/handlers/webhook.ts
-- [ ] T023 [US1] Add parseRepository() utility to packages/renderer/src/utils/github.ts
-- [ ] T023a [US1] Export parseRepository from packages/renderer/src/utils/index.ts
-- [ ] T024 [US1] Update handler exports with SyncOrchestrator dependency in packages/renderer/src/handlers/index.ts
+- [x] T017 [US1] Implement SyncOrchestrator.sync() for incremental rendering in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T018 [US1] Add fetchAndRenderPost() helper method to SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T019 [US1] Add copyPostAssets() method to SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T019a [P] [US1] Unit test for copyPostAssets skips files >10MB with warning logged in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
+- [x] T019b [US1] Add file size check (10MB limit) to copyPostAssets() with warning log in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T019c [P] [US1] Unit test for copyPostAssets logs warning when cumulative size exceeds 25MB in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
+- [x] T019d [US1] Add cumulative size tracking with 25MB warning threshold to copyPostAssets() in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T020 [US1] Add tag page regeneration to sync() completion in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T021 [US1] Add CloudFront cache invalidation to sync() completion in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T022 [US1] Update webhook handler to call SyncOrchestrator.sync() in packages/renderer/src/handlers/webhook.ts
+- [x] T022a [P] [US1] Unit test for webhook signature validation in packages/renderer/tests/unit/handlers/webhook.test.ts
+- [x] T022b [US1] Implement webhook signature validation using WEBHOOK_SECRET in packages/renderer/src/handlers/webhook.ts
+- [x] T023 [US1] Add parseRepository() utility to packages/renderer/src/utils/github.ts
+- [x] T023a [US1] Export parseRepository from packages/renderer/src/utils/index.ts
+- [x] T024 [US1] Update handler exports with SyncOrchestrator dependency in packages/renderer/src/handlers/index.ts
 
 **Checkpoint**: User Story 1 fully functional - webhook triggers incremental rendering
 
@@ -105,21 +105,21 @@
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T025 [P] [US2] Unit test for SyncOrchestrator.sync() full mode in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
-- [ ] T026 [P] [US2] Contract test for POST /admin/render triggers full sync in packages/renderer/tests/contract/admin-api.test.ts
-- [ ] T027 [P] [US2] Contract test for POST /admin/render returns 409 when sync in progress in packages/renderer/tests/contract/admin-api.test.ts
-- [ ] T028 [P] [US2] Integration test for full sync flow in packages/renderer/tests/integration/sync-orchestrator.test.ts
+- [x] T025 [P] [US2] Unit test for SyncOrchestrator.sync() full mode in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
+- [x] T026 [P] [US2] Contract test for POST /admin/render triggers full sync in packages/renderer/tests/contract/admin-api.test.ts
+- [x] T027 [P] [US2] Contract test for POST /admin/render returns 409 when sync in progress in packages/renderer/tests/contract/admin-api.test.ts
+- [x] T028 [P] [US2] Integration test for full sync flow in packages/renderer/tests/integration/sync-orchestrator.test.ts
 
 ### Implementation for User Story 2
 
-- [ ] T029 [US2] Implement SyncOrchestrator.sync() for full rendering mode in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T030 [US2] Add triggerFullRender() method to AdminHandler in packages/renderer/src/handlers/admin.ts
-- [ ] T031 [US2] Import parseRepository from utils in admin handler packages/renderer/src/handlers/admin.ts
-- [ ] T032 [US2] Wire triggerFullRender to route() method in packages/renderer/src/handlers/admin.ts
-- [ ] T033 [US2] Update AdminHandler export with SyncOrchestrator dependency in packages/renderer/src/handlers/index.ts
-- [ ] T034 [US2] Add GITHUB_REPOSITORY environment variable to CDK stack in packages/infra/lib/blog-stack.ts
-- [ ] T035 [US2] Increase render Lambda timeout to 5 minutes in packages/infra/lib/blog-stack.ts
-- [ ] T036 [US2] Add /admin/render route to API Gateway in packages/infra/lib/blog-stack.ts
+- [x] T029 [US2] Implement SyncOrchestrator.sync() for full rendering mode in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T030 [US2] Add triggerFullRender() method to AdminHandler in packages/renderer/src/handlers/admin.ts
+- [x] T031 [US2] Import parseRepository from utils in admin handler packages/renderer/src/handlers/admin.ts
+- [x] T032 [US2] Wire triggerFullRender to route() method in packages/renderer/src/handlers/admin.ts
+- [x] T033 [US2] Update AdminHandler export with SyncOrchestrator dependency in packages/renderer/src/handlers/index.ts
+- [x] T034 [US2] Add GITHUB_REPOSITORY environment variable to CDK stack in packages/infra/lib/blog-stack.ts
+- [x] T035 [US2] Increase render Lambda timeout to 5 minutes in packages/infra/lib/blog-stack.ts
+- [x] T036 [US2] Add /admin/render route to API Gateway in packages/infra/lib/blog-stack.ts
 
 **Checkpoint**: User Story 2 complete - full render on demand works
 
@@ -133,16 +133,16 @@
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T037 [P] [US3] Unit test for SyncOrchestrator handles deletions in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
-- [ ] T038 [P] [US3] Unit test for S3StorageAdapter.deletePrefix() in packages/renderer/tests/unit/adapters/s3-storage.test.ts
-- [ ] T039 [P] [US3] Integration test for deletion sync flow in packages/renderer/tests/integration/sync-orchestrator.test.ts
+- [x] T037 [P] [US3] Unit test for SyncOrchestrator handles deletions in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
+- [x] T038 [P] [US3] Unit test for S3StorageAdapter.deletePrefix() in packages/renderer/tests/unit/adapters/s3-storage.test.ts
+- [x] T039 [P] [US3] Integration test for deletion sync flow in packages/renderer/tests/integration/sync-orchestrator.test.ts
 
 ### Implementation for User Story 3
 
-- [ ] T040 [US3] Add deletePrefix() method to S3StorageAdapter in packages/renderer/src/adapters/s3-storage.ts
-- [ ] T041 [US3] Add deletePost() method to SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T042 [US3] Update sync() to handle removed files from changes in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T043 [US3] Add deletion paths to CloudFront invalidation in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T040 [US3] Add deletePrefix() method to S3StorageAdapter in packages/renderer/src/adapters/s3-storage.ts
+- [x] T041 [US3] Add deletePost() method to SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T042 [US3] Update sync() to handle removed files from changes in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T043 [US3] Add deletion paths to CloudFront invalidation in packages/renderer/src/services/sync-orchestrator.ts
 
 **Checkpoint**: User Story 3 complete - post deletions handled correctly
 
@@ -156,16 +156,16 @@
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T044 [P] [US4] Unit test for SyncOrchestrator sends success notification in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
-- [ ] T045 [P] [US4] Unit test for SyncOrchestrator sends failure notification in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
+- [x] T044 [P] [US4] Unit test for SyncOrchestrator sends success notification in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
+- [x] T045 [P] [US4] Unit test for SyncOrchestrator sends failure notification in packages/renderer/tests/unit/services/sync-orchestrator.test.ts
 
 ### Implementation for User Story 4
 
-- [ ] T046 [US4] Add buildSuccessNotification() method to SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T047 [US4] Add buildFailureNotification() method to SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T048 [US4] Update sync() to send notifications on completion in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T049 [US4] Update sync() to send notifications on failure in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T049a [US4] Add NOTIFICATION_TOPIC_ARN environment variable to render Lambda in packages/infra/lib/blog-stack.ts
+- [x] T046 [US4] Add buildSuccessNotification() method to SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T047 [US4] Add buildFailureNotification() method to SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T048 [US4] Update sync() to send notifications on completion in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T049 [US4] Update sync() to send notifications on failure in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T049a [US4] Add NOTIFICATION_TOPIC_ARN environment variable to render Lambda in packages/infra/lib/blog-stack.ts
 
 **Checkpoint**: User Story 4 complete - notifications working
 
@@ -175,12 +175,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T050 [P] Add error handling and logging throughout SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T050a [P] Add structured timing logs (sync start/end with duration) for SC-007 verification in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T050 [P] Add error handling and logging throughout SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
+- [x] T050a [P] Add structured timing logs (sync start/end with duration) for SC-007 verification in packages/renderer/src/services/sync-orchestrator.ts
 - [ ] T051 [P] Add retry logic for transient GitHub API failures in packages/renderer/src/adapters/github-content.ts
-- [ ] T052 Run pnpm lint and fix any issues in packages/renderer/
-- [ ] T053 Run pnpm typecheck and fix any type errors in packages/renderer/
-- [ ] T054 Run full test suite: pnpm --filter @blog/renderer test
+- [x] T052 Run pnpm lint and fix any issues in packages/renderer/
+- [x] T053 Run pnpm typecheck and fix any type errors in packages/renderer/
+- [x] T054 Run full test suite: pnpm --filter @blog/renderer test
 - [ ] T055 Run quickstart.md validation steps
 
 ---

@@ -16,6 +16,8 @@ export interface BlogStackProps extends cdk.StackProps {
   githubWebhookSecret: string;
   /** Email address for alert notifications */
   alertEmail?: string;
+  /** GitHub repository for full render (owner/repo format) */
+  githubRepository?: string;
 }
 
 export class BlogStack extends cdk.Stack {
@@ -59,20 +61,21 @@ export class BlogStack extends cdk.Stack {
       displayName: 'Blog Sync Alerts',
     });
 
-    // Render Lambda function
+    // Render Lambda function (increased timeout for full renders)
     const renderFunction = new lambda.Function(this, 'RenderFunction', {
       functionName: `blog-render-${props.environment}`,
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'handler.handleWebhook',
       code: lambda.Code.fromAsset('../renderer/dist'),
-      timeout: cdk.Duration.seconds(30),
-      memorySize: 256,
+      timeout: cdk.Duration.minutes(5), // Increased for full renders
+      memorySize: 512, // Increased for rendering
       environment: {
         S3_BUCKET: this.contentBucket.bucketName,
         CLOUDFRONT_DISTRIBUTION_ID: this.distribution.distributionId,
         GITHUB_WEBHOOK_SECRET: props.githubWebhookSecret,
         SNS_TOPIC_ARN: this.alertTopic.topicArn,
         NODE_ENV: props.environment,
+        ...(props.githubRepository && { GITHUB_REPOSITORY: props.githubRepository }),
       },
       logRetention: logs.RetentionDays.TWO_WEEKS,
     });
@@ -91,22 +94,37 @@ export class BlogStack extends cdk.Stack {
       })
     );
 
-    // Admin Lambda function
+    // Admin Lambda function (uses render function for full renders via orchestrator)
     const adminFunction = new lambda.Function(this, 'AdminFunction', {
       functionName: `blog-admin-${props.environment}`,
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'handler.handleAdmin',
       code: lambda.Code.fromAsset('../renderer/dist'),
-      timeout: cdk.Duration.seconds(10),
-      memorySize: 128,
+      timeout: cdk.Duration.minutes(10), // Increased for full renders
+      memorySize: 512, // Increased for rendering
       environment: {
         S3_BUCKET: this.contentBucket.bucketName,
+        CLOUDFRONT_DISTRIBUTION_ID: this.distribution.distributionId,
+        SNS_TOPIC_ARN: this.alertTopic.topicArn,
         NODE_ENV: props.environment,
+        ...(props.githubRepository && { GITHUB_REPOSITORY: props.githubRepository }),
       },
       logRetention: logs.RetentionDays.TWO_WEEKS,
     });
 
-    this.contentBucket.grantRead(adminFunction);
+    // Admin function needs full permissions for full render
+    this.contentBucket.grantReadWrite(adminFunction);
+    this.alertTopic.grantPublish(adminFunction);
+
+    // Admin CloudFront invalidation permission
+    adminFunction.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['cloudfront:CreateInvalidation'],
+        resources: [
+          `arn:aws:cloudfront::${this.account}:distribution/${this.distribution.distributionId}`,
+        ],
+      })
+    );
 
     // API Gateway
     this.api = new apigateway.RestApi(this, 'Api', {
@@ -152,6 +170,12 @@ export class BlogStack extends cdk.Stack {
     // /admin/health
     const healthResource = adminResource.addResource('health');
     healthResource.addMethod('GET', adminIntegration, {
+      authorizationType: apigateway.AuthorizationType.IAM,
+    });
+
+    // /admin/render (full site render)
+    const renderResource = adminResource.addResource('render');
+    renderResource.addMethod('POST', adminIntegration, {
       authorizationType: apigateway.AuthorizationType.IAM,
     });
 

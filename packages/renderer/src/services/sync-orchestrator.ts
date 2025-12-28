@@ -13,13 +13,13 @@ import type {
   Article,
   TagIndex,
 } from '@blog/core';
-import { TagIndex as TagIndexClass } from '@blog/core';
+import { TagIndex as TagIndexClass, formatValidationError } from '@blog/core';
 import type {
   GitHubContentFetcher,
   RepositoryRef,
   GitHubFile,
 } from '../adapters/github-content.js';
-import type { RenderService, RenderResult } from './render-service.js';
+import type { RenderService } from './render-service.js';
 import type { SyncTracker } from './sync-tracker.js';
 
 /**
@@ -197,9 +197,9 @@ export class SyncOrchestrator {
    * Extract post slug from file path.
    * e.g., "posts/hello-world/index.md" -> "hello-world"
    */
-  private extractSlugFromPath(path: string): string | null {
+  private extractSlugFromPath(path: string): string | undefined {
     const match = path.match(/^posts\/([^/]+)\//);
-    return match ? match[1] : null;
+    return match ? match[1] : undefined;
   }
 
   /**
@@ -374,7 +374,7 @@ export class SyncOrchestrator {
     );
 
     if (!renderResult.success) {
-      throw new Error(`Failed to render ${slug}: ${renderResult.error.message}`);
+      throw new Error(`Failed to render ${slug}: ${formatValidationError(renderResult.error)}`);
     }
 
     const article = renderResult.article;
@@ -454,11 +454,7 @@ export class SyncOrchestrator {
    * Build TagIndex from articles.
    */
   private buildTagIndex(articles: Article[]): TagIndex {
-    const tagIndex = new TagIndexClass();
-    for (const article of articles) {
-      tagIndex.addArticle(article);
-    }
-    return tagIndex;
+    return TagIndexClass.buildFromArticles(articles);
   }
 
   /**
@@ -486,10 +482,10 @@ export class SyncOrchestrator {
       severity: hasWarnings ? 'warning' : 'info',
       metadata: {
         syncId: result.syncId,
-        articlesProcessed: result.articlesRendered.length,
-        articlesFailed: result.articlesFailed.length,
-        articlesDeleted: result.articlesDeleted.length,
-        durationMs,
+        articlesProcessed: String(result.articlesRendered.length),
+        articlesFailed: String(result.articlesFailed.length),
+        articlesDeleted: String(result.articlesDeleted.length),
+        durationMs: String(durationMs),
       },
     };
   }
@@ -510,10 +506,10 @@ export class SyncOrchestrator {
       severity: 'error',
       metadata: {
         syncId,
-        articlesProcessed: 0,
-        articlesFailed: 0,
-        articlesDeleted: 0,
-        durationMs,
+        articlesProcessed: '0',
+        articlesFailed: '0',
+        articlesDeleted: '0',
+        durationMs: String(durationMs),
       },
     };
   }

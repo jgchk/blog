@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { StorageAdapter, NotificationAdapter, SyncStatus, Article, NotificationMessage } from '@blog/core';
-import type { GitHubFile, RepositoryRef } from '../../../src/adapters/github-content.js';
+import type { StorageAdapter, NotificationAdapter, Article } from '@blog/core';
+import type { RepositoryRef } from '../../../src/adapters/github-content.js';
 
 // Mock types for testing
 interface MockGitHubContentFetcher {
