@@ -201,6 +201,68 @@ describe('GitHubContentFetcher', () => {
         'Failed to list directory'
       );
     });
+
+    it('should retry on transient 5xx errors', async () => {
+      const mockApiResponse = [
+        { name: 'hello-world', path: 'posts/hello-world', type: 'dir', size: 0, download_url: null },
+      ];
+      // First call fails with 503, second succeeds
+      const failResponse = new Response('Service Unavailable', { status: 503 });
+      const successResponse = new Response(JSON.stringify(mockApiResponse), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      vi.mocked(fetch)
+        .mockResolvedValueOnce(failResponse)
+        .mockResolvedValueOnce(successResponse);
+
+      const result = await fetcher.listDirectory(mockRepo, 'posts');
+
+      expect(result).toHaveLength(1);
+      expect(fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it('should retry on network errors', async () => {
+      const mockApiResponse = [
+        { name: 'hello-world', path: 'posts/hello-world', type: 'dir', size: 0, download_url: null },
+      ];
+      const successResponse = new Response(JSON.stringify(mockApiResponse), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      // First call throws network error, second succeeds
+      vi.mocked(fetch)
+        .mockRejectedValueOnce(new Error('ECONNRESET'))
+        .mockResolvedValueOnce(successResponse);
+
+      const result = await fetcher.listDirectory(mockRepo, 'posts');
+
+      expect(result).toHaveLength(1);
+      expect(fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it('should exhaust retries and throw on persistent failures', async () => {
+      const failResponse = new Response('Service Unavailable', { status: 503 });
+      vi.mocked(fetch)
+        .mockResolvedValueOnce(failResponse)
+        .mockResolvedValueOnce(failResponse)
+        .mockResolvedValueOnce(failResponse);
+
+      await expect(fetcher.listDirectory(mockRepo, 'posts')).rejects.toThrow(
+        'Failed to list directory'
+      );
+      expect(fetch).toHaveBeenCalledTimes(3); // initial + 2 retries
+    });
+
+    it('should not retry on non-transient errors like 404', async () => {
+      const notFoundResponse = new Response('Not Found', { status: 404 });
+      vi.mocked(fetch).mockResolvedValueOnce(notFoundResponse);
+
+      await expect(fetcher.listDirectory(mockRepo, 'nonexistent')).rejects.toThrow(
+        'Directory not found'
+      );
+      expect(fetch).toHaveBeenCalledTimes(1); // no retries
+    });
   });
 
   describe('listPostSlugs', () => {

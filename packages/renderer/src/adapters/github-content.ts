@@ -79,6 +79,37 @@ interface GitHubApiDirectoryEntry {
 
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
 const DEFAULT_MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const DEFAULT_MAX_RETRIES = 2; // 2 retries = 3 total attempts
+const DEFAULT_RETRY_DELAY_MS = 1000; // 1 second initial delay
+
+/**
+ * Check if an error is transient and should be retried.
+ * Transient errors include: 5xx server errors, network errors.
+ * Non-transient errors (4xx except rate limit) should not be retried.
+ */
+function isTransientError(error: unknown): boolean {
+  if (error instanceof Error) {
+    // Network errors (ECONNRESET, ETIMEDOUT, etc.)
+    if (
+      error.message.includes('ECONNRESET') ||
+      error.message.includes('ETIMEDOUT') ||
+      error.message.includes('ENOTFOUND') ||
+      error.message.includes('network')
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Check if an HTTP status code indicates a transient error.
+ */
+function isTransientStatusCode(status: number): boolean {
+  // 5xx server errors are transient
+  // 429 rate limit is transient
+  return status >= 500 || status === 429;
+}
 
 /**
  * Fetches content from GitHub repositories using raw content and API endpoints.
@@ -145,43 +176,83 @@ export class GitHubContentFetcher {
 
   /**
    * List contents of a directory in the repository.
+   * Uses retry logic for transient GitHub API failures (5xx, network errors).
    * @param repo Repository reference
    * @param path Directory path relative to repo root
    * @returns Array of directory entries
    */
   async listDirectory(repo: RepositoryRef, path: string): Promise<GitHubDirectoryEntry[]> {
     const url = `${this.apiBaseUrl}/repos/${repo.owner}/${repo.name}/contents/${path}?ref=${repo.ref}`;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT);
 
-    try {
-      const response = await fetch(url, {
-        signal: controller.signal,
-        headers: {
-          Accept: 'application/vnd.github.v3+json',
-        },
-      });
+    let lastError: Error | null = null;
+    const maxAttempts = DEFAULT_MAX_RETRIES + 1; // +1 for initial attempt
 
-      if (response.status === 404) {
-        throw new Error(`Directory not found: ${path}`);
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT);
+
+      try {
+        const response = await fetch(url, {
+          signal: controller.signal,
+          headers: {
+            Accept: 'application/vnd.github.v3+json',
+          },
+        });
+
+        clearTimeout(timeoutId);
+
+        // Non-transient errors should not be retried
+        if (response.status === 404) {
+          throw new Error(`Directory not found: ${path}`);
+        }
+
+        // Check for transient errors that should be retried
+        if (!response.ok) {
+          const error = new Error(
+            `Failed to list directory: ${response.status} ${response.statusText}`
+          );
+
+          if (isTransientStatusCode(response.status)) {
+            // Transient error - will be retried
+            lastError = error;
+            if (attempt < maxAttempts) {
+              console.warn(`GitHub API retry attempt ${attempt} for ${path}: ${error.message}`);
+              // Small delay before retry (exponential backoff would be better for production)
+              await new Promise((resolve) => setTimeout(resolve, DEFAULT_RETRY_DELAY_MS * attempt));
+              continue;
+            }
+          }
+          // Non-transient error or exhausted retries
+          throw error;
+        }
+
+        const data = (await response.json()) as GitHubApiDirectoryEntry[];
+
+        return data.map((entry) => ({
+          name: entry.name,
+          path: entry.path,
+          type: entry.type,
+          size: entry.size,
+          downloadUrl: entry.download_url,
+        }));
+      } catch (error) {
+        clearTimeout(timeoutId);
+
+        // Check if this is a network/transient error that should be retried
+        if (isTransientError(error) && attempt < maxAttempts) {
+          lastError = error instanceof Error ? error : new Error(String(error));
+          console.warn(`GitHub API retry attempt ${attempt} for ${path}: ${lastError.message}`);
+          await new Promise((resolve) => setTimeout(resolve, DEFAULT_RETRY_DELAY_MS * attempt));
+          continue;
+        }
+
+        // Non-transient error or exhausted retries - rethrow
+        throw error;
       }
-
-      if (!response.ok) {
-        throw new Error(`Failed to list directory: ${response.status} ${response.statusText}`);
-      }
-
-      const data = (await response.json()) as GitHubApiDirectoryEntry[];
-
-      return data.map((entry) => ({
-        name: entry.name,
-        path: entry.path,
-        type: entry.type,
-        size: entry.size,
-        downloadUrl: entry.download_url,
-      }));
-    } finally {
-      clearTimeout(timeoutId);
     }
+
+    // Should not reach here, but throw last error if we do
+    throw lastError ?? new Error(`Failed to list directory: ${path}`);
   }
 
   /**

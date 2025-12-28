@@ -177,7 +177,7 @@
 
 - [x] T050 [P] Add error handling and logging throughout SyncOrchestrator in packages/renderer/src/services/sync-orchestrator.ts
 - [x] T050a [P] Add structured timing logs (sync start/end with duration) for SC-007 verification in packages/renderer/src/services/sync-orchestrator.ts
-- [ ] T051 [P] Add retry logic for transient GitHub API failures in packages/renderer/src/adapters/github-content.ts
+- [x] T051 [P] Add retry logic for transient GitHub API failures in packages/renderer/src/adapters/github-content.ts
 - [x] T052 Run pnpm lint and fix any issues in packages/renderer/
 - [x] T053 Run pnpm typecheck and fix any type errors in packages/renderer/
 - [x] T054 Run full test suite: pnpm --filter @blog/renderer test
