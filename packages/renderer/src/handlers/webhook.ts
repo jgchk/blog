@@ -1,5 +1,7 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import crypto from 'crypto';
+import type { SyncOrchestrator, SyncRequest } from '../services/sync-orchestrator.js';
+import { parseRepository } from '../utils/github.js';
 
 /**
  * GitHub push event payload (simplified)
@@ -34,10 +36,16 @@ interface WebhookResponse {
 export class GitHubWebhookHandler {
   private webhookSecret: string;
   private mainBranch: string;
+  private orchestrator?: SyncOrchestrator;
 
-  constructor(webhookSecret: string, mainBranch: string = 'main') {
+  constructor(
+    webhookSecret: string,
+    mainBranch: string = 'main',
+    orchestrator?: SyncOrchestrator
+  ) {
     this.webhookSecret = webhookSecret;
     this.mainBranch = mainBranch;
+    this.orchestrator = orchestrator;
   }
 
   /**
@@ -86,11 +94,48 @@ export class GitHubWebhookHandler {
     // Extract affected files
     const affectedFiles = this.extractAffectedFiles(payload);
 
-    // Generate sync ID
-    const syncId = this.generateSyncId();
+    // Check if there are any post changes
+    const totalChanges =
+      affectedFiles.added.length + affectedFiles.modified.length + affectedFiles.removed.length;
 
-    // TODO: Trigger async rendering process
-    // For now, just acknowledge the webhook
+    if (totalChanges === 0) {
+      return this.jsonResponse(200, {
+        status: 'ignored',
+        message: 'No post changes detected',
+      } as WebhookResponse);
+    }
+
+    // If orchestrator is configured, trigger sync
+    if (this.orchestrator) {
+      const commitHash = payload.commits[0]?.id ?? 'unknown';
+
+      const request: SyncRequest = {
+        type: 'incremental',
+        repository: parseRepository(payload.repository, this.mainBranch),
+        changes: affectedFiles,
+        commitHash,
+      };
+
+      try {
+        const result = await this.orchestrator.sync(request);
+
+        return this.jsonResponse(200, {
+          syncId: result.syncId,
+          status: 'accepted',
+          message: `Processed ${result.articlesRendered.length} articles`,
+        } as WebhookResponse);
+      } catch (error) {
+        console.error('Sync failed:', error);
+        // Still return 200 to acknowledge webhook receipt
+        return this.jsonResponse(200, {
+          status: 'accepted',
+          message: `Sync initiated but encountered errors`,
+        } as WebhookResponse);
+      }
+    }
+
+    // Fallback: generate sync ID and acknowledge without orchestrator
+    const syncId = this.generateSyncId();
 
     return this.jsonResponse(200, {
       syncId,
@@ -100,9 +145,10 @@ export class GitHubWebhookHandler {
   }
 
   /**
-   * Verify GitHub webhook signature
+   * Verify GitHub webhook signature using timing-safe comparison.
+   * Per GITHUB_WEBHOOK_SECRET environment variable.
    */
-  private verifySignature(payload: string, signature: string): boolean {
+  verifySignature(payload: string, signature: string): boolean {
     if (!signature.startsWith('sha256=')) {
       return false;
     }
