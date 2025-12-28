@@ -24,8 +24,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Verify existing project structure matches plan.md in packages/renderer/
-- [ ] T002 [P] Add any missing type definitions to packages/renderer/src/types/
+- [x] T001 Verify existing project structure matches plan.md in packages/renderer/
+- [x] T002 [P] Add any missing type definitions to packages/renderer/src/types/
 
 ---
 
