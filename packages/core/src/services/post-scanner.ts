@@ -1,4 +1,4 @@
-import { normalizeSlug } from '../utils/slug.js';
+import { Slug } from '../models/slug.js';
 
 /**
  * Scans and validates post paths according to spec.md:L148
@@ -34,7 +34,7 @@ export class PostScanner {
       return null;
     }
 
-    return normalizeSlug(match[1]);
+    return Slug.normalize(match[1]);
   }
 
   /**

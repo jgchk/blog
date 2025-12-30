@@ -1,6 +1,6 @@
 import type { CrossLinkResolution } from '../models/cross-link.js';
 import type { ArticleIndex } from './article-index.js';
-import { normalizeForMatching } from '../utils/slug.js';
+import { Slug } from '../models/slug.js';
 
 /**
  * Resolves cross-links between articles.
@@ -15,7 +15,7 @@ export class CrossLinkResolver {
    * @returns Resolution result with target slug and how it was resolved
    */
   resolve(query: string): CrossLinkResolution {
-    const normalized = normalizeForMatching(query);
+    const normalized = Slug.normalizeForMatching(query);
 
     const result = this.articleIndex.resolve(query);
 

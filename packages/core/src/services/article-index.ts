@@ -1,5 +1,5 @@
 import type { Article } from '../models/article.js';
-import { normalizeForMatching } from '../utils/slug.js';
+import { Slug } from '../models/slug.js';
 
 /**
  * In-memory index for fast article lookup.
@@ -30,14 +30,14 @@ export class ArticleIndex {
       index.bySlug.set(slugString, article);
 
       // Index by normalized title
-      const normalizedTitle = normalizeForMatching(article.title);
+      const normalizedTitle = Slug.normalizeForMatching(article.title);
       if (normalizedTitle && !index.byTitle.has(normalizedTitle)) {
         index.byTitle.set(normalizedTitle, slugString);
       }
 
       // Index by normalized aliases
       for (const alias of article.aliases) {
-        const normalizedAlias = normalizeForMatching(alias);
+        const normalizedAlias = Slug.normalizeForMatching(alias);
         if (normalizedAlias && !index.byAlias.has(normalizedAlias)) {
           index.byAlias.set(normalizedAlias, slugString);
         }
@@ -53,7 +53,7 @@ export class ArticleIndex {
    * @returns Target slug or null if not found
    */
   resolve(query: string): { slug: string; resolvedBy: 'slug' | 'title' | 'alias' } | null {
-    const normalized = normalizeForMatching(query);
+    const normalized = Slug.normalizeForMatching(query);
     if (!normalized) return null;
 
     // 1. Try exact slug match
