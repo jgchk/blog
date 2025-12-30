@@ -24,9 +24,9 @@
 
 **Purpose**: Project structure and type definitions for pipeline rendering
 
-- [ ] T001 Create PipelineContext and PipelineOutput types in packages/renderer/src/services/pipeline-types.ts
-- [ ] T002 Create RenderResult type extending existing models in packages/renderer/src/services/pipeline-types.ts
-- [ ] T003 [P] Add render:pipeline script to packages/renderer/package.json
+- [X] T001 Create PipelineContext and PipelineOutput types in packages/renderer/src/services/pipeline-types.ts
+- [X] T002 Create RenderResult type extending existing models in packages/renderer/src/services/pipeline-types.ts
+- [X] T003 [P] Add render:pipeline script to packages/renderer/package.json
 
 ---
 
@@ -36,14 +36,14 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create PipelineRenderer class skeleton in packages/renderer/src/services/pipeline-renderer.ts
-- [ ] T005 Implement post discovery (read all posts from posts/ directory) in packages/renderer/src/services/pipeline-renderer.ts
-- [ ] T006 Implement progress logging infrastructure in packages/renderer/src/services/pipeline-renderer.ts
-- [ ] T007 Create local filesystem adapter for reading posts in packages/renderer/src/adapters/local-storage.ts
-- [ ] T008 [P] Write unit tests for PipelineRenderer post discovery in packages/renderer/tests/services/pipeline-renderer.test.ts
-- [ ] T009 Create pipeline CLI entry point in packages/renderer/src/pipeline.ts
-- [ ] T009a [P] Verify home page template exists in packages/site/src/templates/home.hbs; if missing, create minimal template per existing post template pattern
-- [ ] T009b [P] Verify tag page template exists in packages/site/src/templates/tag.hbs; if missing, create minimal template per existing post template pattern
+- [X] T004 Create PipelineRenderer class skeleton in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T005 Implement post discovery (read all posts from posts/ directory) in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T006 Implement progress logging infrastructure in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T007 Create local filesystem adapter for reading posts in packages/renderer/src/adapters/local-storage.ts
+- [X] T008 [P] Write unit tests for PipelineRenderer post discovery in packages/renderer/tests/services/pipeline-renderer.test.ts
+- [X] T009 Create pipeline CLI entry point in packages/renderer/src/pipeline.ts
+- [X] T009a [P] Verify home page template exists in packages/site/src/templates/index.html (verified existing)
+- [X] T009b [P] Verify tag page template exists in packages/site/src/templates/tag.html (verified existing)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -57,16 +57,16 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement renderAllPosts() method in packages/renderer/src/services/pipeline-renderer.ts
-- [ ] T011 [US1] Implement copyAllAssets() for co-located images in packages/renderer/src/services/pipeline-renderer.ts
-- [ ] T012 [US1] Implement local file writing (rendered/ output directory) in packages/renderer/src/services/pipeline-renderer.ts
-- [ ] T013 [US1] Implement fail-fast error handling per FR-007 in packages/renderer/src/services/pipeline-renderer.ts
-- [ ] T014 [P] [US1] Write unit tests for renderAllPosts in packages/renderer/tests/services/pipeline-renderer.test.ts
+- [X] T010 [US1] Implement renderAllPosts() method in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T011 [US1] Implement copyAllAssets() for co-located images in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T012 [US1] Implement local file writing (rendered/ output directory) in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T013 [US1] Implement fail-fast error handling per FR-007 in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T014 [P] [US1] Write unit tests for renderAllPosts in packages/renderer/tests/services/pipeline-renderer.test.ts
 - [ ] T015 [US1] Add render step to deploy job in .github/workflows/ci-cd.yml
 - [ ] T016 [US1] Add S3 sync step (assets first, then HTML) per research.md in .github/workflows/ci-cd.yml
 - [ ] T017 [US1] Add CloudFront invalidation step in .github/workflows/ci-cd.yml
-- [ ] T017a [US1] Configure concurrency group with cancel-in-progress: true in .github/workflows/ci-cd.yml
-- [ ] T017b [P] [US1] Verify job timeout is set (default 360 minutes acceptable, or set explicit timeout-minutes: 30)
+- [X] T017a [US1] Configure concurrency group with cancel-in-progress: true in .github/workflows/ci-cd.yml (already configured)
+- [X] T017b [P] [US1] Verify job timeout is set (deploy job has timeout-minutes: 20)
 
 **Checkpoint**: At this point, posts can be rendered and deployed via CI/CD pipeline
 
@@ -80,12 +80,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Implement generateTagIndex() using existing TagIndex in packages/renderer/src/services/pipeline-renderer.ts
-- [ ] T019 [US2] Implement renderAllTagPages() using existing RenderService in packages/renderer/src/services/pipeline-renderer.ts
-- [ ] T020 [US2] Implement renderAllTagsPage() for tags index in packages/renderer/src/services/pipeline-renderer.ts
-- [ ] T021 [US2] Implement renderHomePage() in packages/renderer/src/services/pipeline-renderer.ts
-- [ ] T022 [P] [US2] Write unit tests for tag page generation in packages/renderer/tests/services/pipeline-renderer.test.ts
-- [ ] T023 [US2] Integrate tag and home page rendering into pipeline execution in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T018 [US2] Implement generateTagIndex() using existing TagIndex in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T019 [US2] Implement renderAllTagPages() using existing RenderService in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T020 [US2] Implement renderAllTagsPage() for tags index in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T021 [US2] Implement renderHomePage() in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T022 [P] [US2] Write unit tests for tag page generation in packages/renderer/tests/services/pipeline-renderer.test.ts
+- [X] T023 [US2] Integrate tag and home page rendering into pipeline execution in packages/renderer/src/services/pipeline-renderer.ts
 
 **Checkpoint**: At this point, full site renders (posts + tags + home) on every deploy
 
@@ -114,10 +114,10 @@
 
 ### Implementation for User Story 4
 
-- [ ] T026 [US4] Enhance progress logging with post counts and timing in packages/renderer/src/services/pipeline-renderer.ts
-- [ ] T027 [US4] Add structured error reporting (file path, error details) in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T026 [US4] Enhance progress logging with post counts and timing in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T027 [US4] Add structured error reporting (file path, error details) in packages/renderer/src/services/pipeline-renderer.ts
 - [ ] T027a [P] [US4] Add integration test verifying render failure produces error output within 60 seconds per SC-004 in packages/renderer/tests/services/pipeline-renderer.test.ts
-- [ ] T028 [P] [US4] Add summary output at end of pipeline (posts rendered, time elapsed) in packages/renderer/src/services/pipeline-renderer.ts
+- [X] T028 [P] [US4] Add summary output at end of pipeline (posts rendered, time elapsed) in packages/renderer/src/services/pipeline-renderer.ts
 
 **Checkpoint**: At this point, operators have full visibility into deployment progress
 
@@ -137,8 +137,8 @@
 - [ ] T036 Remove Lambda handlers (webhook.ts, admin.ts) from packages/renderer/src/handlers/
 - [ ] T037 Remove SNS notifier adapter from packages/renderer/src/adapters/sns-notifier.ts
 - [ ] T038 Remove sync-tracker service from packages/renderer/src/services/sync-tracker.ts
-- [ ] T039 Update packages/renderer/src/services/index.ts exports
-- [ ] T040 Update packages/renderer/src/adapters/index.ts exports
+- [X] T039 Update packages/renderer/src/services/index.ts exports (added PipelineRenderer and types)
+- [X] T040 Update packages/renderer/src/adapters/index.ts exports (added LocalStorageAdapter)
 - [ ] T041 Update packages/renderer/src/handlers/index.ts or remove if empty
 
 **Checkpoint**: Infrastructure simplified to S3 + CloudFront only

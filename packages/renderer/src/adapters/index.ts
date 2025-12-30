@@ -8,3 +8,4 @@ export {
   type RepositoryRef,
   type FetchOptions,
 } from './github-content.js';
+export { LocalStorageAdapter } from './local-storage.js';

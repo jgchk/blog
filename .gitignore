@@ -30,6 +30,9 @@ Thumbs.db
 # AWS CDK
 cdk.out/
 
+# Pipeline rendered output
+rendered/
+
 # Playwright
 test-results/
 playwright-report/

@@ -188,6 +188,9 @@ importers:
       '@blog/core':
         specifier: workspace:*
         version: link:../core
+      handlebars:
+        specifier: ^4.7.8
+        version: 4.7.8
     devDependencies:
       '@types/aws-lambda':
         specifier: ^8.10.130

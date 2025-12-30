@@ -10,3 +10,11 @@ export {
   type SyncOrchestratorDependencies,
   type CloudFrontInvalidator,
 } from './sync-orchestrator.js';
+export { PipelineRenderer } from './pipeline-renderer.js';
+export type {
+  PipelineContext,
+  PipelineOptions,
+  PipelineOutput,
+  PipelineRenderResult,
+  PipelineState,
+} from './pipeline-types.js';
