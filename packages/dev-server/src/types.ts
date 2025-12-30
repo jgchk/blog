@@ -1,6 +1,7 @@
 import type { WebSocket } from 'ws';
 import type { FSWatcher } from 'chokidar';
-import type { ArticleIndex, Article } from '@blog/core';
+import type { Article } from '@blog/core/publishing';
+import type { ArticleIndex } from '@blog/core/linking';
 
 /**
  * Configuration for the development server instance.

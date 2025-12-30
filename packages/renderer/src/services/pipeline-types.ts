@@ -1,5 +1,4 @@
-import type { Article } from '@blog/core';
-import type { TagIndex } from '@blog/core';
+import type { Article, TagIndex } from '@blog/core/publishing';
 
 /**
  * Result of rendering a single post for the pipeline.

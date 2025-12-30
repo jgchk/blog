@@ -1,18 +1,17 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { resolve, join, dirname } from 'node:path';
 import Handlebars from 'handlebars';
+import { MarkdownParser, FrontMatterParser } from '@blog/core/authoring';
 import {
-  MarkdownParser,
-  FrontMatterParser,
-  ArticleIndex,
   ArticleSorter,
   ArchiveBuilder,
   Slug,
   createTag,
-  formatDate as formatDateLong,
   type Article,
   type Tag,
-} from '@blog/core';
+} from '@blog/core/publishing';
+import { ArticleIndex } from '@blog/core/linking';
+import { formatDate as formatDateLong } from '@blog/core';
 import type { RenderedArticle, RenderError, DevServerConfig } from './types.js';
 import { createRenderError, articleToRendered } from './types.js';
 import { resolveConfigPaths } from './config.js';

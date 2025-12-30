@@ -1,4 +1,5 @@
-import { ArticleIndex, Slug, createTag, type Article } from '@blog/core';
+import { Slug, createTag, type Article } from '@blog/core/publishing';
+import { ArticleIndex } from '@blog/core/linking';
 import type { RenderedArticle } from '../types.js';
 
 /**

@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { TemplateRenderer } from '../../../src/services/template-renderer.js';
-import { Slug, createTag, type Article, type TagWithStats } from '@blog/core';
+import { Slug, createTag, type Article, type TagWithStats } from '@blog/core/publishing';
 
 describe('TemplateRenderer', () => {
   let tempDir: string;

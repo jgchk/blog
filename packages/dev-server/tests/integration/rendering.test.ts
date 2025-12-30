@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { JSDOM } from 'jsdom';
-import { MarkdownParser, FrontMatterParser } from '@blog/core';
+import { MarkdownParser, FrontMatterParser } from '@blog/core/authoring';
 import { renderArticle } from '../../src/renderer.js';
 import { createDefaultConfig } from '../../src/config.js';
 import type { DevServerConfig } from '../../src/types.js';

@@ -5,7 +5,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { resolve, extname } from 'node:path';
 import type { DevServerConfig, ServerMessage } from './types.js';
 import { resolveConfigPaths } from './config.js';
-import { Slug } from '@blog/core';
+import { Slug } from '@blog/core/publishing';
 import { DevServerState } from './state.js';
 import { getClientScript, injectClientScript } from './client.js';
 import {

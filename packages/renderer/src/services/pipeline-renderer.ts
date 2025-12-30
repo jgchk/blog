@@ -1,12 +1,11 @@
+import { FrontMatterParser, MarkdownParser } from '@blog/core/authoring';
 import {
   ArchiveBuilder,
   ArticleFactory,
-  FrontMatterParser,
-  MarkdownParser,
   Slug,
   TagIndex,
   type Article,
-} from '@blog/core';
+} from '@blog/core/publishing';
 import { LocalStorageAdapter } from '../adapters/local-storage.js';
 import type {
   PipelineOptions,

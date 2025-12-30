@@ -9,6 +9,18 @@
     ".": {
       "import": "./src/index.ts",
       "types": "./src/index.ts"
+    },
+    "./authoring": {
+      "import": "./src/authoring/index.ts",
+      "types": "./src/authoring/index.ts"
+    },
+    "./publishing": {
+      "import": "./src/publishing/index.ts",
+      "types": "./src/publishing/index.ts"
+    },
+    "./linking": {
+      "import": "./src/linking/index.ts",
+      "types": "./src/linking/index.ts"
     }
   },
   "scripts": {

@@ -4,7 +4,7 @@ import {
   formatRenderError,
   articleToRendered,
 } from '../../src/types.js';
-import { Slug, createTag, type Article } from '@blog/core';
+import { Slug, createTag, type Article } from '@blog/core/publishing';
 
 describe('createRenderError', () => {
   it('should create error from Error instance', () => {

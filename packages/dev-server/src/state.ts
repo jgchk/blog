@@ -1,6 +1,6 @@
 import type { WebSocket } from 'ws';
 import type { FSWatcher } from 'chokidar';
-import type { ArticleIndex } from '@blog/core';
+import type { ArticleIndex } from '@blog/core/linking';
 import type {
   DevServerStateData,
   RenderedArticle,

@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import Handlebars from 'handlebars';
-import type { Article, ArchiveGroup, TagWithStats } from '@blog/core';
+import type { Article, ArchiveGroup, TagWithStats } from '@blog/core/publishing';
 
 /**
  * Template context for rendering an article page
