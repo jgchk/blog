@@ -75,7 +75,7 @@ As a blog administrator, I want to see deployment progress and results in GitHub
 - What happens when the repository contains hundreds of posts? The pipeline renders all posts sequentially or in parallel batches; reasonable timeout limits apply (target under 10 minutes for 500 posts).
 - What happens when images or assets are missing from post directories? The pipeline logs a warning but continues rendering; broken image links are visible on the rendered post.
 - What happens when two PRs are merged in quick succession? The pipeline uses `cancel-in-progress: true` concurrency—the latest merge cancels any pending deployment, ensuring the most recent content always wins.
-- What happens when S3 upload fails mid-deployment? Content is uploaded to a staging prefix first; only after successful upload does an atomic swap make it live. If upload fails, the previous live content remains untouched and fully consistent.
+- What happens when S3 upload fails mid-deployment? The deployment fails and the site may be in a partially updated state. The next successful deployment will restore full consistency. Assets are uploaded before HTML to minimize broken references during the upload window.
 
 ## Requirements *(mandatory)*
 
@@ -91,7 +91,6 @@ As a blog administrator, I want to see deployment progress and results in GitHub
 - **FR-008**: System MUST log render progress and errors visible in GitHub Actions output.
 - **FR-009**: System MUST complete rendering within the GitHub Actions job timeout (6 hours max, target under 15 minutes for typical blogs).
 - **FR-010**: System MUST support the existing post structure (`posts/{slug}/index.md` with co-located assets).
-- **FR-011**: System MUST upload rendered content to a staging prefix and perform an atomic swap to live only after successful upload, ensuring site consistency.
 
 ### Key Entities
 
