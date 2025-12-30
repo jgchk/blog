@@ -169,11 +169,12 @@ async function handleTemplateChange(
 
   // Re-render all articles
   const paths = resolveConfigPaths(config);
-  for (const [slug] of state.articles) {
-    const indexPath = join(paths.postsDir, slug, 'index.md');
+  const currentArticles = state.getAllArticles();
+  for (const article of currentArticles) {
+    const indexPath = join(paths.postsDir, article.slug, 'index.md');
     const result = await renderArticle(config, indexPath, state.articleIndex ?? undefined);
     if ('article' in result) {
-      state.articles.set(slug, result.article);
+      state.addArticle(result.article);
     }
   }
 

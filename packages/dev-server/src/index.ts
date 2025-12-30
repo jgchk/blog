@@ -18,3 +18,9 @@ export { renderArticle, renderIndex, renderArchive, renderTagPage } from './rend
 
 // State
 export { DevServerState } from './state.js';
+export {
+  ArticleCache,
+  RenderCache,
+  ConnectionManager,
+  FileWatcherManager,
+} from './state/index.js';

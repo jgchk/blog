@@ -287,8 +287,8 @@ export async function startServer(
   const { articles, errors } = await scanAndRenderAll(config);
 
   // Populate state
-  for (const [slug, article] of articles) {
-    state.articles.set(slug, article);
+  for (const [, article] of articles) {
+    state.addArticle(article);
   }
 
   // Log any render errors
