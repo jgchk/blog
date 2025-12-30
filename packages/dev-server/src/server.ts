@@ -108,7 +108,7 @@ export async function createServer(
   // Register static file serving for CSS
   await fastify.register(fastifyStatic, {
     root: paths.stylesDir,
-    prefix: '/styles/',
+    prefix: '/assets/styles/',
     decorateReply: false,
   });
 
@@ -261,9 +261,9 @@ export async function createServer(
     }
   );
 
-  // GET /styles/:file - CSS files (handled by fastify-static, but add headers)
+  // GET /assets/styles/:file - CSS files (handled by fastify-static, but add headers)
   fastify.addHook('onSend', (request, reply, payload, done) => {
-    if (request.url.startsWith('/styles/')) {
+    if (request.url.startsWith('/assets/styles/')) {
       addDevHeaders(reply);
     }
     done(null, payload);
