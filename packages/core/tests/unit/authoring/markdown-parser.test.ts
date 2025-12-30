@@ -58,6 +58,19 @@ const x: string = "hello";
       expect(result).toContain('language-typescript');
     });
 
+    it('should make code blocks keyboard-accessible with tabindex', async () => {
+      const markdown = `
+\`\`\`typescript
+const x: string = "hello";
+\`\`\`
+`;
+      const result = await parser.parse(markdown);
+
+      // Pre elements should have tabindex="0" for keyboard accessibility
+      // This allows keyboard users to focus and scroll code blocks
+      expect(result).toMatch(/<pre[^>]*tabindex="0"/);
+    });
+
     it('should handle inline code', async () => {
       const markdown = 'Use `const` for constants';
       const result = await parser.parse(markdown);

@@ -4,9 +4,26 @@ import remarkGfm from 'remark-gfm';
 import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
+import { visit } from 'unist-util-visit';
 import type { Root } from 'mdast';
+import type { Root as HastRoot, Element } from 'hast';
 import type { ArticleIndex } from '../linking/article-index.js';
 import { remarkWikilinks } from '../linking/wikilinks.js';
+
+/**
+ * Rehype plugin to make code blocks keyboard-accessible.
+ * Adds tabindex="0" to <pre> elements so keyboard users can focus and scroll them.
+ */
+function rehypeAccessibleCodeBlocks() {
+  return (tree: HastRoot) => {
+    visit(tree, 'element', (node: Element) => {
+      if (node.tagName === 'pre') {
+        node.properties = node.properties || {};
+        node.properties.tabindex = '0';
+      }
+    });
+  };
+}
 
 /** Fully-configured markdown-to-HTML processor type */
 type MarkdownProcessor = Processor<Root, Root, Root, Root, string>;
@@ -56,6 +73,7 @@ export class MarkdownParser {
     return withWikilinks
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeHighlight, { detect: true, ignoreMissing: true })
+      .use(rehypeAccessibleCodeBlocks)
       .use(rehypeStringify, { allowDangerousHtml: true }) as MarkdownProcessor;
   }
 
