@@ -120,11 +120,31 @@ jobs:
         run: pnpm build
 
       - name: Render site
-        run: pnpm --filter @blog/renderer render:pipeline
+        id: render
+        # FR-009: Render phase target is 10 minutes for up to 500 posts
+        # SC-001: Full deployment should complete in 15 minutes (SLA: 20 minutes)
+        run: |
+          START_TIME=$(date +%s)
+          pnpm --filter @blog/renderer render:pipeline
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "duration=${DURATION}" >> $GITHUB_OUTPUT
+          echo "Render completed in ${DURATION} seconds"
         env:
           POSTS_DIR: ${{ github.workspace }}/posts
           OUTPUT_DIR: ${{ github.workspace }}/rendered
           TEMPLATES_DIR: ${{ github.workspace }}/packages/site/src/templates
+
+      - name: Check render performance
+        if: always() && steps.render.outcome == 'success'
+        run: |
+          DURATION=${{ steps.render.outputs.duration }}
+          TARGET_SECONDS=600
+          if [ "$DURATION" -gt "$TARGET_SECONDS" ]; then
+            echo "::warning title=Render Performance::Render phase took ${DURATION}s, exceeding the 10-minute target (FR-009). Consider investigating performance."
+          else
+            echo "Render completed within target (${DURATION}s < ${TARGET_SECONDS}s)"
+          fi
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
