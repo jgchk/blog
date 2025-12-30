@@ -32,6 +32,23 @@
   font-display: swap;
 }
 
+/* PolySans - Variable Font */
+@font-face {
+  font-family: 'PolySans';
+  src: url('/fonts/PolySans-variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PolySans';
+  src: url('/fonts/PolySansItalic-variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 /* =============================================================================
    CSS Custom Properties
    ============================================================================= */
@@ -53,7 +70,7 @@
   --color-code-text: rgba(94, 234, 212, 0.8);
 
   /* Typography */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'PolySans', 'Inter', system-ui, -apple-system, sans-serif;
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-display: 'Sagittaire Display', Georgia, serif;
   --font-mono: 'Berkeley Mono', 'JetBrains Mono', 'SF Mono', Monaco, monospace;
@@ -113,8 +130,8 @@ html {
 body {
   font-family: var(--font-sans);
   font-size: var(--text-base);
-  font-weight: 300;
-  line-height: 1.7;
+  font-weight: 400;
+  line-height: 1.4;
   color: var(--color-text);
   background-color: var(--color-bg);
   min-height: 100vh;
