@@ -37,7 +37,7 @@ export class TagIndex {
 
     for (const article of articles) {
       for (const tagName of article.tags) {
-        index.addTag(tagName, article.slug);
+        index.addTag(tagName, article.slug.toString());
       }
     }
 

@@ -217,7 +217,7 @@ This is the content of the test post.`
       const article = await renderer.readPost('test-post');
 
       expect(article).not.toBeNull();
-      expect(article!.slug).toBe('test-post');
+      expect(article!.slug.toString()).toBe('test-post');
       expect(article!.title).toBe('Test Post');
       expect(article!.tags).toEqual(['TypeScript', 'Testing']);
       expect(article!.html).toContain('This is the content');
@@ -313,9 +313,9 @@ Content`
       const articles = await renderer.readAllPosts();
 
       expect(articles).toHaveLength(3);
-      expect(articles[0].slug).toBe('new-post');
-      expect(articles[1].slug).toBe('middle-post');
-      expect(articles[2].slug).toBe('old-post');
+      expect(articles[0].slug.toString()).toBe('new-post');
+      expect(articles[1].slug.toString()).toBe('middle-post');
+      expect(articles[2].slug.toString()).toBe('old-post');
     });
   });
 

@@ -7,6 +7,7 @@ import {
   ArticleIndex,
   ArticleSorter,
   ArchiveBuilder,
+  Slug,
   normalizeTagSlug,
   formatDate as formatDateLong,
   type Article,
@@ -113,7 +114,8 @@ export async function renderArticle(
 
     // Extract slug from file path (posts/{slug}/index.md)
     const articleDir = dirname(filePath);
-    const slug = articleDir.split('/').pop() ?? '';
+    const slugString = articleDir.split('/').pop() ?? '';
+    const articleSlug = Slug.fromNormalized(slugString);
 
     // Parse markdown content to HTML
     const mdParser = new MarkdownParser({ articleIndex });
@@ -124,7 +126,7 @@ export async function renderArticle(
 
     // Build article object
     const article: ParsedArticle = {
-      slug,
+      slug: articleSlug,
       title: fmResult.data.title,
       date: new Date(fmResult.data.date),
       content: fmResult.content,
@@ -179,7 +181,7 @@ export async function renderIndex(
     articles
       .filter((a) => !a.error)
       .map((a) => ({
-        slug: a.slug,
+        slug: Slug.fromNormalized(a.slug),
         title: a.metadata.title,
         date: a.metadata.date,
         tags: a.metadata.tags,
@@ -202,7 +204,7 @@ export async function renderIndex(
     articles: displayArticles.map((article) => {
       const { dateIso, dateFormatted } = formatDateDisplay(article.date);
       return {
-        slug: article.slug,
+        slug: article.slug.toString(),
         title: article.title,
         excerpt: article.excerpt,
         dateIso,
@@ -229,15 +231,21 @@ export async function renderArchive(
   registerHelpers();
 
   // Convert to Article format for ArchiveBuilder
-  const articleList = articles
+  const articleList: Article[] = articles
     .filter((a) => !a.error)
     .map((a) => ({
-      slug: a.slug,
+      slug: Slug.fromNormalized(a.slug),
       title: a.metadata.title,
       date: a.metadata.date,
       tags: a.metadata.tags,
       excerpt: a.metadata.excerpt,
-    })) as Article[];
+      content: '',
+      html: '',
+      aliases: [],
+      draft: false,
+      sourcePath: '',
+      updatedAt: new Date(),
+    }));
 
   const archiveGroups = ArchiveBuilder.buildArchive(articleList);
 
@@ -253,7 +261,7 @@ export async function renderArchive(
       articles: group.articles.map((article) => {
         const { dateIso, dateFormatted } = formatDateDisplay(article.date);
         return {
-          slug: article.slug,
+          slug: article.slug.toString(),
           title: article.title,
           dateIso,
           dateFormatted,
@@ -276,15 +284,21 @@ export async function renderTagPage(
   registerHelpers();
 
   // Filter articles with this tag
-  const taggedArticles = articles
+  const taggedArticles: Article[] = articles
     .filter((a) => !a.error && a.metadata.tags.includes(tag))
     .map((a) => ({
-      slug: a.slug,
+      slug: Slug.fromNormalized(a.slug),
       title: a.metadata.title,
       date: a.metadata.date,
       tags: a.metadata.tags,
       excerpt: a.metadata.excerpt,
-    })) as Article[];
+      content: '',
+      html: '',
+      aliases: [],
+      draft: false,
+      sourcePath: '',
+      updatedAt: new Date(),
+    }));
 
   // Sort by date
   const sortedArticles = ArticleSorter.sortByDate(taggedArticles);
@@ -299,7 +313,7 @@ export async function renderTagPage(
     articles: sortedArticles.map((article) => {
       const { dateIso, dateFormatted } = formatDateDisplay(article.date);
       return {
-        slug: article.slug,
+        slug: article.slug.toString(),
         title: article.title,
         excerpt: article.excerpt,
         dateIso,
@@ -399,7 +413,7 @@ export async function scanAndRenderAll(
     if ('article' in result && !result.article.error) {
       // Store for index building
       articleList.push({
-        slug: result.article.slug,
+        slug: Slug.fromNormalized(result.article.slug),
         title: result.article.metadata.title,
         date: result.article.metadata.date,
         content: '',

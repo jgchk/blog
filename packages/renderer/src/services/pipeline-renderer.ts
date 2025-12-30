@@ -2,6 +2,7 @@ import {
   ArchiveBuilder,
   FrontMatterParser,
   MarkdownParser,
+  Slug,
   TagIndex,
   normalizeTagSlug,
   type Article,
@@ -112,8 +113,11 @@ export class PipelineRenderer {
       const html = await this.markdownParser.parse(markdownContent);
       const excerpt = frontMatter.excerpt ?? this.markdownParser.generateExcerpt(markdownContent);
 
+      // Create Slug from directory name (already normalized by filesystem)
+      const articleSlug = Slug.fromNormalized(slug);
+
       const article: Article = {
-        slug,
+        slug: articleSlug,
         title: frontMatter.title,
         date: new Date(frontMatter.date),
         content: markdownContent,
@@ -211,29 +215,31 @@ export class PipelineRenderer {
     for (const [index, article] of articles.entries()) {
       const startTime = Date.now();
 
+      const slugString = article.slug.toString();
+
       try {
         // Render HTML
         const html = await this.renderArticleHtml(article);
-        const htmlPath = `articles/${article.slug}/index.html`;
+        const htmlPath = `articles/${slugString}/index.html`;
         await this.outputStorage.write(htmlPath, Buffer.from(html, 'utf-8'));
 
         // Copy assets
-        const assetPaths = await this.copyAssets(article.slug);
+        const assetPaths = await this.copyAssets(slugString);
 
         const duration = Date.now() - startTime;
         results.push({
-          slug: article.slug,
+          slug: slugString,
           success: true,
           htmlPath,
           assetPaths,
           duration,
         });
 
-        this.log(`[${index + 1}/${articles.length}] Rendered ${article.slug} (${duration}ms)`);
+        this.log(`[${index + 1}/${articles.length}] Rendered ${slugString} (${duration}ms)`);
       } catch (error) {
         const duration = Date.now() - startTime;
         results.push({
-          slug: article.slug,
+          slug: slugString,
           success: false,
           htmlPath: '',
           assetPaths: [],
@@ -241,7 +247,7 @@ export class PipelineRenderer {
           duration,
         });
 
-        this.log(`[${index + 1}/${articles.length}] FAILED ${article.slug}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        this.log(`[${index + 1}/${articles.length}] FAILED ${slugString}: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
 

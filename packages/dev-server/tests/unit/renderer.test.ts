@@ -4,7 +4,7 @@ import {
   formatRenderError,
   articleToRendered,
 } from '../../src/types.js';
-import type { Article } from '@blog/core';
+import { Slug, type Article } from '@blog/core';
 
 describe('createRenderError', () => {
   it('should create error from Error instance', () => {
@@ -81,7 +81,7 @@ describe('formatRenderError', () => {
 describe('articleToRendered', () => {
   it('should convert article to rendered format', () => {
     const article: Article = {
-      slug: 'test-post',
+      slug: Slug.fromNormalized('test-post'),
       title: 'Test Post',
       date: new Date('2025-01-15'),
       content: '# Hello',

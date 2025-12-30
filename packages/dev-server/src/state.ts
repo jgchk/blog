@@ -1,6 +1,6 @@
 import type { WebSocket } from 'ws';
 import type { FSWatcher } from 'chokidar';
-import { ArticleIndex, type Article } from '@blog/core';
+import { ArticleIndex, Slug, type Article } from '@blog/core';
 import type {
   DevServerStateData,
   RenderedArticle,
@@ -68,7 +68,7 @@ export class DevServerState implements DevServerStateData {
     const articleList: Article[] = this.getAllArticles()
       .filter((a) => !a.error)
       .map((a) => ({
-        slug: a.slug,
+        slug: Slug.fromNormalized(a.slug),
         title: a.metadata.title,
         date: a.metadata.date,
         content: '',

@@ -1,10 +1,12 @@
+import type { Slug } from './slug.js';
+
 /**
  * A blog post created from a markdown file.
  * Per data-model.md specification.
  */
 export interface Article {
   /** Unique identifier derived from folder name (filesystem-enforced uniqueness) */
-  slug: string;
+  slug: Slug;
 
   /** Display title from front matter */
   title: string;

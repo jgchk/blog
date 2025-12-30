@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import Handlebars from 'handlebars';
-import { normalizeTagSlug, type Article, type TagWithStats } from '@blog/core';
+import { normalizeTagSlug, type Article, type ArchiveGroup, type TagWithStats } from '@blog/core';
 
 /**
  * Template context for rendering an article page
@@ -61,25 +61,6 @@ export interface HomePageTemplateContext {
   year: number;
 }
 
-/**
- * Archive article for template rendering (simplified from full Article)
- */
-export interface ArchiveArticle {
-  slug: string;
-  title: string;
-  date: Date;
-  excerpt: string;
-}
-
-/**
- * Archive group for template rendering
- */
-export interface ArchiveGroupContext {
-  yearMonth: string;
-  displayName: string;
-  count: number;
-  articles: ArchiveArticle[];
-}
 
 /**
  * Template context for rendering archive page
@@ -192,7 +173,7 @@ export class TemplateRenderer {
       articles: sortedArticles.map(article => {
         const { dateIso, dateFormatted } = this.formatDate(article.date);
         return {
-          slug: article.slug,
+          slug: article.slug.toString(),
           title: article.title,
           dateIso,
           dateFormatted,
@@ -237,7 +218,7 @@ export class TemplateRenderer {
       articles: articles.map(article => {
         const { dateIso, dateFormatted } = this.formatDate(article.date);
         return {
-          slug: article.slug,
+          slug: article.slug.toString(),
           title: article.title,
           dateIso,
           dateFormatted,
@@ -259,7 +240,7 @@ export class TemplateRenderer {
    * Render archive page
    */
   async renderArchivePage(
-    archiveGroups: ArchiveGroupContext[],
+    archiveGroups: ArchiveGroup[],
     totalArticles: number
   ): Promise<string> {
     const template = await this.loadTemplate('archive');
@@ -275,7 +256,7 @@ export class TemplateRenderer {
         articles: group.articles.map(article => {
           const { dateIso, dateFormatted } = this.formatDate(article.date);
           return {
-            slug: article.slug,
+            slug: article.slug.toString(),
             title: article.title,
             dateIso,
             dateFormatted,

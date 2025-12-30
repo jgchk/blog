@@ -24,20 +24,22 @@ export class ArticleIndex {
     const index = new ArticleIndex();
 
     for (const article of articles) {
+      const slugString = article.slug.toString();
+
       // Index by slug
-      index.bySlug.set(article.slug, article);
+      index.bySlug.set(slugString, article);
 
       // Index by normalized title
       const normalizedTitle = normalizeForMatching(article.title);
       if (normalizedTitle && !index.byTitle.has(normalizedTitle)) {
-        index.byTitle.set(normalizedTitle, article.slug);
+        index.byTitle.set(normalizedTitle, slugString);
       }
 
       // Index by normalized aliases
       for (const alias of article.aliases) {
         const normalizedAlias = normalizeForMatching(alias);
         if (normalizedAlias && !index.byAlias.has(normalizedAlias)) {
-          index.byAlias.set(normalizedAlias, article.slug);
+          index.byAlias.set(normalizedAlias, slugString);
         }
       }
     }

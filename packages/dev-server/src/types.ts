@@ -208,7 +208,7 @@ export function articleToRendered(
   assets: string[] = []
 ): RenderedArticle {
   return {
-    slug: article.slug,
+    slug: article.slug.toString(),
     html,
     metadata: {
       title: article.title,

@@ -7,7 +7,6 @@ export {
   type TagPageTemplateContext,
   type AllTagsTemplateContext,
   type HomePageTemplateContext,
-  type ArchiveGroupContext,
   type ArchivePageTemplateContext,
   DEFAULT_TEMPLATES_DIR,
 } from './template-renderer.js';

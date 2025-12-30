@@ -20,8 +20,8 @@ export class ArticleValidator {
   validate(article: ParsedArticle): ValidationResult {
     const errors: ValidationError[] = [];
 
-    // Validate slug
-    if (!article.slug || article.slug.trim() === '') {
+    // Validate slug (Slug value object is already normalized)
+    if (!article.slug) {
       errors.push({
         type: 'missing_title',
         path: article.sourcePath,
@@ -49,14 +49,14 @@ export class ArticleValidator {
       return { valid: false, errors };
     }
 
-    // Return normalized article
+    // Return normalized article (Slug is already normalized)
     return {
       valid: true,
       errors: [],
       normalizedArticle: {
         ...article,
         title: article.title.trim(),
-        slug: article.slug.trim().toLowerCase(),
+        slug: article.slug,
         tags: article.tags ?? [],
         aliases: article.aliases ?? [],
         draft: article.draft ?? false,
@@ -73,7 +73,7 @@ export class ArticleValidator {
     const slugMap = new Map<string, string[]>();
 
     for (const article of articles) {
-      const slug = article.slug.toLowerCase();
+      const slug = article.slug.toString();
       const paths = slugMap.get(slug) ?? [];
       paths.push(article.sourcePath);
       slugMap.set(slug, paths);
