@@ -151,7 +151,7 @@
 
 - [X] T042 [P] Run full local pipeline test per quickstart.md
 - [X] T043 [P] Update quickstart.md with final commands and troubleshooting
-- [ ] T044 Verify E2E tests pass against rendered output
+- [X] T044 Verify E2E tests pass against rendered output
 - [ ] T045 Verify smoke tests pass after deployment
 - [ ] T046 [P] Create performance benchmark: generate 500 synthetic posts using a script (minimal front matter + lorem ipsum body, ~500 words each), measure render time against 10-minute target. Script location: packages/renderer/scripts/generate-benchmark-posts.ts
 - [ ] T046a [P] Add CI job step that fails if render phase exceeds 10 minutes (FR-009 target); full deployment should complete in 15 minutes (SC-001 operational target)
