@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import Handlebars from 'handlebars';
-import { normalizeTagSlug, type Article, type ArchiveGroup, type TagWithStats } from '@blog/core';
+import { Slug, type Article, type ArchiveGroup, type TagWithStats } from '@blog/core';
 
 /**
  * Template context for rendering an article page
@@ -146,7 +146,7 @@ export class TemplateRenderer {
       dateFormatted,
       tags: article.tags.map(tag => ({
         name: tag,
-        slug: normalizeTagSlug(tag),
+        slug: Slug.normalizeTag(tag),
       })),
       year: new Date().getFullYear(),
     };
@@ -225,7 +225,7 @@ export class TemplateRenderer {
           excerpt: article.excerpt,
           tags: article.tags.map(tag => ({
             name: tag,
-            slug: normalizeTagSlug(tag),
+            slug: Slug.normalizeTag(tag),
           })),
         };
       }),

@@ -4,7 +4,6 @@ import {
   MarkdownParser,
   Slug,
   TagIndex,
-  normalizeTagSlug,
   type Article,
 } from '@blog/core';
 import { LocalStorageAdapter } from '../adapters/local-storage.js';
@@ -271,7 +270,7 @@ export class PipelineRenderer {
     for (const tag of tags) {
       // Get articles for this tag
       const tagArticles = articles.filter(article =>
-        article.tags.some(t => normalizeTagSlug(t) === tag.slug)
+        article.tags.some(t => Slug.normalizeTag(t) === tag.slug)
       );
 
       const html = await this.templateRenderer.renderTagPage(tag, tagArticles);

@@ -161,4 +161,64 @@ describe('Slug Value Object', () => {
       expect(slug?.toString()).toBe('hello-world');
     });
   });
+
+  describe('Slug.normalizeTag', () => {
+    it('should convert to lowercase', () => {
+      expect(Slug.normalizeTag('JavaScript')).toBe('javascript');
+    });
+
+    it('should replace spaces with hyphens', () => {
+      expect(Slug.normalizeTag('Machine Learning')).toBe('machine-learning');
+    });
+
+    it('should handle C++ special case', () => {
+      expect(Slug.normalizeTag('C++')).toBe('c-plus-plus');
+    });
+
+    it('should handle multiple plus signs', () => {
+      expect(Slug.normalizeTag('C+++++')).toBe('c-plus-plus-plus-plus-plus');
+    });
+
+    it('should remove special characters', () => {
+      expect(Slug.normalizeTag('Node.js')).toBe('nodejs');
+    });
+
+    it('should handle leading/trailing whitespace', () => {
+      expect(Slug.normalizeTag('  TypeScript  ')).toBe('typescript');
+    });
+
+    it('should collapse multiple spaces', () => {
+      expect(Slug.normalizeTag('Deep   Learning')).toBe('deep-learning');
+    });
+
+    it('should handle empty string', () => {
+      expect(Slug.normalizeTag('')).toBe('');
+    });
+
+    it('should handle numbers', () => {
+      expect(Slug.normalizeTag('ES2022')).toBe('es2022');
+    });
+
+    it('should handle ampersand', () => {
+      expect(Slug.normalizeTag('Tips & Tricks')).toBe('tips-tricks');
+    });
+
+    it('should handle underscores (like normalize)', () => {
+      expect(Slug.normalizeTag('hello_world')).toBe('hello-world');
+    });
+
+    it('should collapse multiple hyphens', () => {
+      expect(Slug.normalizeTag('hello---world')).toBe('hello-world');
+    });
+
+    it('should trim leading and trailing hyphens', () => {
+      expect(Slug.normalizeTag('-hello-world-')).toBe('hello-world');
+    });
+
+    it('should handle mixed case and special chars', () => {
+      expect(Slug.normalizeTag('TypeScript + JavaScript = Love')).toBe(
+        'typescript-plus-javascript-love'
+      );
+    });
+  });
 });

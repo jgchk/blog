@@ -1,3 +1,5 @@
+import { Slug } from './slug.js';
+
 /**
  * A label for grouping related articles.
  * Value Object - immutable, identity based on slug.
@@ -28,25 +30,8 @@ export interface TagWithStats extends Tag {
  */
 export function createTag(name: string): Tag {
   return {
-    slug: normalizeTagSlug(name),
+    slug: Slug.normalizeTag(name),
     name,
   };
 }
 
-/**
- * Normalize a tag name to a URL-safe slug.
- * Examples:
- * - "JavaScript" → "javascript"
- * - "Machine Learning" → "machine-learning"
- * - "C++" → "c-plus-plus"
- */
-export function normalizeTagSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/\+/g, '-plus')
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-}

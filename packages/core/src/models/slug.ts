@@ -58,6 +58,24 @@ export class Slug {
   }
 
   /**
+   * Normalize a tag name to a URL-safe slug.
+   * Handles special cases like "C++" → "c-plus-plus".
+   *
+   * Differences from normalize():
+   * - Converts "+" to "-plus" before removing special characters
+   */
+  static normalizeTag(input: string): string {
+    return input
+      .toLowerCase()
+      .trim()
+      .replace(/\+/g, '-plus')
+      .replace(/[\s_]+/g, '-')
+      .replace(/[^a-z0-9-]/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  }
+
+  /**
    * Get the string value of this slug.
    */
   toString(): string {

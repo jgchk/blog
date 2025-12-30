@@ -1,6 +1,6 @@
 import type { Article } from '../models/article.js';
 import type { Tag, TagWithStats } from '../models/tag.js';
-import { normalizeTagSlug } from '../models/tag.js';
+import { Slug } from '../models/slug.js';
 
 /**
  * Internal structure for tracking tag data
@@ -48,7 +48,7 @@ export class TagIndex {
    * Add a tag reference for an article
    */
   private addTag(tagName: string, articleSlug: string): void {
-    const slug = normalizeTagSlug(tagName);
+    const slug = Slug.normalizeTag(tagName);
     if (!slug) return;
 
     let data = this.tagMap.get(slug);

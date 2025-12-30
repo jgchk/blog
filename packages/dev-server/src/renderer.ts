@@ -8,7 +8,6 @@ import {
   ArticleSorter,
   ArchiveBuilder,
   Slug,
-  normalizeTagSlug,
   formatDate as formatDateLong,
   type Article,
   type ParsedArticle,
@@ -150,7 +149,7 @@ export async function renderArticle(
       dateFormatted,
       tags: article.tags.map((tag) => ({
         name: tag,
-        slug: normalizeTagSlug(tag),
+        slug: Slug.normalizeTag(tag),
       })),
       year: new Date().getFullYear(),
     });
@@ -211,7 +210,7 @@ export async function renderIndex(
         dateFormatted,
         tags: article.tags.map((tag) => ({
           name: tag,
-          slug: normalizeTagSlug(tag),
+          slug: Slug.normalizeTag(tag),
         })),
       };
     }),
@@ -307,7 +306,7 @@ export async function renderTagPage(
 
   return template({
     tagName: tag,
-    tagSlug: normalizeTagSlug(tag),
+    tagSlug: Slug.normalizeTag(tag),
     articleCount: sortedArticles.length,
     isPlural: sortedArticles.length !== 1,
     articles: sortedArticles.map((article) => {
@@ -357,7 +356,7 @@ export async function renderAllTags(
     if (article.error) continue;
 
     for (const tag of article.metadata.tags) {
-      const slug = normalizeTagSlug(tag);
+      const slug = Slug.normalizeTag(tag);
       const existing = tagMap.get(slug);
       if (existing) {
         existing.count++;
