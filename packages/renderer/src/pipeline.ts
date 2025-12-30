@@ -12,6 +12,7 @@ import { PipelineRenderer } from './services/pipeline-renderer.js';
  *   POSTS_DIR - Source posts directory (default: ./posts)
  *   OUTPUT_DIR - Output directory (default: ./rendered)
  *   TEMPLATES_DIR - Templates directory (default: ./packages/site/src/templates)
+ *   SITE_DIR - Site assets directory for fonts/styles (default: ./packages/site/src)
  */
 async function main(): Promise<void> {
   console.log('='.repeat(60));
@@ -32,16 +33,19 @@ async function main(): Promise<void> {
 
   const postsDir = process.env.POSTS_DIR ?? './posts';
   const templatesDir = process.env.TEMPLATES_DIR ?? './packages/site/src/templates';
+  const siteDir = process.env.SITE_DIR ?? './packages/site/src';
 
   console.log(`Posts directory: ${postsDir}`);
   console.log(`Output directory: ${outputDir}`);
   console.log(`Templates directory: ${templatesDir}`);
+  console.log(`Site directory: ${siteDir}`);
   console.log('='.repeat(60));
 
   const renderer = new PipelineRenderer({
     postsDir,
     outputDir,
     templatesDir,
+    siteDir,
   });
 
   const result = await renderer.execute();
