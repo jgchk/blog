@@ -17,7 +17,7 @@ Simplify the blog architecture by removing GitHub webhook infrastructure and ren
 **Testing**: Vitest (unit), Playwright (E2E), existing CI test suite
 **Target Platform**: GitHub Actions runner (ubuntu-latest), AWS S3/CloudFront
 **Project Type**: Monorepo with packages (core, dev-server, renderer, infra, site)
-**Performance Goals**: Render 500 posts in <10 minutes, full deployment <20 minutes
+**Performance Goals**: Render 500 posts in <10 minutes, full deployment <15 minutes (target), <20 minutes (SLA)
 **Constraints**: GitHub Actions 6-hour max job timeout (target 15 minutes), S3 asset limits (10MB/file, 25MB/post cumulative)
 **Scale/Scope**: Up to 500 blog posts, full site rendering on every deploy
 

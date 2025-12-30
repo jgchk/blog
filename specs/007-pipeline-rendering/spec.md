@@ -72,7 +72,7 @@ As a blog administrator, I want to see deployment progress and results in GitHub
 ### Edge Cases
 
 - What happens when a post has invalid markdown syntax? The rendering step fails with a clear error message identifying the problematic file; deployment does not proceed with partial content.
-- What happens when the repository contains hundreds of posts? The pipeline renders all posts sequentially; the GitHub Actions job has a 6-hour maximum timeout with a target of under 10 minutes for up to 500 posts.
+- What happens when the repository contains hundreds of posts? The pipeline renders all posts sequentially; the GitHub Actions job has a 6-hour maximum timeout (see FR-009 for performance target).
 - What happens when images or assets are missing from post directories? The pipeline logs a warning but continues rendering; broken image links are visible on the rendered post.
 - What happens when two PRs are merged in quick succession? The pipeline uses `cancel-in-progress: true` concurrency—the latest merge cancels any pending deployment, ensuring the most recent content always wins.
 - What happens when S3 upload fails mid-deployment? The deployment fails and the site may be in a partially updated state until the next successful deployment restores full consistency. Assets are uploaded before HTML to minimize broken references. Recovery action: re-run the failed GitHub Actions workflow or merge any commit to main to trigger a fresh deployment.
@@ -89,7 +89,7 @@ As a blog administrator, I want to see deployment progress and results in GitHub
 - **FR-006**: System MUST remove content from S3 that no longer exists in the repository (sync behavior, not additive-only).
 - **FR-007**: System MUST fail the deployment step if any post fails to render, preventing partial site updates.
 - **FR-008**: System MUST log render progress and errors visible in GitHub Actions output.
-- **FR-009**: System MUST complete rendering within the GitHub Actions job timeout (6 hours max, target under 10 minutes for up to 500 posts).
+- **FR-009**: System MUST complete the render phase within 10 minutes wall-clock time for up to 500 posts, measured from first post render start to final post render completion log entry. The GitHub Actions job timeout (6 hours) provides ample buffer.
 - **FR-010**: System MUST support the existing post structure (`posts/{slug}/index.md` with co-located assets).
 
 ### Key Entities
@@ -105,9 +105,9 @@ As a blog administrator, I want to see deployment progress and results in GitHub
 
 ### Measurable Outcomes
 
-- **SC-001**: New posts are visible on the live blog within 20 minutes of merging to main branch (aligned with existing CI/CD SC-003 deployment time).
+- **SC-001**: New posts are visible on the live blog within 20 minutes of merging to main branch (full deployment SLA). Operational target: 15 minutes. Breakdown: ~2 min CI setup, ~10 min render (FR-009), ~3 min S3 sync + CloudFront invalidation.
 - **SC-002**: 100% of successful deployments result in a consistent site where all posts, tags, and assets are present and functional.
-- **SC-003**: Full site render for blogs with up to 500 posts completes within 10 minutes.
+- **SC-003**: Full site render meets FR-009 performance target: benchmark with 500 synthetic posts MUST complete rendering in under 10 minutes wall-clock time. Benchmark failure blocks release.
 - **SC-004**: Deployment failures produce actionable error messages identifying the failing post or step within 60 seconds of failure.
 - **SC-005**: Zero orphaned content remains after posts are deleted from the repository and deployment completes.
 - **SC-006**: Template changes are reflected across all posts after a single deployment without manual intervention.
@@ -128,7 +128,7 @@ As a blog administrator, I want to see deployment progress and results in GitHub
 ### Session 2025-12-30
 
 - Q: What concurrency strategy should be used when multiple PRs merge quickly? → A: Cancel-in-progress (latest merge cancels pending deploy)
-- Q: How should S3 upload failures be handled to prevent partial site state? → A: Upload to staging prefix, then atomic swap (full consistency)
+- Q: How should S3 upload failures be handled to prevent partial site state? → A: Upload assets before HTML to minimize broken references; re-run deployment to restore consistency. Direct sync is preferred over staging prefix for simplicity.
 
 ## Architectural Impact
 

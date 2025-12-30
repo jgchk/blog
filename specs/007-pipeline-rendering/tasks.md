@@ -42,6 +42,8 @@
 - [ ] T007 Create local filesystem adapter for reading posts in packages/renderer/src/adapters/local-storage.ts
 - [ ] T008 [P] Write unit tests for PipelineRenderer post discovery in packages/renderer/tests/services/pipeline-renderer.test.ts
 - [ ] T009 Create pipeline CLI entry point in packages/renderer/src/pipeline.ts
+- [ ] T009a [P] Verify home page template exists in packages/site/src/templates/home.hbs; if missing, create minimal template per existing post template pattern
+- [ ] T009b [P] Verify tag page template exists in packages/site/src/templates/tag.hbs; if missing, create minimal template per existing post template pattern
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -63,6 +65,8 @@
 - [ ] T015 [US1] Add render step to deploy job in .github/workflows/ci-cd.yml
 - [ ] T016 [US1] Add S3 sync step (assets first, then HTML) per research.md in .github/workflows/ci-cd.yml
 - [ ] T017 [US1] Add CloudFront invalidation step in .github/workflows/ci-cd.yml
+- [ ] T017a [US1] Configure concurrency group with cancel-in-progress: true in .github/workflows/ci-cd.yml
+- [ ] T017b [P] [US1] Verify job timeout is set (default 360 minutes acceptable, or set explicit timeout-minutes: 30)
 
 **Checkpoint**: At this point, posts can be rendered and deployed via CI/CD pipeline
 
@@ -112,6 +116,7 @@
 
 - [ ] T026 [US4] Enhance progress logging with post counts and timing in packages/renderer/src/services/pipeline-renderer.ts
 - [ ] T027 [US4] Add structured error reporting (file path, error details) in packages/renderer/src/services/pipeline-renderer.ts
+- [ ] T027a [P] [US4] Add integration test verifying render failure produces error output within 60 seconds per SC-004 in packages/renderer/tests/services/pipeline-renderer.test.ts
 - [ ] T028 [P] [US4] Add summary output at end of pipeline (posts rendered, time elapsed) in packages/renderer/src/services/pipeline-renderer.ts
 
 **Checkpoint**: At this point, operators have full visibility into deployment progress
@@ -148,7 +153,9 @@
 - [ ] T043 [P] Update quickstart.md with final commands and troubleshooting
 - [ ] T044 Verify E2E tests pass against rendered output
 - [ ] T045 Verify smoke tests pass after deployment
-- [ ] T046 [P] Run CDK diff to verify infrastructure changes are correct
+- [ ] T046 [P] Create performance benchmark: generate 500 synthetic posts using a script (minimal front matter + lorem ipsum body, ~500 words each), measure render time against 10-minute target. Script location: packages/renderer/scripts/generate-benchmark-posts.ts
+- [ ] T046a [P] Add CI job step that fails if render phase exceeds 10 minutes (FR-009 target); full deployment should complete in 15 minutes (SC-001 operational target)
+- [ ] T047 [P] Run CDK diff to verify infrastructure changes are correct
 
 ---
 
