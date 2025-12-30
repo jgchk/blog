@@ -1,7 +1,16 @@
 // Service exports
-export { RenderService, type RenderServiceOptions, type AssetCopyResult, type RenderResult, type PublishResult } from './render-service.js';
 export { RetryHandler, type RetryOptions, type RetryResult } from './retry-handler.js';
 export { PipelineRenderer } from './pipeline-renderer.js';
+export {
+  TemplateRenderer,
+  type ArticleTemplateContext,
+  type TagPageTemplateContext,
+  type AllTagsTemplateContext,
+  type HomePageTemplateContext,
+  type ArchiveGroupContext,
+  type ArchivePageTemplateContext,
+  DEFAULT_TEMPLATES_DIR,
+} from './template-renderer.js';
 export type {
   PipelineContext,
   PipelineOptions,

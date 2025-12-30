@@ -46,9 +46,66 @@ export interface AllTagsTemplateContext {
 }
 
 /**
+ * Template context for rendering home page
+ */
+export interface HomePageTemplateContext {
+  articles: Array<{
+    slug: string;
+    title: string;
+    dateIso: string;
+    dateFormatted: string;
+    excerpt: string;
+    tags: Array<{ name: string; slug: string }>;
+  }>;
+  hasMoreArticles: boolean;
+  year: number;
+}
+
+/**
+ * Archive article for template rendering (simplified from full Article)
+ */
+export interface ArchiveArticle {
+  slug: string;
+  title: string;
+  date: Date;
+  excerpt: string;
+}
+
+/**
+ * Archive group for template rendering
+ */
+export interface ArchiveGroupContext {
+  yearMonth: string;
+  displayName: string;
+  count: number;
+  articles: ArchiveArticle[];
+}
+
+/**
+ * Template context for rendering archive page
+ */
+export interface ArchivePageTemplateContext {
+  totalArticles: number;
+  isTotalPlural: boolean;
+  archiveGroups: Array<{
+    yearMonth: string;
+    displayName: string;
+    count: number;
+    isPlural: boolean;
+    articles: Array<{
+      slug: string;
+      title: string;
+      dateIso: string;
+      dateFormatted: string;
+    }>;
+  }>;
+  year: number;
+}
+
+/**
  * Handles template loading and rendering using Handlebars.
- * Consolidates template logic that was previously duplicated
- * between RenderService and PipelineRenderer.
+ * Provides cached template loading and consistent rendering
+ * for articles, tag pages, home page, and archive page.
  */
 export class TemplateRenderer {
   private templatesDir: string;
@@ -164,6 +221,67 @@ export class TemplateRenderer {
     const context: AllTagsTemplateContext = {
       tags: sortedTags,
       totalTags: sortedTags.length,
+      year: new Date().getFullYear(),
+    };
+
+    return template(context);
+  }
+
+  /**
+   * Render home page
+   */
+  async renderHomePage(articles: Article[], hasMoreArticles: boolean = false): Promise<string> {
+    const template = await this.loadTemplate('index');
+
+    const context: HomePageTemplateContext = {
+      articles: articles.map(article => {
+        const { dateIso, dateFormatted } = this.formatDate(article.date);
+        return {
+          slug: article.slug,
+          title: article.title,
+          dateIso,
+          dateFormatted,
+          excerpt: article.excerpt,
+          tags: article.tags.map(tag => ({
+            name: tag,
+            slug: normalizeTagSlug(tag),
+          })),
+        };
+      }),
+      hasMoreArticles,
+      year: new Date().getFullYear(),
+    };
+
+    return template(context);
+  }
+
+  /**
+   * Render archive page
+   */
+  async renderArchivePage(
+    archiveGroups: ArchiveGroupContext[],
+    totalArticles: number
+  ): Promise<string> {
+    const template = await this.loadTemplate('archive');
+
+    const context: ArchivePageTemplateContext = {
+      totalArticles,
+      isTotalPlural: totalArticles !== 1,
+      archiveGroups: archiveGroups.map(group => ({
+        yearMonth: group.yearMonth,
+        displayName: group.displayName,
+        count: group.count,
+        isPlural: group.count !== 1,
+        articles: group.articles.map(article => {
+          const { dateIso, dateFormatted } = this.formatDate(article.date);
+          return {
+            slug: article.slug,
+            title: article.title,
+            dateIso,
+            dateFormatted,
+          };
+        }),
+      })),
       year: new Date().getFullYear(),
     };
 

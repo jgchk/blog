@@ -1,6 +1,3 @@
-import * as path from 'node:path';
-import { promises as fs } from 'node:fs';
-import Handlebars from 'handlebars';
 import {
   ArchiveBuilder,
   FrontMatterParser,
@@ -16,6 +13,7 @@ import type {
   PipelineRenderResult,
   PipelineState,
 } from './pipeline-types.js';
+import { TemplateRenderer } from './template-renderer.js';
 
 /**
  * Pipeline renderer for full-site rendering in CI/CD.
@@ -34,13 +32,7 @@ export class PipelineRenderer {
   private markdownParser: MarkdownParser;
   private sourceStorage: LocalStorageAdapter;
   private outputStorage: LocalStorageAdapter;
-
-  // Compiled Handlebars templates
-  private articleTemplate!: Handlebars.TemplateDelegate;
-  private homeTemplate!: Handlebars.TemplateDelegate;
-  private tagTemplate!: Handlebars.TemplateDelegate;
-  private tagsTemplate!: Handlebars.TemplateDelegate;
-  private archiveTemplate!: Handlebars.TemplateDelegate;
+  private templateRenderer: TemplateRenderer;
 
   constructor(options: PipelineOptions = {}) {
     this.postsDir = options.postsDir ?? './posts';
@@ -54,6 +46,7 @@ export class PipelineRenderer {
     this.markdownParser = new MarkdownParser();
     this.sourceStorage = new LocalStorageAdapter(this.postsDir);
     this.outputStorage = new LocalStorageAdapter(this.outputDir);
+    this.templateRenderer = new TemplateRenderer(this.templatesDir);
   }
 
   /**
@@ -162,22 +155,19 @@ export class PipelineRenderer {
   }
 
   /**
-   * Load and compile Handlebars templates.
+   * Preload and cache all templates for fail-fast error detection.
    */
   async loadTemplates(): Promise<void> {
     this.log('Loading templates');
 
-    const loadTemplate = async (name: string): Promise<Handlebars.TemplateDelegate> => {
-      const templatePath = path.join(this.templatesDir, `${name}.html`);
-      const content = await fs.readFile(templatePath, 'utf-8');
-      return Handlebars.compile(content);
-    };
-
-    this.articleTemplate = await loadTemplate('article');
-    this.homeTemplate = await loadTemplate('index');
-    this.tagTemplate = await loadTemplate('tag');
-    this.tagsTemplate = await loadTemplate('tags');
-    this.archiveTemplate = await loadTemplate('archive');
+    // Preload all templates to catch errors early
+    await Promise.all([
+      this.templateRenderer.loadTemplate('article'),
+      this.templateRenderer.loadTemplate('index'),
+      this.templateRenderer.loadTemplate('tag'),
+      this.templateRenderer.loadTemplate('tags'),
+      this.templateRenderer.loadTemplate('archive'),
+    ]);
 
     this.log('Templates loaded');
   }
@@ -185,29 +175,8 @@ export class PipelineRenderer {
   /**
    * Render a single article to HTML.
    */
-  renderArticleHtml(article: Article): string {
-    const year = new Date().getFullYear();
-    const dateIso = article.date.toISOString().split('T')[0];
-    const dateFormatted = article.date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-
-    const tags = article.tags.map(tag => ({
-      name: tag,
-      slug: normalizeTagSlug(tag),
-    }));
-
-    return this.articleTemplate({
-      title: article.title,
-      dateIso,
-      dateFormatted,
-      excerpt: article.excerpt,
-      content: article.html,
-      tags,
-      year,
-    });
+  async renderArticleHtml(article: Article): Promise<string> {
+    return this.templateRenderer.renderArticle(article);
   }
 
   /**
@@ -244,7 +213,7 @@ export class PipelineRenderer {
 
       try {
         // Render HTML
-        const html = this.renderArticleHtml(article);
+        const html = await this.renderArticleHtml(article);
         const htmlPath = `articles/${article.slug}/index.html`;
         await this.outputStorage.write(htmlPath, Buffer.from(html, 'utf-8'));
 
@@ -293,32 +262,13 @@ export class PipelineRenderer {
     const tags = tagIndex.getAllTags();
     this.log(`Rendering ${tags.length} tag pages`);
 
-    const year = new Date().getFullYear();
-
     for (const tag of tags) {
       // Get articles for this tag
       const tagArticles = articles.filter(article =>
         article.tags.some(t => normalizeTagSlug(t) === tag.slug)
-      ).sort((a, b) => b.date.getTime() - a.date.getTime());
+      );
 
-      const html = this.tagTemplate({
-        tagName: tag.name,
-        tagSlug: tag.slug,
-        articleCount: tagArticles.length,
-        isPlural: tagArticles.length !== 1,
-        articles: tagArticles.map(article => ({
-          slug: article.slug,
-          title: article.title,
-          dateIso: article.date.toISOString().split('T')[0],
-          dateFormatted: article.date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          }),
-          excerpt: article.excerpt,
-        })),
-        year,
-      });
+      const html = await this.templateRenderer.renderTagPage(tag, tagArticles);
 
       await this.outputStorage.write(
         `tags/${tag.slug}.html`,
@@ -341,16 +291,7 @@ export class PipelineRenderer {
       count: tag.count,
     }));
 
-    // Sort alphabetically by name
-    tags.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-
-    const year = new Date().getFullYear();
-
-    const html = this.tagsTemplate({
-      tags,
-      totalTags: tags.length,
-      year,
-    });
+    const html = await this.templateRenderer.renderAllTagsPage(tags);
 
     await this.outputStorage.write(
       'tags/index.html',
@@ -366,27 +307,9 @@ export class PipelineRenderer {
 
     // Show most recent 10 articles
     const recentArticles = articles.slice(0, 10);
-    const year = new Date().getFullYear();
+    const hasMoreArticles = articles.length > 10;
 
-    const html = this.homeTemplate({
-      articles: recentArticles.map(article => ({
-        slug: article.slug,
-        title: article.title,
-        dateIso: article.date.toISOString().split('T')[0],
-        dateFormatted: article.date.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }),
-        excerpt: article.excerpt,
-        tags: article.tags.map(tag => ({
-          name: tag,
-          slug: normalizeTagSlug(tag),
-        })),
-      })),
-      hasMoreArticles: articles.length > 10,
-      year,
-    });
+    const html = await this.templateRenderer.renderHomePage(recentArticles, hasMoreArticles);
 
     await this.outputStorage.write(
       'index.html',
@@ -401,30 +324,9 @@ export class PipelineRenderer {
     this.log('Rendering archive page');
 
     const archiveGroups = ArchiveBuilder.buildArchive(articles);
-    const year = new Date().getFullYear();
     const totalArticles = articles.length;
 
-    const html = this.archiveTemplate({
-      totalArticles,
-      isTotalPlural: totalArticles !== 1,
-      archiveGroups: archiveGroups.map(group => ({
-        yearMonth: group.yearMonth,
-        displayName: group.displayName,
-        count: group.count,
-        isPlural: group.count !== 1,
-        articles: group.articles.map(article => ({
-          slug: article.slug,
-          title: article.title,
-          dateIso: article.date.toISOString().split('T')[0],
-          dateFormatted: article.date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          }),
-        })),
-      })),
-      year,
-    });
+    const html = await this.templateRenderer.renderArchivePage(archiveGroups, totalArticles);
 
     await this.outputStorage.write(
       'archive/index.html',

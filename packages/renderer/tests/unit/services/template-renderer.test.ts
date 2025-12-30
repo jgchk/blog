@@ -335,4 +335,175 @@ describe('TemplateRenderer', () => {
       );
     });
   });
+
+  describe('renderHomePage', () => {
+    const createArticle = (slug: string, title: string, date: Date): Article => ({
+      slug,
+      title,
+      date,
+      content: 'Content',
+      html: '<p>Content</p>',
+      tags: ['TypeScript'],
+      aliases: [],
+      draft: false,
+      excerpt: `Excerpt for ${title}`,
+      sourcePath: `posts/${slug}/index.md`,
+      updatedAt: new Date(),
+    });
+
+    beforeEach(async () => {
+      // Add home page template (index.html)
+      const homeTemplate = `<!DOCTYPE html>
+<html>
+<head><title>Blog</title></head>
+<body>
+<h1>Recent Articles</h1>
+{{#each articles}}
+<article>
+<h2><a href="/articles/{{slug}}/">{{title}}</a></h2>
+<time datetime="{{dateIso}}">{{dateFormatted}}</time>
+<p>{{excerpt}}</p>
+</article>
+{{/each}}
+{{#if hasMoreArticles}}<a href="/archive/">View all articles</a>{{/if}}
+<footer>&copy; {{year}}</footer>
+</body>
+</html>`;
+      await fs.writeFile(path.join(tempDir, 'index.html'), homeTemplate);
+    });
+
+    it('should render home page with articles', async () => {
+      const articles = [
+        createArticle('article-1', 'First Article', new Date('2025-01-15')),
+        createArticle('article-2', 'Second Article', new Date('2025-01-10')),
+      ];
+
+      const html = await renderer.renderHomePage(articles);
+
+      expect(html).toContain('Recent Articles');
+      expect(html).toContain('First Article');
+      expect(html).toContain('Second Article');
+    });
+
+    it('should show "View all articles" when hasMoreArticles is true', async () => {
+      const articles = [
+        createArticle('article-1', 'Article 1', new Date('2025-01-15')),
+      ];
+
+      const html = await renderer.renderHomePage(articles, true);
+
+      expect(html).toContain('View all articles');
+    });
+
+    it('should not show "View all articles" when hasMoreArticles is false', async () => {
+      const articles = [
+        createArticle('article-1', 'Article 1', new Date('2025-01-15')),
+      ];
+
+      const html = await renderer.renderHomePage(articles, false);
+
+      expect(html).not.toContain('View all articles');
+    });
+
+    it('should include current year in footer', async () => {
+      const html = await renderer.renderHomePage([]);
+      const currentYear = new Date().getFullYear();
+      expect(html).toContain(`${currentYear}`);
+    });
+  });
+
+  describe('renderArchivePage', () => {
+    beforeEach(async () => {
+      // Add archive page template
+      const archiveTemplate = `<!DOCTYPE html>
+<html>
+<head><title>Archive</title></head>
+<body>
+<h1>Archive</h1>
+<p>{{totalArticles}} {{#if isTotalPlural}}articles{{else}}article{{/if}} total</p>
+{{#each archiveGroups}}
+<section>
+<h2>{{displayName}}</h2>
+<p>{{count}} {{#if isPlural}}articles{{else}}article{{/if}}</p>
+<ul>
+{{#each articles}}
+<li>
+<time datetime="{{dateIso}}">{{dateFormatted}}</time>
+<a href="/articles/{{slug}}/">{{title}}</a>
+</li>
+{{/each}}
+</ul>
+</section>
+{{/each}}
+<footer>&copy; {{year}}</footer>
+</body>
+</html>`;
+      await fs.writeFile(path.join(tempDir, 'archive.html'), archiveTemplate);
+    });
+
+    it('should render archive page with grouped articles', async () => {
+      const archiveGroups = [
+        {
+          yearMonth: '2025-01',
+          displayName: 'January 2025',
+          count: 2,
+          articles: [
+            { slug: 'article-1', title: 'Article 1', date: new Date('2025-01-15'), excerpt: 'Excerpt 1' },
+            { slug: 'article-2', title: 'Article 2', date: new Date('2025-01-10'), excerpt: 'Excerpt 2' },
+          ],
+        },
+      ];
+
+      const html = await renderer.renderArchivePage(archiveGroups, 2);
+
+      expect(html).toContain('Archive');
+      expect(html).toContain('January 2025');
+      expect(html).toContain('Article 1');
+      expect(html).toContain('Article 2');
+      expect(html).toContain('2 articles total');
+    });
+
+    it('should use singular "article" for single total', async () => {
+      const archiveGroups = [
+        {
+          yearMonth: '2025-01',
+          displayName: 'January 2025',
+          count: 1,
+          articles: [
+            { slug: 'article-1', title: 'Article 1', date: new Date('2025-01-15'), excerpt: 'Excerpt' },
+          ],
+        },
+      ];
+
+      const html = await renderer.renderArchivePage(archiveGroups, 1);
+
+      expect(html).toContain('1 article total');
+      expect(html).not.toContain('1 articles total');
+    });
+
+    it('should use singular "article" for single article in group', async () => {
+      const archiveGroups = [
+        {
+          yearMonth: '2025-01',
+          displayName: 'January 2025',
+          count: 1,
+          articles: [
+            { slug: 'article-1', title: 'Article 1', date: new Date('2025-01-15'), excerpt: 'Excerpt' },
+          ],
+        },
+      ];
+
+      const html = await renderer.renderArchivePage(archiveGroups, 1);
+
+      // Should show "1 article" (singular) for the group
+      const groupSection = html.substring(html.indexOf('January 2025'));
+      expect(groupSection).toContain('1 article');
+    });
+
+    it('should include current year in footer', async () => {
+      const html = await renderer.renderArchivePage([], 0);
+      const currentYear = new Date().getFullYear();
+      expect(html).toContain(`${currentYear}`);
+    });
+  });
 });
