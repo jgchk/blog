@@ -40,7 +40,7 @@ describe('BlogStack Snapshot Tests', () => {
   it('creates CloudFront distribution', () => {
     template.hasResourceProperties('AWS::CloudFront::Distribution', {
       DistributionConfig: {
-        DefaultRootObject: 'pages/index.html',
+        DefaultRootObject: 'index.html',
       },
     });
   });

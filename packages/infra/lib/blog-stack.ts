@@ -33,14 +33,15 @@ export class BlogStack extends cdk.Stack {
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
       },
-      defaultRootObject: 'pages/index.html',
-      errorResponses: [
-        {
-          httpStatus: 404,
-          responseHttpStatus: 404,
-          responsePagePath: '/pages/404.html',
-        },
-      ],
+      defaultRootObject: 'index.html',
+      // TODO: Add custom 404 page when template is created
+      // errorResponses: [
+      //   {
+      //     httpStatus: 404,
+      //     responseHttpStatus: 404,
+      //     responsePagePath: '/404.html',
+      //   },
+      // ],
     });
 
     // Grant GitHub Actions role permissions to sync content and invalidate cache
