@@ -17,7 +17,7 @@ test.describe('Archive Navigation', () => {
   });
 
   test('archive page displays articles grouped by date', async ({ page }) => {
-    await page.goto('/archive.html');
+    await page.goto('/archive/');
 
     // Page should load without error
     await expect(page).toHaveURL(/archive/);
@@ -29,7 +29,7 @@ test.describe('Archive Navigation', () => {
   });
 
   test('archive shows year/month groupings', async ({ page }) => {
-    await page.goto('/archive.html');
+    await page.goto('/archive/');
 
     // Look for date groupings (could be h2, h3, or other elements)
     // Common patterns: "2025", "January 2025", "2025-01"
@@ -53,7 +53,7 @@ test.describe('Archive Navigation', () => {
   });
 
   test('archive articles link to article pages', async ({ page }) => {
-    await page.goto('/archive.html');
+    await page.goto('/archive/');
 
     const articleLinks = page.locator('a[href*="/articles/"]');
     const count = await articleLinks.count();
@@ -66,7 +66,7 @@ test.describe('Archive Navigation', () => {
   });
 
   test('clicking archive article navigates correctly', async ({ page }) => {
-    await page.goto('/archive.html');
+    await page.goto('/archive/');
 
     const firstArticle = page.locator('a[href*="/articles/"]').first();
     const count = await firstArticle.count();
@@ -112,7 +112,7 @@ test.describe('Archive Navigation', () => {
   });
 
   test('archive is keyboard navigable', async ({ page }) => {
-    await page.goto('/archive.html');
+    await page.goto('/archive/');
 
     const firstArticle = page.locator('a[href*="/articles/"]').first();
     const count = await firstArticle.count();
@@ -128,7 +128,7 @@ test.describe('Archive Navigation', () => {
   });
 
   test('archive page has proper semantic structure', async ({ page }) => {
-    await page.goto('/archive.html');
+    await page.goto('/archive/');
 
     // Should have main landmark
     await expect(page.locator('main')).toBeVisible();
@@ -141,7 +141,7 @@ test.describe('Archive Navigation', () => {
   });
 
   test('back navigation from article returns to archive', async ({ page }) => {
-    await page.goto('/archive.html');
+    await page.goto('/archive/');
 
     const firstArticle = page.locator('a[href*="/articles/"]').first();
     const count = await firstArticle.count();

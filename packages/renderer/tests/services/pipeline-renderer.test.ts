@@ -73,10 +73,34 @@ describe('PipelineRenderer', () => {
 </body>
 </html>`;
 
+    const archiveTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head><title>Archive</title></head>
+<body>
+  <h1>Archive</h1>
+  <p>{{totalArticles}} {{#if isTotalPlural}}articles{{else}}article{{/if}} total</p>
+  {{#each archiveGroups}}
+  <section>
+    <h2>{{displayName}}</h2>
+    <p>{{count}} {{#if isPlural}}articles{{else}}article{{/if}}</p>
+    <ul>
+      {{#each articles}}
+      <li>
+        <time datetime="{{dateIso}}">{{dateFormatted}}</time>
+        <a href="/articles/{{slug}}/">{{title}}</a>
+      </li>
+      {{/each}}
+    </ul>
+  </section>
+  {{/each}}
+</body>
+</html>`;
+
     await fs.writeFile(path.join(templatesDir, 'article.html'), articleTemplate);
     await fs.writeFile(path.join(templatesDir, 'index.html'), indexTemplate);
     await fs.writeFile(path.join(templatesDir, 'tag.html'), tagTemplate);
     await fs.writeFile(path.join(templatesDir, 'tags.html'), tagsTemplate);
+    await fs.writeFile(path.join(templatesDir, 'archive.html'), archiveTemplate);
   });
 
   afterEach(async () => {
@@ -518,6 +542,126 @@ Missing date`
       expect(result.success).toBe(true);
       // Only the valid post should be rendered
       expect(result.postsRendered).toBe(1);
+    });
+  });
+
+  describe('renderArchivePage', () => {
+    it('should render archive page with articles grouped by month', async () => {
+      // Create posts in different months
+      await fs.mkdir(path.join(postsDir, 'jan-post'));
+      await fs.writeFile(
+        path.join(postsDir, 'jan-post', 'index.md'),
+        `---
+title: January Post
+date: 2024-01-15
+---
+Content`
+      );
+
+      await fs.mkdir(path.join(postsDir, 'feb-post'));
+      await fs.writeFile(
+        path.join(postsDir, 'feb-post', 'index.md'),
+        `---
+title: February Post
+date: 2024-02-20
+---
+Content`
+      );
+
+      const renderer = new PipelineRenderer({
+        postsDir,
+        outputDir,
+        templatesDir,
+        logger: () => {},
+      });
+
+      const result = await renderer.execute();
+
+      expect(result.success).toBe(true);
+
+      // Verify archive page was created at archive/index.html
+      const archivePath = path.join(outputDir, 'archive', 'index.html');
+      const archiveExists = await fs.access(archivePath).then(() => true).catch(() => false);
+      expect(archiveExists).toBe(true);
+
+      const archiveContent = await fs.readFile(archivePath, 'utf-8');
+      expect(archiveContent).toContain('Archive');
+      expect(archiveContent).toContain('2 articles total');
+      expect(archiveContent).toContain('January 2024');
+      expect(archiveContent).toContain('February 2024');
+      expect(archiveContent).toContain('January Post');
+      expect(archiveContent).toContain('February Post');
+    });
+
+    it('should show correct article count per month', async () => {
+      // Create two posts in same month
+      await fs.mkdir(path.join(postsDir, 'post-1'));
+      await fs.writeFile(
+        path.join(postsDir, 'post-1', 'index.md'),
+        `---
+title: Post 1
+date: 2024-03-01
+---
+Content`
+      );
+
+      await fs.mkdir(path.join(postsDir, 'post-2'));
+      await fs.writeFile(
+        path.join(postsDir, 'post-2', 'index.md'),
+        `---
+title: Post 2
+date: 2024-03-15
+---
+Content`
+      );
+
+      const renderer = new PipelineRenderer({
+        postsDir,
+        outputDir,
+        templatesDir,
+        logger: () => {},
+      });
+
+      const result = await renderer.execute();
+
+      expect(result.success).toBe(true);
+
+      const archivePath = path.join(outputDir, 'archive', 'index.html');
+      const archiveContent = await fs.readFile(archivePath, 'utf-8');
+
+      // Should show "2 articles" (plural)
+      expect(archiveContent).toContain('2 articles');
+      expect(archiveContent).toContain('March 2024');
+    });
+
+    it('should use singular "article" for single post month', async () => {
+      await fs.mkdir(path.join(postsDir, 'single-post'));
+      await fs.writeFile(
+        path.join(postsDir, 'single-post', 'index.md'),
+        `---
+title: Single Post
+date: 2024-04-10
+---
+Content`
+      );
+
+      const renderer = new PipelineRenderer({
+        postsDir,
+        outputDir,
+        templatesDir,
+        logger: () => {},
+      });
+
+      const result = await renderer.execute();
+
+      expect(result.success).toBe(true);
+
+      const archivePath = path.join(outputDir, 'archive', 'index.html');
+      const archiveContent = await fs.readFile(archivePath, 'utf-8');
+
+      // Should show "1 article" (singular)
+      expect(archiveContent).toContain('1 article');
+      expect(archiveContent).not.toContain('1 articles');
     });
   });
 

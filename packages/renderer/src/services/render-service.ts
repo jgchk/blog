@@ -405,7 +405,7 @@ export class RenderService {
     <nav aria-label="Main navigation">
       <ul>
         <li><a href="/">Home</a></li>
-        <li><a href="/archive.html">Archive</a></li>
+        <li><a href="/archive/">Archive</a></li>
         <li><a href="/tags/">Tags</a></li>
       </ul>
     </nav>
@@ -465,7 +465,7 @@ export class RenderService {
     <nav aria-label="Main navigation">
       <ul>
         <li><a href="/">Home</a></li>
-        <li><a href="/archive.html">Archive</a></li>
+        <li><a href="/archive/">Archive</a></li>
         <li><a href="/tags/" aria-current="page">Tags</a></li>
       </ul>
     </nav>
@@ -500,7 +500,7 @@ export class RenderService {
   <header>
     <nav>
       <a href="/">Home</a>
-      <a href="/archive.html">Archive</a>
+      <a href="/archive/">Archive</a>
       <a href="/tags/">Tags</a>
     </nav>
   </header>

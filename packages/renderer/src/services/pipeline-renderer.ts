@@ -2,6 +2,7 @@ import * as path from 'node:path';
 import { promises as fs } from 'node:fs';
 import Handlebars from 'handlebars';
 import {
+  ArchiveBuilder,
   FrontMatterParser,
   MarkdownParser,
   TagIndex,
@@ -39,6 +40,7 @@ export class PipelineRenderer {
   private homeTemplate!: Handlebars.TemplateDelegate;
   private tagTemplate!: Handlebars.TemplateDelegate;
   private tagsTemplate!: Handlebars.TemplateDelegate;
+  private archiveTemplate!: Handlebars.TemplateDelegate;
 
   constructor(options: PipelineOptions = {}) {
     this.postsDir = options.postsDir ?? './posts';
@@ -175,6 +177,7 @@ export class PipelineRenderer {
     this.homeTemplate = await loadTemplate('index');
     this.tagTemplate = await loadTemplate('tag');
     this.tagsTemplate = await loadTemplate('tags');
+    this.archiveTemplate = await loadTemplate('archive');
 
     this.log('Templates loaded');
   }
@@ -392,6 +395,44 @@ export class PipelineRenderer {
   }
 
   /**
+   * Render the archive page.
+   */
+  async renderArchivePage(articles: Article[]): Promise<void> {
+    this.log('Rendering archive page');
+
+    const archiveGroups = ArchiveBuilder.buildArchive(articles);
+    const year = new Date().getFullYear();
+    const totalArticles = articles.length;
+
+    const html = this.archiveTemplate({
+      totalArticles,
+      isTotalPlural: totalArticles !== 1,
+      archiveGroups: archiveGroups.map(group => ({
+        yearMonth: group.yearMonth,
+        displayName: group.displayName,
+        count: group.count,
+        isPlural: group.count !== 1,
+        articles: group.articles.map(article => ({
+          slug: article.slug,
+          title: article.title,
+          dateIso: article.date.toISOString().split('T')[0],
+          dateFormatted: article.date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          }),
+        })),
+      })),
+      year,
+    });
+
+    await this.outputStorage.write(
+      'archive/index.html',
+      Buffer.from(html, 'utf-8')
+    );
+  }
+
+  /**
    * Execute the full pipeline.
    * Per FR-007: Fail-fast on any render error.
    */
@@ -455,6 +496,9 @@ export class PipelineRenderer {
 
       // Render home page
       await this.renderHomePage(articles);
+
+      // Render archive page
+      await this.renderArchivePage(articles);
 
       // Calculate totals
       const totalAssets = results.reduce((sum, r) => sum + r.assetPaths.length, 0);

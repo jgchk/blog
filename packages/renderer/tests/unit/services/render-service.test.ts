@@ -222,5 +222,26 @@ describe('RenderService Tag Page Methods', () => {
       expect(html).toContain('href="/tags/typescript.html"');
       expect(html).toContain('href="/tags/javascript.html"');
     });
+
+    it('should use clean URL /archive/ for archive navigation link', () => {
+      const articles = [createMockArticle()];
+
+      const html = renderService.renderAllTagsPage(articles);
+
+      expect(html).toContain('href="/archive/"');
+      expect(html).not.toContain('href="/archive.html"');
+    });
+  });
+
+  describe('renderTagPage navigation links', () => {
+    it('should use clean URL /archive/ for archive navigation link', () => {
+      const tag = createMockTag();
+      const articles = [createMockArticle()];
+
+      const html = renderService.renderTagPage(tag, articles);
+
+      expect(html).toContain('href="/archive/"');
+      expect(html).not.toContain('href="/archive.html"');
+    });
   });
 });

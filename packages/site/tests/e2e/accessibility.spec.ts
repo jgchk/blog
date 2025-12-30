@@ -37,7 +37,7 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
   });
 
   test('archive page passes accessibility audit', async ({ page }) => {
-    await page.goto('/archive.html');
+    await page.goto('/archive/');
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -57,7 +57,7 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
   });
 
   test('all pages have skip link for keyboard navigation', async ({ page }) => {
-    const pages = ['/', '/articles/example-post/', '/tags/', '/archive.html'];
+    const pages = ['/', '/articles/example-post/', '/tags/', '/archive/'];
 
     for (const url of pages) {
       await page.goto(url);
@@ -71,7 +71,7 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
   });
 
   test('all pages have proper heading hierarchy', async ({ page }) => {
-    const pages = ['/', '/articles/example-post/', '/tags/', '/archive.html'];
+    const pages = ['/', '/articles/example-post/', '/tags/', '/archive/'];
 
     for (const url of pages) {
       await page.goto(url);
@@ -98,7 +98,7 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
   });
 
   test('all pages have proper landmark regions', async ({ page }) => {
-    const pages = ['/', '/articles/example-post/', '/tags/', '/archive.html'];
+    const pages = ['/', '/articles/example-post/', '/tags/', '/archive/'];
 
     for (const url of pages) {
       await page.goto(url);
