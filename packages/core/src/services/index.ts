@@ -23,3 +23,6 @@ export { ArticleSorter } from './article-sorter.js';
 
 export { ArchiveBuilder } from './archive-builder.js';
 export type { ArchiveGroup } from './archive-builder.js';
+
+export { ArticleFactory } from './article-factory.js';
+export type { CreateParsedArticleInput } from './article-factory.js';

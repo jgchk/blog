@@ -1,6 +1,6 @@
 import {
   ArchiveBuilder,
-  createTag,
+  ArticleFactory,
   FrontMatterParser,
   MarkdownParser,
   Slug,
@@ -31,6 +31,7 @@ export class PipelineRenderer {
 
   private frontMatterParser: FrontMatterParser;
   private markdownParser: MarkdownParser;
+  private articleFactory: ArticleFactory;
   private sourceStorage: LocalStorageAdapter;
   private outputStorage: LocalStorageAdapter;
   private templateRenderer: TemplateRenderer;
@@ -45,6 +46,7 @@ export class PipelineRenderer {
 
     this.frontMatterParser = new FrontMatterParser();
     this.markdownParser = new MarkdownParser();
+    this.articleFactory = new ArticleFactory();
     this.sourceStorage = new LocalStorageAdapter(this.postsDir);
     this.outputStorage = new LocalStorageAdapter(this.outputDir);
     this.templateRenderer = new TemplateRenderer(this.templatesDir);
@@ -110,27 +112,20 @@ export class PipelineRenderer {
         return null;
       }
 
-      const html = await this.markdownParser.parse(markdownContent);
-      const excerpt = frontMatter.excerpt ?? this.markdownParser.generateExcerpt(markdownContent);
-
       // Create Slug from directory name (already normalized by filesystem)
       const articleSlug = Slug.fromNormalized(slug);
 
-      // Convert tag strings to Tag value objects
-      const tags = (frontMatter.tags ?? []).map(createTag);
-
-      const article: Article = {
+      // Stage 1: Create ParsedArticle from front matter and content
+      const parsedArticle = this.articleFactory.createParsedArticle({
+        frontMatter,
+        content: markdownContent,
         slug: articleSlug,
-        title: frontMatter.title,
-        date: new Date(frontMatter.date),
-        html,
-        tags,
-        aliases: frontMatter.aliases ?? [],
-        draft: frontMatter.draft ?? false,
-        excerpt,
         sourcePath,
-        updatedAt: new Date(),
-      };
+      });
+
+      // Stage 2: Render markdown to HTML and create Article
+      const html = await this.markdownParser.parse(markdownContent);
+      const article = this.articleFactory.createArticle(parsedArticle, html);
 
       return article;
     } catch (error) {
