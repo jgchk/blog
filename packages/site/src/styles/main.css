@@ -49,6 +49,23 @@
   font-display: swap;
 }
 
+/* Perfectly Nineties - Display Font */
+@font-face {
+  font-family: 'Perfectly Nineties';
+  src: url('/fonts/PerfectlyNineties-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Perfectly Nineties';
+  src: url('/fonts/PerfectlyNineties-Light.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* =============================================================================
    CSS Custom Properties
    ============================================================================= */
@@ -552,11 +569,12 @@ article > header time::before {
   border-left: 2px solid var(--color-accent-muted);
   padding: var(--space-6) var(--space-8) var(--space-4);
   background: rgba(255, 255, 255, 0.01);
-  font-family: var(--font-sans);
-  font-weight: 300;
+  font-family: 'Perfectly Nineties', Georgia, serif;
+  font-weight: 400;
   font-style: italic;
   font-size: var(--text-base);
-  line-height: 1.4;
+  line-height: 1.8;
+  letter-spacing: 0.025em;
   color: var(--color-text);
   position: relative;
 }
