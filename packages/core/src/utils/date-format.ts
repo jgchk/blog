@@ -11,6 +11,7 @@ export function formatDate(date: Date): string {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: 'UTC',
   });
 }
 
@@ -30,6 +31,7 @@ export function formatMonthYear(date: Date): string {
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
+    timeZone: 'UTC',
   });
 }
 
