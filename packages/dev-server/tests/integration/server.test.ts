@@ -25,6 +25,9 @@ describe('Server Integration', () => {
     mkdirSync(join(testDir, 'packages', 'site', 'src', 'styles'), {
       recursive: true,
     });
+    mkdirSync(join(testDir, 'packages', 'site', 'src', 'fonts'), {
+      recursive: true,
+    });
 
     // Create minimal templates
     writeFileSync(
@@ -63,6 +66,12 @@ This is a test.`
     writeFileSync(
       join(testDir, 'packages', 'site', 'src', 'styles', 'main.css'),
       'body { color: black; }'
+    );
+
+    // Create a test font file (minimal valid woff2 header bytes)
+    writeFileSync(
+      join(testDir, 'packages', 'site', 'src', 'fonts', 'test-font.woff2'),
+      Buffer.from([0x77, 0x4f, 0x46, 0x32]) // wOF2 magic bytes
     );
 
     config = createDefaultConfig({
@@ -291,6 +300,36 @@ This is a test.`
       expect(response.statusCode).toBe(200);
       expect(response.headers['content-type']).toContain('text/html');
       expect(response.body).toContain('Tag');
+    });
+  });
+
+  describe('Font Serving', () => {
+    it('should serve font files from /fonts/ route', async () => {
+      const response = await server.inject({
+        method: 'GET',
+        url: '/fonts/test-font.woff2',
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toBe('font/woff2');
+    });
+
+    it('should return 404 for nonexistent font files', async () => {
+      const response = await server.inject({
+        method: 'GET',
+        url: '/fonts/nonexistent.woff2',
+      });
+
+      expect(response.statusCode).toBe(404);
+    });
+
+    it('should add Cache-Control header to font responses', async () => {
+      const response = await server.inject({
+        method: 'GET',
+        url: '/fonts/test-font.woff2',
+      });
+
+      expect(response.headers['cache-control']).toContain('no-cache');
     });
   });
 });

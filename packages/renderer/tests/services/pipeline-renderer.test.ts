@@ -9,6 +9,7 @@ describe('PipelineRenderer', () => {
   let postsDir: string;
   let outputDir: string;
   let templatesDir: string;
+  let siteDir: string;
 
   beforeEach(async () => {
     // Create temp directory structure
@@ -16,10 +17,13 @@ describe('PipelineRenderer', () => {
     postsDir = path.join(tempDir, 'posts');
     outputDir = path.join(tempDir, 'rendered');
     templatesDir = path.join(tempDir, 'templates');
+    siteDir = path.join(tempDir, 'site');
 
     await fs.mkdir(postsDir, { recursive: true });
     await fs.mkdir(outputDir, { recursive: true });
     await fs.mkdir(templatesDir, { recursive: true });
+    await fs.mkdir(path.join(siteDir, 'src', 'fonts'), { recursive: true });
+    await fs.mkdir(path.join(siteDir, 'src', 'styles'), { recursive: true });
 
     // Create minimal templates
     const articleTemplate = `<!DOCTYPE html>
@@ -401,6 +405,55 @@ date: 2024-01-15
       expect(assetExists).toBe(true);
     });
 
+    it('should copy site assets (fonts, CSS) when siteDir is provided', async () => {
+      // Create a post
+      await fs.mkdir(path.join(postsDir, 'test-post'));
+      await fs.writeFile(
+        path.join(postsDir, 'test-post', 'index.md'),
+        `---
+title: Test Post
+date: 2024-01-15
+---
+Content`
+      );
+
+      // Create site assets
+      await fs.writeFile(
+        path.join(siteDir, 'src', 'fonts', 'test.woff2'),
+        Buffer.from([0x77, 0x4f, 0x46, 0x32])
+      );
+      await fs.writeFile(
+        path.join(siteDir, 'src', 'styles', 'main.css'),
+        'body { color: black; }'
+      );
+
+      const renderer = new PipelineRenderer({
+        postsDir,
+        outputDir,
+        templatesDir,
+        siteDir,
+        logger: () => {},
+      });
+
+      const result = await renderer.execute();
+
+      expect(result.success).toBe(true);
+      // Should include 2 site assets (font + CSS)
+      expect(result.assetsUploaded).toBe(2);
+
+      // Verify font was copied
+      const fontExists = await fs.access(path.join(outputDir, 'fonts', 'test.woff2'))
+        .then(() => true)
+        .catch(() => false);
+      expect(fontExists).toBe(true);
+
+      // Verify CSS was copied
+      const cssExists = await fs.access(path.join(outputDir, 'assets', 'styles', 'main.css'))
+        .then(() => true)
+        .catch(() => false);
+      expect(cssExists).toBe(true);
+    });
+
     it('should return success with zero posts for empty directory', async () => {
       const renderer = new PipelineRenderer({
         postsDir,
@@ -710,6 +763,79 @@ Content`
       const jsTag = tags.find(t => t.slug === 'javascript');
       expect(jsTag).toBeDefined();
       expect(jsTag!.count).toBe(2);
+    });
+  });
+
+  describe('copySiteAssets', () => {
+    it('should copy font files to output directory', async () => {
+      // Create test font files
+      await fs.writeFile(
+        path.join(siteDir, 'src', 'fonts', 'test-font.woff2'),
+        Buffer.from([0x77, 0x4f, 0x46, 0x32]) // wOF2 magic bytes
+      );
+      await fs.writeFile(
+        path.join(siteDir, 'src', 'fonts', 'test-font-italic.woff2'),
+        Buffer.from([0x77, 0x4f, 0x46, 0x32])
+      );
+
+      const renderer = new PipelineRenderer({
+        postsDir,
+        outputDir,
+        templatesDir,
+        siteDir,
+        logger: () => {},
+      });
+
+      const copiedAssets = await renderer.copySiteAssets();
+
+      expect(copiedAssets).toContain('fonts/test-font.woff2');
+      expect(copiedAssets).toContain('fonts/test-font-italic.woff2');
+
+      // Verify files exist in output
+      const fontExists = await fs.access(path.join(outputDir, 'fonts', 'test-font.woff2'))
+        .then(() => true)
+        .catch(() => false);
+      expect(fontExists).toBe(true);
+    });
+
+    it('should copy CSS files to output directory', async () => {
+      await fs.writeFile(
+        path.join(siteDir, 'src', 'styles', 'main.css'),
+        'body { color: black; }'
+      );
+
+      const renderer = new PipelineRenderer({
+        postsDir,
+        outputDir,
+        templatesDir,
+        siteDir,
+        logger: () => {},
+      });
+
+      const copiedAssets = await renderer.copySiteAssets();
+
+      expect(copiedAssets).toContain('assets/styles/main.css');
+
+      // Verify CSS exists in output
+      const cssContent = await fs.readFile(
+        path.join(outputDir, 'assets', 'styles', 'main.css'),
+        'utf-8'
+      );
+      expect(cssContent).toBe('body { color: black; }');
+    });
+
+    it('should skip site assets if siteDir not provided', async () => {
+      const renderer = new PipelineRenderer({
+        postsDir,
+        outputDir,
+        templatesDir,
+        // No siteDir
+        logger: () => {},
+      });
+
+      const copiedAssets = await renderer.copySiteAssets();
+
+      expect(copiedAssets).toHaveLength(0);
     });
   });
 });

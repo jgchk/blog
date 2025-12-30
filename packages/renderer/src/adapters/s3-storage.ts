@@ -133,6 +133,11 @@ export class S3StorageAdapter implements StorageAdapter {
       svg: 'image/svg+xml',
       webp: 'image/webp',
       md: 'text/markdown',
+      woff: 'font/woff',
+      woff2: 'font/woff2',
+      ttf: 'font/ttf',
+      otf: 'font/otf',
+      eot: 'application/vnd.ms-fontobject',
     };
 
     return contentTypes[ext ?? ''] ?? 'application/octet-stream';

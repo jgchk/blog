@@ -33,6 +33,11 @@ const MIME_TYPES: Record<string, string> = {
   '.webp': 'image/webp',
   '.pdf': 'application/pdf',
   '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.otf': 'font/otf',
+  '.eot': 'application/vnd.ms-fontobject',
 };
 
 /**
@@ -111,6 +116,15 @@ export async function createServer(
     prefix: '/assets/styles/',
     decorateReply: false,
   });
+
+  // Register static file serving for fonts
+  if (existsSync(paths.fontsDir)) {
+    await fastify.register(fastifyStatic, {
+      root: paths.fontsDir,
+      prefix: '/fonts/',
+      decorateReply: false,
+    });
+  }
 
   // WebSocket handler on /__dev/ws for live reload
   fastify.get('/__dev/ws', { websocket: true }, (socket) => {
@@ -261,9 +275,9 @@ export async function createServer(
     }
   );
 
-  // GET /assets/styles/:file - CSS files (handled by fastify-static, but add headers)
+  // Add dev headers for static assets (CSS and fonts)
   fastify.addHook('onSend', (request, reply, payload, done) => {
-    if (request.url.startsWith('/assets/styles/')) {
+    if (request.url.startsWith('/assets/styles/') || request.url.startsWith('/fonts/')) {
       addDevHeaders(reply);
     }
     done(null, payload);

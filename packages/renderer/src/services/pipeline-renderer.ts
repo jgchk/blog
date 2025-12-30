@@ -23,6 +23,7 @@ export class PipelineRenderer {
   private postsDir: string;
   private outputDir: string;
   private templatesDir: string;
+  private siteDir?: string;
   private s3Bucket?: string;
   private cloudfrontId?: string;
   private logger: (message: string) => void;
@@ -39,6 +40,7 @@ export class PipelineRenderer {
     this.postsDir = options.postsDir ?? './posts';
     this.outputDir = options.outputDir ?? './rendered';
     this.templatesDir = options.templatesDir ?? './packages/site/src/templates';
+    this.siteDir = options.siteDir;
     this.s3Bucket = options.s3Bucket;
     this.cloudfrontId = options.cloudfrontId;
     this.logger = options.logger ?? console.log;
@@ -198,6 +200,53 @@ export class PipelineRenderer {
       assets.push(destPath);
     }
 
+    return assets;
+  }
+
+  /**
+   * Copy site-wide static assets (fonts, CSS) to output directory.
+   */
+  async copySiteAssets(): Promise<string[]> {
+    if (!this.siteDir) {
+      return [];
+    }
+
+    const assets: string[] = [];
+    const siteStorage = new LocalStorageAdapter(this.siteDir);
+
+    // Copy fonts from src/fonts to fonts/
+    const fontsDir = 'src/fonts';
+    try {
+      const fontFiles = await siteStorage.list(`${fontsDir}/`);
+      for (const file of fontFiles) {
+        const relativePath = file.slice(`${fontsDir}/`.length);
+        const destPath = `fonts/${relativePath}`;
+
+        const content = await siteStorage.read(file);
+        await this.outputStorage.write(destPath, content);
+        assets.push(destPath);
+      }
+    } catch {
+      // Fonts directory may not exist
+    }
+
+    // Copy CSS from src/styles to assets/styles/
+    const stylesDir = 'src/styles';
+    try {
+      const styleFiles = await siteStorage.list(`${stylesDir}/`);
+      for (const file of styleFiles) {
+        const relativePath = file.slice(`${stylesDir}/`.length);
+        const destPath = `assets/styles/${relativePath}`;
+
+        const content = await siteStorage.read(file);
+        await this.outputStorage.write(destPath, content);
+        assets.push(destPath);
+      }
+    } catch {
+      // Styles directory may not exist
+    }
+
+    this.log(`Copied ${assets.length} site assets`);
     return assets;
   }
 
@@ -404,8 +453,11 @@ export class PipelineRenderer {
       // Render archive page
       await this.renderArchivePage(articles);
 
+      // Copy site-wide assets (fonts, CSS)
+      const siteAssets = await this.copySiteAssets();
+
       // Calculate totals
-      const totalAssets = results.reduce((sum, r) => sum + r.assetPaths.length, 0);
+      const totalAssets = results.reduce((sum, r) => sum + r.assetPaths.length, 0) + siteAssets.length;
 
       this.setState('COMPLETE');
 

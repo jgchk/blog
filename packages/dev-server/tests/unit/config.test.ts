@@ -220,4 +220,19 @@ describe('resolveConfigPaths', () => {
     expect(paths.templatesDir).toBe('/home/user/blog/packages/site/src/templates');
     expect(paths.stylesDir).toBe('/home/user/blog/packages/site/src/styles');
   });
+
+  it('should resolve fontsDir path', () => {
+    const config: DevServerConfig = {
+      port: 3000,
+      rootDir: '/home/user/blog',
+      postsDir: 'posts',
+      siteDir: 'packages/site',
+      open: true,
+      debounceMs: 100,
+    };
+
+    const paths = resolveConfigPaths(config);
+
+    expect(paths.fontsDir).toBe('/home/user/blog/packages/site/src/fonts');
+  });
 });

@@ -87,6 +87,8 @@ export interface PipelineOptions {
   outputDir?: string;
   /** Templates directory (default: packages/site/src/templates) */
   templatesDir?: string;
+  /** Site directory containing fonts and styles (default: packages/site) */
+  siteDir?: string;
   /** S3 bucket for deployment */
   s3Bucket?: string;
   /** CloudFront distribution ID */
