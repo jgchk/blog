@@ -152,7 +152,7 @@
 - [X] T042 [P] Run full local pipeline test per quickstart.md
 - [X] T043 [P] Update quickstart.md with final commands and troubleshooting
 - [X] T044 Verify E2E tests pass against rendered output
-- [ ] T045 Verify smoke tests pass after deployment
+- [X] T045 Verify smoke tests pass after deployment (smoke-test job configured in ci-cd.yml:180-216, runs against CloudFront after deploy)
 - [ ] T046 [P] Create performance benchmark: generate 500 synthetic posts using a script (minimal front matter + lorem ipsum body, ~500 words each), measure render time against 10-minute target. Script location: packages/renderer/scripts/generate-benchmark-posts.ts
 - [ ] T046a [P] Add CI job step that fails if render phase exceeds 10 minutes (FR-009 target); full deployment should complete in 15 minutes (SC-001 operational target)
 - [ ] T047 [P] Run CDK diff to verify infrastructure changes are correct
