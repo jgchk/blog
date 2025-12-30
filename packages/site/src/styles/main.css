@@ -23,6 +23,15 @@
   font-display: swap;
 }
 
+/* Berkeley Mono TX-02 - Variable Font */
+@font-face {
+  font-family: 'Berkeley Mono';
+  src: url('/fonts/TX-02-Variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* =============================================================================
    CSS Custom Properties
    ============================================================================= */
@@ -47,7 +56,7 @@
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-display: 'Sagittaire Display', Georgia, serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+  --font-mono: 'Berkeley Mono', 'JetBrains Mono', 'SF Mono', Monaco, monospace;
 
   /* Font Sizes */
   --text-xs: 0.6875rem;
@@ -145,10 +154,18 @@ body::after {
 }
 
 @keyframes noise-move {
-  0% { transform: translate(0, 0); }
-  33% { transform: translate(-1%, -1.5%); }
-  66% { transform: translate(1.5%, -0.5%); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(-1%, -1.5%);
+  }
+  66% {
+    transform: translate(1.5%, -0.5%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 /* =============================================================================
@@ -200,9 +217,9 @@ body::after {
 /* =============================================================================
    Layout Containers
    ============================================================================= */
-header[role="banner"],
+header[role='banner'],
 main,
-footer[role="contentinfo"] {
+footer[role='contentinfo'] {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: var(--space-4);
@@ -211,7 +228,7 @@ footer[role="contentinfo"] {
   z-index: 10;
 }
 
-header[role="banner"] {
+header[role='banner'] {
   padding-top: var(--space-8);
   padding-bottom: var(--space-8);
   border-bottom: 1px solid var(--color-border);
@@ -223,14 +240,14 @@ main {
   padding-bottom: var(--space-24);
 }
 
-footer[role="contentinfo"] {
+footer[role='contentinfo'] {
   padding-top: var(--space-12);
   padding-bottom: var(--space-12);
   border-top: 1px solid var(--color-border-subtle);
   background: var(--color-bg-alt);
 }
 
-footer[role="contentinfo"] p {
+footer[role='contentinfo'] p {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   text-transform: uppercase;
@@ -242,14 +259,14 @@ footer[role="contentinfo"] p {
 /* =============================================================================
    Navigation
    ============================================================================= */
-nav[aria-label="Main navigation"] ul {
+nav[aria-label='Main navigation'] ul {
   display: flex;
   gap: var(--space-8);
   list-style: none;
   justify-content: center;
 }
 
-nav[aria-label="Main navigation"] a {
+nav[aria-label='Main navigation'] a {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   text-transform: uppercase;
@@ -261,7 +278,7 @@ nav[aria-label="Main navigation"] a {
   transition: color var(--transition-base);
 }
 
-nav[aria-label="Main navigation"] a::after {
+nav[aria-label='Main navigation'] a::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -272,21 +289,21 @@ nav[aria-label="Main navigation"] a::after {
   transition: width var(--transition-slow);
 }
 
-nav[aria-label="Main navigation"] a:hover,
-nav[aria-label="Main navigation"] a:focus {
+nav[aria-label='Main navigation'] a:hover,
+nav[aria-label='Main navigation'] a:focus {
   color: var(--color-text-bright);
 }
 
-nav[aria-label="Main navigation"] a:hover::after,
-nav[aria-label="Main navigation"] a:focus::after {
+nav[aria-label='Main navigation'] a:hover::after,
+nav[aria-label='Main navigation'] a:focus::after {
   width: 100%;
 }
 
-nav[aria-label="Main navigation"] a[aria-current="page"] {
+nav[aria-label='Main navigation'] a[aria-current='page'] {
   color: var(--color-text-bright);
 }
 
-nav[aria-label="Main navigation"] a[aria-current="page"]::after {
+nav[aria-label='Main navigation'] a[aria-current='page']::after {
   width: 100%;
   background: var(--color-accent-muted);
 }
@@ -294,7 +311,12 @@ nav[aria-label="Main navigation"] a[aria-current="page"]::after {
 /* =============================================================================
    Typography - Headings
    ============================================================================= */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-serif);
   font-weight: 700;
   line-height: 1.1;
@@ -339,7 +361,7 @@ article .content {
 
 article .content h2::before {
   counter-increment: section;
-  content: "SEC_0" counter(section);
+  content: 'SEC_0' counter(section);
   position: absolute;
   left: -3rem;
   top: 0.5rem;
@@ -435,8 +457,13 @@ article > header time::before {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 /* =============================================================================
@@ -577,7 +604,7 @@ pre code {
   background: none;
   color: var(--color-code-text);
   font-size: var(--text-sm);
-  line-height: 1;
+  line-height: 1.2;
 }
 
 /* Terminal dots */
@@ -701,13 +728,13 @@ tr:hover {
 /* =============================================================================
    Article List (Index Page)
    ============================================================================= */
-section[aria-label="Article list"] article {
+section[aria-label='Article list'] article {
   padding: var(--space-10) 0;
   border-bottom: 1px solid var(--color-border-subtle);
   position: relative;
 }
 
-section[aria-label="Article list"] article::before {
+section[aria-label='Article list'] article::before {
   content: '';
   position: absolute;
   left: 0;
@@ -718,35 +745,35 @@ section[aria-label="Article list"] article::before {
   transition: width var(--transition-slower);
 }
 
-section[aria-label="Article list"] article:hover::before {
+section[aria-label='Article list'] article:hover::before {
   width: 100%;
 }
 
-section[aria-label="Article list"] article:last-child {
+section[aria-label='Article list'] article:last-child {
   border-bottom: none;
 }
 
-section[aria-label="Article list"] article:last-child::before {
+section[aria-label='Article list'] article:last-child::before {
   display: none;
 }
 
-section[aria-label="Article list"] h3 {
+section[aria-label='Article list'] h3 {
   margin-top: 0;
   margin-bottom: var(--space-2);
   font-size: var(--text-2xl);
 }
 
-section[aria-label="Article list"] h3 a {
+section[aria-label='Article list'] h3 a {
   text-decoration: none;
   color: var(--color-text-bright);
   transition: color var(--transition-base);
 }
 
-section[aria-label="Article list"] h3 a:hover {
+section[aria-label='Article list'] h3 a:hover {
   color: var(--color-accent);
 }
 
-section[aria-label="Article list"] time {
+section[aria-label='Article list'] time {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   letter-spacing: 0.3em;
@@ -755,7 +782,7 @@ section[aria-label="Article list"] time {
   margin-bottom: var(--space-3);
 }
 
-section[aria-label="Article list"] p {
+section[aria-label='Article list'] p {
   color: var(--color-text-muted);
   font-size: var(--text-sm);
   line-height: 1.6;
@@ -812,14 +839,14 @@ article > footer {
   border-top: 1px solid var(--color-border);
 }
 
-nav[aria-label="Related articles"] {
+nav[aria-label='Related articles'] {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--space-6);
 }
 
-nav[aria-label="Related articles"] a {
+nav[aria-label='Related articles'] a {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   text-transform: uppercase;
@@ -832,19 +859,19 @@ nav[aria-label="Related articles"] a {
   max-width: 45%;
 }
 
-nav[aria-label="Related articles"] a:hover,
-nav[aria-label="Related articles"] a:focus {
+nav[aria-label='Related articles'] a:hover,
+nav[aria-label='Related articles'] a:focus {
   color: var(--color-text-bright);
   border-color: var(--color-accent-muted);
   background: rgba(255, 255, 255, 0.02);
 }
 
-nav[aria-label="Related articles"] a[rel="prev"]::before {
+nav[aria-label='Related articles'] a[rel='prev']::before {
   content: '<< ';
   color: var(--color-accent);
 }
 
-nav[aria-label="Related articles"] a[rel="next"]::after {
+nav[aria-label='Related articles'] a[rel='next']::after {
   content: ' >>';
   color: var(--color-accent);
 }
@@ -852,11 +879,11 @@ nav[aria-label="Related articles"] a[rel="next"]::after {
 /* =============================================================================
    Archive Page
    ============================================================================= */
-section[aria-labelledby^="archive-"] {
+section[aria-labelledby^='archive-'] {
   margin-bottom: var(--space-12);
 }
 
-section[aria-labelledby^="archive-"] h2 {
+section[aria-labelledby^='archive-'] h2 {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   font-weight: 500;
@@ -868,11 +895,11 @@ section[aria-labelledby^="archive-"] h2 {
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
-section[aria-labelledby^="archive-"] ul {
+section[aria-labelledby^='archive-'] ul {
   list-style: none;
 }
 
-section[aria-labelledby^="archive-"] li {
+section[aria-labelledby^='archive-'] li {
   padding: var(--space-3) 0;
   display: flex;
   align-items: baseline;
@@ -880,23 +907,23 @@ section[aria-labelledby^="archive-"] li {
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
-section[aria-labelledby^="archive-"] li:last-child {
+section[aria-labelledby^='archive-'] li:last-child {
   border-bottom: none;
 }
 
-section[aria-labelledby^="archive-"] time {
+section[aria-labelledby^='archive-'] time {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-text-subtle);
   min-width: 5rem;
 }
 
-section[aria-labelledby^="archive-"] a {
+section[aria-labelledby^='archive-'] a {
   color: var(--color-text);
   text-decoration: none;
 }
 
-section[aria-labelledby^="archive-"] a:hover {
+section[aria-labelledby^='archive-'] a:hover {
   color: var(--color-accent);
 }
 
@@ -953,9 +980,9 @@ article {
     --space-24: 5rem;
   }
 
-  header[role="banner"],
+  header[role='banner'],
   main,
-  footer[role="contentinfo"] {
+  footer[role='contentinfo'] {
     padding-left: var(--space-6);
     padding-right: var(--space-6);
   }
@@ -966,7 +993,7 @@ article {
     -webkit-overflow-scrolling: touch;
   }
 
-  nav[aria-label="Related articles"] a {
+  nav[aria-label='Related articles'] a {
     max-width: 100%;
   }
 }
@@ -987,20 +1014,20 @@ article {
     --space-12: 2.5rem;
   }
 
-  header[role="banner"],
+  header[role='banner'],
   main,
-  footer[role="contentinfo"] {
+  footer[role='contentinfo'] {
     padding-left: var(--space-4);
     padding-right: var(--space-4);
   }
 
-  nav[aria-label="Main navigation"] ul {
+  nav[aria-label='Main navigation'] ul {
     gap: var(--space-4);
     flex-wrap: wrap;
     justify-content: center;
   }
 
-  nav[aria-label="Main navigation"] a {
+  nav[aria-label='Main navigation'] a {
     letter-spacing: 0.2em;
     padding: var(--space-3) var(--space-4);
   }
@@ -1057,13 +1084,13 @@ article {
     hyphens: auto;
   }
 
-  nav[aria-label="Main navigation"] ul {
+  nav[aria-label='Main navigation'] ul {
     flex-direction: column;
     align-items: center;
     gap: var(--space-2);
   }
 
-  nav[aria-label="Main navigation"] a {
+  nav[aria-label='Main navigation'] a {
     display: block;
     text-align: center;
     width: 100%;
@@ -1097,8 +1124,8 @@ article {
     color: inherit;
   }
 
-  a[href^="http"]::after {
-    content: " (" attr(href) ")";
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
     font-size: 0.8em;
   }
 
