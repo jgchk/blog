@@ -1,10 +1,13 @@
 import { test, expect } from '@playwright/test';
+import { discoverFirstArticle, DiscoveredArticle } from './fixtures/article-discovery';
 
 /**
  * Performance tests using Playwright network emulation.
  * Per T095: TTFCP <3s on Fast 3G throttle (adjusted for browser variance)
  */
 test.describe('Performance Tests', () => {
+  let article: DiscoveredArticle | null = null;
+
   // Fast 3G conditions: ~1.6 Mbps download, ~750 Kbps upload, 563ms latency
   const fast3G = {
     offline: false,
@@ -12,6 +15,12 @@ test.describe('Performance Tests', () => {
     uploadThroughput: (750 * 1024) / 8, // 750 Kbps
     latency: 563, // ms
   };
+
+  test.beforeAll(async ({ browser }) => {
+    const page = await browser.newPage();
+    article = await discoverFirstArticle(page);
+    await page.close();
+  });
 
   test('homepage loads within 3 seconds on Fast 3G', async ({ page, context, browserName }) => {
     // CDP network throttling is only available in Chromium-based browsers
@@ -34,12 +43,13 @@ test.describe('Performance Tests', () => {
   test('article page loads within 3 seconds on Fast 3G', async ({ page, context, browserName }) => {
     // CDP network throttling is only available in Chromium-based browsers
     test.skip(browserName !== 'chromium', 'CDP throttling only available in Chromium');
+    test.skip(!article, 'No articles available to test');
 
     const cdpSession = await context.newCDPSession(page);
     await cdpSession.send('Network.emulateNetworkConditions', fast3G);
 
     const startTime = Date.now();
-    await page.goto('/articles/example-post/', { waitUntil: 'domcontentloaded' });
+    await page.goto(article!.url, { waitUntil: 'domcontentloaded' });
     const loadTime = Date.now() - startTime;
 
     // Threshold increased from 2s to account for browser startup variance
@@ -64,6 +74,8 @@ test.describe('Performance Tests', () => {
   });
 
   test('pages have optimized images', async ({ page }) => {
+    test.skip(!article, 'No articles available to test');
+
     const imageResponses: Array<{ url: string; size: number }> = [];
 
     page.on('response', async (response) => {
@@ -80,7 +92,7 @@ test.describe('Performance Tests', () => {
       }
     });
 
-    await page.goto('/articles/example-post/', { waitUntil: 'networkidle' });
+    await page.goto(article!.url, { waitUntil: 'networkidle' });
 
     // Each image should be under 500KB (reasonable for web)
     for (const img of imageResponses) {

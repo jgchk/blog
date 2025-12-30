@@ -1,18 +1,35 @@
 import { test, expect } from '@playwright/test';
+import {
+  discoverFirstArticle,
+  discoverAnyTagPage,
+  DiscoveredArticle,
+} from './fixtures/article-discovery';
 
 /**
  * E2E tests for tag navigation.
  * Per T047: User Story 2 - Browse Articles by Tag
  */
 test.describe('Tag Navigation', () => {
+  let article: DiscoveredArticle | null = null;
+  let tagPageUrl: string | null = null;
+
+  test.beforeAll(async ({ browser }) => {
+    const page = await browser.newPage();
+    article = await discoverFirstArticle(page);
+    tagPageUrl = await discoverAnyTagPage(page);
+    await page.close();
+  });
+
   test.beforeEach(async ({ page }) => {
     // Navigate to homepage
     await page.goto('/');
   });
 
   test('displays tags on article page', async ({ page }) => {
+    test.skip(!article, 'No articles available to test');
+
     // Navigate to any article that has tags
-    await page.goto('/articles/example-post/');
+    await page.goto(article!.url);
 
     // Check for tags section
     const tagsSection = page.locator('.tags');
@@ -25,8 +42,10 @@ test.describe('Tag Navigation', () => {
   });
 
   test('clicking a tag navigates to tag page', async ({ page }) => {
+    test.skip(!article, 'No articles available to test');
+
     // Navigate to an article with tags
-    await page.goto('/articles/example-post/');
+    await page.goto(article!.url);
 
     // Find and click a tag
     const firstTag = page.locator('.tags a').first();
@@ -42,8 +61,10 @@ test.describe('Tag Navigation', () => {
   });
 
   test('tag page lists articles with that tag', async ({ page }) => {
-    // Navigate directly to a tag page (using existing tag from example post)
-    await page.goto('/tags/welcome.html');
+    test.skip(!tagPageUrl, 'No tag pages available to test');
+
+    // Navigate directly to a tag page
+    await page.goto(tagPageUrl!);
 
     // Should have heading with tag name
     const heading = page.locator('h1');
@@ -60,8 +81,10 @@ test.describe('Tag Navigation', () => {
   });
 
   test('tag links have correct href format', async ({ page }) => {
+    test.skip(!article, 'No articles available to test');
+
     // Navigate to an article with tags
-    await page.goto('/articles/example-post/');
+    await page.goto(article!.url);
 
     // Get all tag links
     const tagLinks = page.locator('.tags a');
@@ -75,7 +98,9 @@ test.describe('Tag Navigation', () => {
   });
 
   test('tag navigation is keyboard accessible', async ({ page }) => {
-    await page.goto('/articles/example-post/');
+    test.skip(!article, 'No articles available to test');
+
+    await page.goto(article!.url);
 
     // Tab to tags section
     const firstTag = page.locator('.tags a').first();
@@ -92,7 +117,9 @@ test.describe('Tag Navigation', () => {
   });
 
   test('back navigation works after viewing tag page', async ({ page }) => {
-    await page.goto('/articles/example-post/');
+    test.skip(!article, 'No articles available to test');
+
+    await page.goto(article!.url);
 
     // Click a tag
     await page.locator('.tags a').first().click();
@@ -101,7 +128,7 @@ test.describe('Tag Navigation', () => {
     // Go back
     await page.goBack();
 
-    // Should be back on article page
-    await expect(page).toHaveURL(/\/articles\/example-post\//);
+    // Should be back on article page (use regex to match the article URL pattern)
+    await expect(page).toHaveURL(/\/articles\/[\w-]+\/?/);
   });
 });

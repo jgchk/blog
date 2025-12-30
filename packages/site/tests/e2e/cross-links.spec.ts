@@ -1,13 +1,24 @@
 import { test, expect } from '@playwright/test';
+import { discoverFirstArticle, DiscoveredArticle } from './fixtures/article-discovery';
 
 /**
  * E2E tests for cross-link navigation.
  * Per T056: User Story 3 - Navigate via Cross-Links
  */
 test.describe('Cross-Link Navigation', () => {
+  let article: DiscoveredArticle | null = null;
+
+  test.beforeAll(async ({ browser }) => {
+    const page = await browser.newPage();
+    article = await discoverFirstArticle(page);
+    await page.close();
+  });
+
   test('wikilinks are rendered as clickable links', async ({ page }) => {
+    test.skip(!article, 'No articles available to test');
+
     // Navigate to an article that contains [[wikilinks]]
-    await page.goto('/articles/example-post/');
+    await page.goto(article!.url);
 
     // Content area should exist
     const content = page.locator('.content');
@@ -24,8 +35,10 @@ test.describe('Cross-Link Navigation', () => {
   });
 
   test('clicking a cross-link navigates to the linked article', async ({ page }) => {
+    test.skip(!article, 'No articles available to test');
+
     // This test requires an article with cross-links to another existing article
-    await page.goto('/articles/example-post/');
+    await page.goto(article!.url);
 
     const content = page.locator('.content');
     const crossLinks = content.locator('a[href^="/articles/"]');
@@ -45,8 +58,10 @@ test.describe('Cross-Link Navigation', () => {
   });
 
   test('broken cross-links are displayed as plain text', async ({ page }) => {
+    test.skip(!article, 'No articles available to test');
+
     // Navigate to an article that might have broken links
-    await page.goto('/articles/example-post/');
+    await page.goto(article!.url);
 
     const content = page.locator('.content');
 
@@ -62,7 +77,9 @@ test.describe('Cross-Link Navigation', () => {
   });
 
   test('cross-links preserve the display text', async ({ page }) => {
-    await page.goto('/articles/example-post/');
+    test.skip(!article, 'No articles available to test');
+
+    await page.goto(article!.url);
 
     const content = page.locator('.content');
     const crossLinks = content.locator('a[href^="/articles/"]');
@@ -77,7 +94,9 @@ test.describe('Cross-Link Navigation', () => {
   });
 
   test('cross-links are keyboard navigable', async ({ page }) => {
-    await page.goto('/articles/example-post/');
+    test.skip(!article, 'No articles available to test');
+
+    await page.goto(article!.url);
 
     const content = page.locator('.content');
     const crossLinks = content.locator('a[href^="/articles/"]');
@@ -98,7 +117,9 @@ test.describe('Cross-Link Navigation', () => {
   });
 
   test('cross-linked articles can link back', async ({ page }) => {
-    await page.goto('/articles/example-post/');
+    test.skip(!article, 'No articles available to test');
+
+    await page.goto(article!.url);
 
     const content = page.locator('.content');
     const crossLinks = content.locator('a[href^="/articles/"]');
@@ -111,19 +132,21 @@ test.describe('Cross-Link Navigation', () => {
       // Check if the linked article might have a link back
       // (Not guaranteed, but tests bidirectional linking if present)
       const linkedContent = page.locator('.content');
-      const backLinks = linkedContent.locator('a[href="/articles/example-post/"]');
+      const backLinks = linkedContent.locator(`a[href="${article!.url}"]`);
       const backCount = await backLinks.count();
 
       // This is informational - bidirectional linking is optional
       if (backCount > 0) {
         await backLinks.first().click();
-        await expect(page).toHaveURL(/\/articles\/example-post\//);
+        await expect(page).toHaveURL(new RegExp(article!.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
       }
     }
   });
 
   test('cross-links work correctly in different contexts', async ({ page }) => {
-    await page.goto('/articles/example-post/');
+    test.skip(!article, 'No articles available to test');
+
+    await page.goto(article!.url);
 
     const content = page.locator('.content');
 

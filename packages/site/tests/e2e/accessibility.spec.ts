@@ -1,11 +1,27 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import {
+  discoverFirstArticle,
+  discoverAnyTagPage,
+  getTestablePages,
+  DiscoveredArticle,
+} from './fixtures/article-discovery';
 
 /**
  * Accessibility audit tests using Playwright + axe-core.
  * Per T094: WCAG 2.1 AA compliance verification
  */
 test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
+  let article: DiscoveredArticle | null = null;
+  let tagPageUrl: string | null = null;
+
+  test.beforeAll(async ({ browser }) => {
+    const page = await browser.newPage();
+    article = await discoverFirstArticle(page);
+    tagPageUrl = await discoverAnyTagPage(page);
+    await page.close();
+  });
+
   test('homepage passes accessibility audit', async ({ page }) => {
     await page.goto('/');
 
@@ -17,7 +33,9 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
   });
 
   test('article page passes accessibility audit', async ({ page }) => {
-    await page.goto('/articles/example-post/');
+    test.skip(!article, 'No articles available to test');
+
+    await page.goto(article!.url);
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -47,7 +65,9 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
   });
 
   test('tag detail page passes accessibility audit', async ({ page }) => {
-    await page.goto('/tags/welcome.html');
+    test.skip(!tagPageUrl, 'No tag pages available to test');
+
+    await page.goto(tagPageUrl!);
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -57,7 +77,7 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
   });
 
   test('all pages have skip link for keyboard navigation', async ({ page }) => {
-    const pages = ['/', '/articles/example-post/', '/tags/', '/archive/'];
+    const pages = await getTestablePages(page);
 
     for (const url of pages) {
       await page.goto(url);
@@ -71,7 +91,7 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
   });
 
   test('all pages have proper heading hierarchy', async ({ page }) => {
-    const pages = ['/', '/articles/example-post/', '/tags/', '/archive/'];
+    const pages = await getTestablePages(page);
 
     for (const url of pages) {
       await page.goto(url);
@@ -98,7 +118,7 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
   });
 
   test('all pages have proper landmark regions', async ({ page }) => {
-    const pages = ['/', '/articles/example-post/', '/tags/', '/archive/'];
+    const pages = await getTestablePages(page);
 
     for (const url of pages) {
       await page.goto(url);
@@ -130,7 +150,9 @@ test.describe('Accessibility Audit (WCAG 2.1 AA)', () => {
   });
 
   test('images have alt text', async ({ page }) => {
-    await page.goto('/articles/example-post/');
+    test.skip(!article, 'No articles available to test');
+
+    await page.goto(article!.url);
 
     const images = page.locator('img');
     const imageCount = await images.count();

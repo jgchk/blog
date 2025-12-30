@@ -1,10 +1,19 @@
 import { test, expect } from '@playwright/test';
+import { discoverFirstArticle, DiscoveredArticle } from './fixtures/article-discovery';
 
 /**
  * E2E tests for /tags page.
  * Per T047a: FR-010 - All tags page with counts
  */
 test.describe('/tags Page', () => {
+  let article: DiscoveredArticle | null = null;
+
+  test.beforeAll(async ({ browser }) => {
+    const page = await browser.newPage();
+    article = await discoverFirstArticle(page);
+    await page.close();
+  });
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/tags/');
   });
@@ -77,8 +86,10 @@ test.describe('/tags Page', () => {
   });
 
   test('tags page is accessible from article pages', async ({ page }) => {
+    test.skip(!article, 'No articles available to test');
+
     // Navigate to an article
-    await page.goto('/articles/example-post/');
+    await page.goto(article!.url);
 
     // Should be able to navigate to tags page via nav (exact /tags/ path)
     const navTagsLink = page.locator('nav a[href="/tags/"]');
