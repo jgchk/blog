@@ -43,8 +43,8 @@
 
 @font-face {
   font-family: 'PolySans';
-  src: url('/fonts/PolySansItalic-variable.woff2') format('woff2-variations');
-  font-weight: 100 900;
+  src: url('/fonts/PolySans-SlimItalic.woff2') format('woff2');
+  font-weight: 300;
   font-style: italic;
   font-display: swap;
 }
@@ -550,11 +550,13 @@ article > header time::before {
    ============================================================================= */
 .content blockquote {
   border-left: 2px solid var(--color-accent-muted);
-  padding: var(--space-6) var(--space-8);
+  padding: var(--space-6) var(--space-8) var(--space-4);
   background: rgba(255, 255, 255, 0.01);
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
+  font-weight: 300;
   font-style: italic;
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
+  line-height: 1.4;
   color: var(--color-text);
   position: relative;
 }
