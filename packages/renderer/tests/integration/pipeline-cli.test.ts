@@ -98,8 +98,9 @@ Content`
 
   function runPipelineCli(env: Record<string, string>): Promise<{ code: number; stdout: string; stderr: string }> {
     return new Promise((resolve) => {
-      const cliPath = path.resolve(__dirname, '../../dist/pipeline.mjs');
-      const child = spawn('node', [cliPath], {
+      // Use tsx to run TypeScript source directly (avoids build dependency)
+      const cliPath = path.resolve(__dirname, '../../src/pipeline.ts');
+      const child = spawn('npx', ['tsx', cliPath], {
         env: { ...process.env, ...env },
         cwd: tempDir,
       });
