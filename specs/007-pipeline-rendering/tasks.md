@@ -116,7 +116,7 @@
 
 - [X] T026 [US4] Enhance progress logging with post counts and timing in packages/renderer/src/services/pipeline-renderer.ts
 - [X] T027 [US4] Add structured error reporting (file path, error details) in packages/renderer/src/services/pipeline-renderer.ts
-- [ ] T027a [P] [US4] Add integration test verifying render failure produces error output within 60 seconds per SC-004 in packages/renderer/tests/services/pipeline-renderer.test.ts
+- [X] T027a [P] [US4] Add integration test verifying render failure produces error output within 60 seconds per SC-004 in packages/renderer/tests/services/pipeline-renderer.test.ts
 - [X] T028 [P] [US4] Add summary output at end of pipeline (posts rendered, time elapsed) in packages/renderer/src/services/pipeline-renderer.ts
 
 **Checkpoint**: At this point, operators have full visibility into deployment progress

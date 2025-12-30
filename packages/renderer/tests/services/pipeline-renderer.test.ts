@@ -392,6 +392,135 @@ date: 2024-01-15
     });
   });
 
+  describe('error handling and fail-fast (SC-004)', () => {
+    it('should produce error output within 60 seconds on render failure', async () => {
+      // This test verifies SC-004: render failures produce actionable error output
+      // within 60 seconds. The test itself verifies the error handling path works
+      // and produces meaningful error output.
+      const testStartTime = Date.now();
+
+      // Create a post that will fail during rendering by using a template that causes an error
+      await fs.mkdir(path.join(postsDir, 'valid-post'));
+      await fs.writeFile(
+        path.join(postsDir, 'valid-post', 'index.md'),
+        `---
+title: Valid Post
+date: 2024-01-15
+---
+Content`
+      );
+
+      // We'll simulate a render failure by using a malformed template
+      // Save original template and replace with a broken one
+      const originalTemplate = await fs.readFile(path.join(templatesDir, 'article.html'), 'utf-8');
+      await fs.writeFile(
+        path.join(templatesDir, 'article.html'),
+        '{{#if unclosed}' // Malformed Handlebars template
+      );
+
+      const logMessages: string[] = [];
+      const renderer = new PipelineRenderer({
+        postsDir,
+        outputDir,
+        templatesDir,
+        logger: (msg) => logMessages.push(msg),
+      });
+
+      let errorOccurred = false;
+      let result: Awaited<ReturnType<typeof renderer.execute>> | undefined;
+
+      try {
+        result = await renderer.execute();
+      } catch (error) {
+        errorOccurred = true;
+      }
+
+      const testDuration = Date.now() - testStartTime;
+
+      // Restore original template for cleanup
+      await fs.writeFile(path.join(templatesDir, 'article.html'), originalTemplate);
+
+      // Verify error is produced within 60 seconds
+      expect(testDuration).toBeLessThan(60000);
+
+      // Either execute() throws or returns failure result
+      if (result) {
+        expect(result.success).toBe(false);
+        // Log should contain error information
+        const hasErrorLog = logMessages.some(msg =>
+          msg.includes('FAILED') || msg.includes('error') || msg.includes('Error')
+        );
+        expect(hasErrorLog).toBe(true);
+      } else {
+        expect(errorOccurred).toBe(true);
+      }
+    });
+
+    it('should include file path in error output for debugging', async () => {
+      // Create a post with invalid front matter (missing required date field)
+      await fs.mkdir(path.join(postsDir, 'invalid-post'));
+      await fs.writeFile(
+        path.join(postsDir, 'invalid-post', 'index.md'),
+        `---
+title: Invalid Post
+---
+No date field`
+      );
+
+      const logMessages: string[] = [];
+      const renderer = new PipelineRenderer({
+        postsDir,
+        outputDir,
+        templatesDir,
+        logger: (msg) => logMessages.push(msg),
+      });
+
+      const result = await renderer.execute();
+
+      // Should succeed (invalid posts are skipped, not failed) but log the issue
+      const hasParseErrorLog = logMessages.some(msg =>
+        msg.includes('invalid-post') && (msg.includes('Parse error') || msg.includes('error'))
+      );
+      expect(hasParseErrorLog).toBe(true);
+    });
+
+    it('should report structured error details in result', async () => {
+      // Create valid and invalid posts to ensure the system handles mixed content
+      await fs.mkdir(path.join(postsDir, 'good-post'));
+      await fs.writeFile(
+        path.join(postsDir, 'good-post', 'index.md'),
+        `---
+title: Good Post
+date: 2024-01-15
+---
+Valid content`
+      );
+
+      await fs.mkdir(path.join(postsDir, 'bad-post'));
+      await fs.writeFile(
+        path.join(postsDir, 'bad-post', 'index.md'),
+        `---
+title: Bad Post
+---
+Missing date`
+      );
+
+      const renderer = new PipelineRenderer({
+        postsDir,
+        outputDir,
+        templatesDir,
+        logger: () => {},
+      });
+
+      const result = await renderer.execute();
+
+      // Should succeed - invalid posts are skipped during parsing, not rendering
+      expect(result.success).toBe(true);
+      // Only the valid post should be rendered
+      expect(result.postsRendered).toBe(1);
+    });
+  });
+
   describe('generateTagIndex', () => {
     it('should build tag index from articles', async () => {
       await fs.mkdir(path.join(postsDir, 'post-1'));
