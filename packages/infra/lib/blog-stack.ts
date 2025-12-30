@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import type { Construct } from 'constructs';
 
 export interface BlogStackProps extends cdk.StackProps {
@@ -41,6 +42,15 @@ export class BlogStack extends cdk.Stack {
         },
       ],
     });
+
+    // Grant GitHub Actions role permissions to sync content and invalidate cache
+    const githubActionsRole = iam.Role.fromRoleName(
+      this,
+      'GitHubActionsRole',
+      'GitHubActions-CDK-Deploy',
+    );
+    this.contentBucket.grantReadWrite(githubActionsRole);
+    this.distribution.grant(githubActionsRole, 'cloudfront:CreateInvalidation');
 
     // Outputs
     new cdk.CfnOutput(this, 'BucketName', {
