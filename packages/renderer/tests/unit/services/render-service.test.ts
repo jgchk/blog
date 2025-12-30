@@ -1,6 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { promises as fs } from 'node:fs';
+import * as path from 'node:path';
+import * as os from 'node:os';
 import { RenderService } from '../../../src/services/render-service.js';
-import { TagIndex, type StorageAdapter, type Article, type Tag } from '@blog/core';
+import { TagIndex, type StorageAdapter, type Article, type TagWithStats } from '@blog/core';
 
 describe('RenderService Tag Page Methods', () => {
   let renderService: RenderService;
@@ -21,7 +24,7 @@ describe('RenderService Tag Page Methods', () => {
     ...overrides,
   });
 
-  const createMockTag = (overrides: Partial<Tag> = {}): Tag => ({
+  const createMockTag = (overrides: Partial<TagWithStats> = {}): TagWithStats => ({
     slug: 'typescript',
     name: 'TypeScript',
     count: 1,
@@ -242,6 +245,217 @@ describe('RenderService Tag Page Methods', () => {
 
       expect(html).toContain('href="/archive/"');
       expect(html).not.toContain('href="/archive.html"');
+    });
+  });
+});
+
+describe('RenderService with Handlebars Templates', () => {
+  let tempDir: string;
+  let mockStorage: StorageAdapter;
+
+  // Minimal test templates that differ from inline HTML
+  const articleTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head><title>{{title}} - TEMPLATE</title></head>
+<body>
+<article data-template="handlebars">
+<h1>{{title}}</h1>
+<time datetime="{{dateIso}}">{{dateFormatted}}</time>
+<div class="content">{{{content}}}</div>
+{{#each tags}}<a href="/tags/{{slug}}.html" class="tag">{{name}}</a>{{/each}}
+</article>
+<footer>&copy; {{year}}</footer>
+</body>
+</html>`;
+
+  const tagTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head><title>Tag: {{tagName}} - TEMPLATE</title></head>
+<body>
+<main data-template="handlebars">
+<h1>Tag: {{tagName}}</h1>
+<p>{{articleCount}} {{#if isPlural}}articles{{else}}article{{/if}}</p>
+{{#each articles}}
+<article>
+<h2><a href="/articles/{{slug}}/">{{title}}</a></h2>
+<time datetime="{{dateIso}}">{{dateFormatted}}</time>
+<p>{{excerpt}}</p>
+</article>
+{{/each}}
+</main>
+<footer>&copy; {{year}}</footer>
+</body>
+</html>`;
+
+  const tagsTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head><title>All Tags - TEMPLATE</title></head>
+<body>
+<main data-template="handlebars">
+<h1>All Tags</h1>
+{{#if tags.length}}
+<p>Showing {{totalTags}} tags</p>
+<ul class="tag-list">
+{{#each tags}}
+<li><a href="/tags/{{slug}}.html">{{name}} ({{count}})</a></li>
+{{/each}}
+</ul>
+{{else}}
+<p>No tags yet.</p>
+{{/if}}
+</main>
+<footer>&copy; {{year}}</footer>
+</body>
+</html>`;
+
+  const createMockArticle = (overrides: Partial<Article> = {}): Article => ({
+    slug: 'test-article',
+    title: 'Test Article',
+    date: new Date('2025-01-15'),
+    content: '# Test',
+    html: '<h1>Test</h1>',
+    tags: ['TypeScript'],
+    aliases: [],
+    draft: false,
+    excerpt: 'Test excerpt',
+    sourcePath: 'posts/test-article/index.md',
+    updatedAt: new Date(),
+    ...overrides,
+  });
+
+  const createMockTag = (overrides: Partial<TagWithStats> = {}): TagWithStats => ({
+    slug: 'typescript',
+    name: 'TypeScript',
+    count: 1,
+    articles: ['test-article'],
+    ...overrides,
+  });
+
+  beforeEach(async () => {
+    // Create temp directory with test templates
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'render-service-template-test-'));
+
+    await fs.writeFile(path.join(tempDir, 'article.html'), articleTemplate);
+    await fs.writeFile(path.join(tempDir, 'tag.html'), tagTemplate);
+    await fs.writeFile(path.join(tempDir, 'tags.html'), tagsTemplate);
+
+    mockStorage = {
+      read: vi.fn(),
+      write: vi.fn().mockResolvedValue(undefined),
+      delete: vi.fn().mockResolvedValue(undefined),
+      list: vi.fn().mockResolvedValue([]),
+      exists: vi.fn().mockResolvedValue(false),
+    };
+  });
+
+  afterEach(async () => {
+    // Clean up temp directory
+    await fs.rm(tempDir, { recursive: true, force: true });
+  });
+
+  describe('publishArticle with templatesDir', () => {
+    it('should use Handlebars template when templatesDir is provided', async () => {
+      const renderService = new RenderService(mockStorage, { templatesDir: tempDir });
+      const article = createMockArticle();
+
+      await renderService.publishArticle(article);
+
+      const writeCalls = (mockStorage.write as ReturnType<typeof vi.fn>).mock.calls;
+      expect(writeCalls.length).toBe(1);
+
+      const htmlContent = writeCalls[0][1].toString();
+      // Should contain the template marker
+      expect(htmlContent).toContain('data-template="handlebars"');
+      expect(htmlContent).toContain('- TEMPLATE</title>');
+    });
+
+    it('should use inline HTML when templatesDir is NOT provided', async () => {
+      const renderService = new RenderService(mockStorage);
+      const article = createMockArticle();
+
+      await renderService.publishArticle(article);
+
+      const writeCalls = (mockStorage.write as ReturnType<typeof vi.fn>).mock.calls;
+      expect(writeCalls.length).toBe(1);
+
+      const htmlContent = writeCalls[0][1].toString();
+      // Should NOT contain the template marker (inline HTML fallback)
+      expect(htmlContent).not.toContain('data-template="handlebars"');
+      expect(htmlContent).not.toContain('- TEMPLATE</title>');
+    });
+
+    it('should render article content correctly with template', async () => {
+      const renderService = new RenderService(mockStorage, { templatesDir: tempDir });
+      const article = createMockArticle({
+        title: 'My Test Article',
+        html: '<p>Hello world</p>',
+      });
+
+      await renderService.publishArticle(article);
+
+      const writeCalls = (mockStorage.write as ReturnType<typeof vi.fn>).mock.calls;
+      const htmlContent = writeCalls[0][1].toString();
+
+      expect(htmlContent).toContain('My Test Article');
+      expect(htmlContent).toContain('<p>Hello world</p>');
+    });
+  });
+
+  describe('renderTagPage with templatesDir', () => {
+    it('should use Handlebars template when templatesDir is provided', async () => {
+      const renderService = new RenderService(mockStorage, { templatesDir: tempDir });
+      const tag = createMockTag();
+      const articles = [createMockArticle()];
+
+      // Need to use async version since templates are loaded asynchronously
+      await renderService.publishTagPage(tag, articles);
+
+      const writeCalls = (mockStorage.write as ReturnType<typeof vi.fn>).mock.calls;
+      expect(writeCalls.length).toBe(1);
+
+      const htmlContent = writeCalls[0][1].toString();
+      expect(htmlContent).toContain('data-template="handlebars"');
+      expect(htmlContent).toContain('- TEMPLATE</title>');
+    });
+
+    it('should use inline HTML when templatesDir is NOT provided', () => {
+      const renderService = new RenderService(mockStorage);
+      const tag = createMockTag();
+      const articles = [createMockArticle()];
+
+      const html = renderService.renderTagPage(tag, articles);
+
+      expect(html).not.toContain('data-template="handlebars"');
+      expect(html).not.toContain('- TEMPLATE</title>');
+    });
+  });
+
+  describe('renderAllTagsPage with templatesDir', () => {
+    it('should use Handlebars template when templatesDir is provided', async () => {
+      const renderService = new RenderService(mockStorage, { templatesDir: tempDir });
+      const articles = [
+        createMockArticle({ tags: ['TypeScript'] }),
+        createMockArticle({ slug: 'a2', tags: ['JavaScript'] }),
+      ];
+
+      await renderService.publishAllTagsPage(articles);
+
+      const writeCalls = (mockStorage.write as ReturnType<typeof vi.fn>).mock.calls;
+      expect(writeCalls.length).toBe(1);
+
+      const htmlContent = writeCalls[0][1].toString();
+      expect(htmlContent).toContain('data-template="handlebars"');
+      expect(htmlContent).toContain('- TEMPLATE</title>');
+    });
+
+    it('should use inline HTML when templatesDir is NOT provided', () => {
+      const renderService = new RenderService(mockStorage);
+      const articles = [createMockArticle({ tags: ['TypeScript'] })];
+
+      const html = renderService.renderAllTagsPage(articles);
+
+      expect(html).not.toContain('data-template="handlebars"');
+      expect(html).not.toContain('- TEMPLATE</title>');
     });
   });
 });

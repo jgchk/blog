@@ -55,8 +55,8 @@ describe('Tag model', () => {
 
       expect(tag.slug).toBe('machine-learning');
       expect(tag.name).toBe('Machine Learning');
-      expect(tag.count).toBe(0);
-      expect(tag.articles).toEqual([]);
+      // Tag is now an immutable Value Object without count/articles
+      // Use TagIndex.getTagWithStats() to get statistics
     });
 
     it('should preserve original casing in name', () => {
@@ -64,6 +64,14 @@ describe('Tag model', () => {
 
       expect(tag.slug).toBe('typescript');
       expect(tag.name).toBe('TypeScript');
+    });
+
+    it('should be immutable (readonly properties)', () => {
+      const tag = createTag('JavaScript');
+
+      // TypeScript enforces readonly at compile time
+      // At runtime we verify the object has the expected shape
+      expect(Object.keys(tag)).toEqual(['slug', 'name']);
     });
   });
 });

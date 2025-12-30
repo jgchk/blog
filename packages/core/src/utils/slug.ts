@@ -1,3 +1,5 @@
+import { Slug } from '../models/slug.js';
+
 /**
  * Normalize a string to a URL-safe slug.
  * Per data-model.md normalization rules:
@@ -6,15 +8,11 @@
  * - Remove non-alphanumeric characters (except hyphens)
  * - Collapse multiple hyphens
  * - Trim leading/trailing hyphens
+ *
+ * @deprecated Use Slug.normalize() or Slug.create() instead
  */
 export function normalizeSlug(input: string): string {
-  return input
-    .toLowerCase()
-    .trim()
-    .replace(/[\s_]+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
+  return Slug.normalize(input);
 }
 
 /**
@@ -24,9 +22,11 @@ export function normalizeSlug(input: string): string {
  * - "ARTICLE B TITLE" → "article-b-title"
  * - "Article_B_Title" → "article-b-title"
  * - "Article-B-Title" → "article-b-title"
+ *
+ * @deprecated Use Slug.normalizeForMatching() instead
  */
 export function normalizeForMatching(input: string): string {
-  return normalizeSlug(input);
+  return Slug.normalizeForMatching(input);
 }
 
 /**

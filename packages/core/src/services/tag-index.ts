@@ -1,21 +1,31 @@
 import type { Article } from '../models/article.js';
-import type { Tag } from '../models/tag.js';
+import type { Tag, TagWithStats } from '../models/tag.js';
 import { normalizeTagSlug } from '../models/tag.js';
+
+/**
+ * Internal structure for tracking tag data
+ */
+interface TagData {
+  /** Immutable tag info */
+  tag: Tag;
+  /** Article slugs with this tag */
+  articles: string[];
+}
 
 /**
  * Serializable tag index for JSON export
  */
 export interface TagIndexJSON {
-  tags: Tag[];
+  tags: TagWithStats[];
   totalTags: number;
 }
 
 /**
  * Builds and manages an index of tags across all articles.
+ * Tags are stored as immutable Value Objects; statistics are computed on demand.
  */
 export class TagIndex {
-  private tagMap: Map<string, Tag> = new Map();
-  private _mostUsed: Tag | null = null;
+  private tagMap: Map<string, TagData> = new Map();
 
   private constructor() {}
 
@@ -31,9 +41,6 @@ export class TagIndex {
       }
     }
 
-    // Calculate most used
-    index.calculateMostUsed();
-
     return index;
   }
 
@@ -44,44 +51,26 @@ export class TagIndex {
     const slug = normalizeTagSlug(tagName);
     if (!slug) return;
 
-    let tag = this.tagMap.get(slug);
+    let data = this.tagMap.get(slug);
 
-    if (!tag) {
-      tag = {
-        slug,
-        name: tagName, // First occurrence sets the display name
-        count: 0,
+    if (!data) {
+      data = {
+        tag: { slug, name: tagName }, // First occurrence sets the display name
         articles: [],
       };
-      this.tagMap.set(slug, tag);
+      this.tagMap.set(slug, data);
     }
 
-    if (!tag.articles.includes(articleSlug)) {
-      tag.articles.push(articleSlug);
-      tag.count = tag.articles.length;
-    }
-  }
-
-  /**
-   * Calculate most used tag
-   */
-  private calculateMostUsed(): void {
-    let maxCount = 0;
-    this._mostUsed = null;
-
-    for (const tag of this.tagMap.values()) {
-      if (tag.count > maxCount) {
-        maxCount = tag.count;
-        this._mostUsed = tag;
-      }
+    if (!data.articles.includes(articleSlug)) {
+      data.articles.push(articleSlug);
     }
   }
 
   /**
-   * Get all tags
+   * Get all tags as immutable Tag objects (without stats)
    */
   get tags(): Tag[] {
-    return Array.from(this.tagMap.values());
+    return Array.from(this.tagMap.values()).map(data => data.tag);
   }
 
   /**
@@ -92,31 +81,67 @@ export class TagIndex {
   }
 
   /**
-   * Get the most used tag
+   * Get the most used tag with stats
    */
-  get mostUsed(): Tag | null {
-    return this._mostUsed;
+  get mostUsed(): TagWithStats | null {
+    let maxData: TagData | null = null;
+    let maxCount = 0;
+
+    for (const data of this.tagMap.values()) {
+      if (data.articles.length > maxCount) {
+        maxCount = data.articles.length;
+        maxData = data;
+      }
+    }
+
+    if (!maxData) return null;
+
+    return {
+      ...maxData.tag,
+      count: maxData.articles.length,
+      articles: [...maxData.articles],
+    };
   }
 
   /**
-   * Get tag by slug
+   * Get tag by slug (without stats)
    */
   getTagBySlug(slug: string): Tag | undefined {
-    return this.tagMap.get(slug);
+    return this.tagMap.get(slug)?.tag;
+  }
+
+  /**
+   * Get tag with stats by slug
+   */
+  getTagWithStats(slug: string): TagWithStats | undefined {
+    const data = this.tagMap.get(slug);
+    if (!data) return undefined;
+
+    return {
+      ...data.tag,
+      count: data.articles.length,
+      articles: [...data.articles],
+    };
   }
 
   /**
    * Get article slugs for a tag
    */
   getArticlesByTag(tagSlug: string): string[] {
-    return this.tagMap.get(tagSlug)?.articles ?? [];
+    return [...(this.tagMap.get(tagSlug)?.articles ?? [])];
   }
 
   /**
-   * Get all tags sorted by count (descending)
+   * Get all tags with stats, sorted by count (descending)
    */
-  getAllTags(): Tag[] {
-    return this.tags.sort((a, b) => b.count - a.count);
+  getAllTags(): TagWithStats[] {
+    return Array.from(this.tagMap.values())
+      .map(data => ({
+        ...data.tag,
+        count: data.articles.length,
+        articles: [...data.articles],
+      }))
+      .sort((a, b) => b.count - a.count);
   }
 
   /**

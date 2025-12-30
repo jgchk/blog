@@ -1,19 +1,26 @@
 /**
  * A label for grouping related articles.
+ * Value Object - immutable, identity based on slug.
  * Per data-model.md specification.
  */
 export interface Tag {
   /** URL-safe identifier */
-  slug: string;
+  readonly slug: string;
 
   /** Display name (original casing preserved) */
-  name: string;
+  readonly name: string;
+}
 
+/**
+ * Tag with computed statistics from TagIndex.
+ * Used when displaying tag pages or tag clouds.
+ */
+export interface TagWithStats extends Tag {
   /** Number of articles with this tag */
-  count: number;
+  readonly count: number;
 
   /** Article slugs that have this tag */
-  articles: string[];
+  readonly articles: readonly string[];
 }
 
 /**
@@ -23,8 +30,6 @@ export function createTag(name: string): Tag {
   return {
     slug: normalizeTagSlug(name),
     name,
-    count: 0,
-    articles: [],
   };
 }
 

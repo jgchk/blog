@@ -2,8 +2,9 @@
 export type { Article, ParsedArticle } from './article.js';
 export type { FrontMatter } from './front-matter.js';
 export { isFrontMatter } from './front-matter.js';
-export type { Tag } from './tag.js';
+export type { Tag, TagWithStats } from './tag.js';
 export { createTag, normalizeTagSlug } from './tag.js';
+export { Slug } from './slug.js';
 export type { CrossLink, CrossLinkResolution } from './cross-link.js';
 
 // Validation

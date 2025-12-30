@@ -62,12 +62,29 @@ describe('TagIndex', () => {
 
       const index = TagIndex.buildFromArticles(articles);
 
-      const tsTag = index.getTagBySlug('typescript');
+      // Use getTagWithStats to get count and articles
+      const tsTag = index.getTagWithStats('typescript');
       expect(tsTag?.count).toBe(2);
       expect(tsTag?.articles).toEqual(['article-1', 'article-2']);
 
-      const testTag = index.getTagBySlug('testing');
+      const testTag = index.getTagWithStats('testing');
       expect(testTag?.count).toBe(1);
+    });
+
+    it('should return immutable Tag from getTagBySlug', () => {
+      const articles = [
+        createArticle('article-1', ['TypeScript']),
+      ];
+
+      const index = TagIndex.buildFromArticles(articles);
+
+      // getTagBySlug returns Tag (without stats)
+      const tag = index.getTagBySlug('typescript');
+      expect(tag).toBeDefined();
+      expect(tag?.slug).toBe('typescript');
+      expect(tag?.name).toBe('TypeScript');
+      // Tag interface no longer has count/articles
+      expect((tag as Record<string, unknown>)['count']).toBeUndefined();
     });
 
     it('should identify most used tag', () => {

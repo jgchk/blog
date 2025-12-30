@@ -5,10 +5,11 @@ import {
   TagIndex,
   type Article,
   type StorageAdapter,
-  type Tag,
+  type TagWithStats,
   type ValidationError,
 } from '@blog/core';
 import { RetryHandler, type RetryOptions, type RetryResult } from './retry-handler.js';
+import { TemplateRenderer } from './template-renderer.js';
 
 /**
  * Options for RenderService
@@ -20,6 +21,8 @@ export interface RenderServiceOptions {
   retryOptions?: RetryOptions;
   /** Custom sleep function for testing */
   sleepFn?: (ms: number) => Promise<void>;
+  /** Path to Handlebars templates directory. If provided, uses Handlebars templates instead of inline HTML */
+  templatesDir?: string;
 }
 
 /**
@@ -62,6 +65,7 @@ export class RenderService {
   private storage: StorageAdapter;
   private sourceStorage: StorageAdapter | undefined;
   private retryHandler: RetryHandler;
+  private templateRenderer: TemplateRenderer | undefined;
 
   constructor(storage: StorageAdapter, options?: RenderServiceOptions) {
     this.frontMatterParser = new FrontMatterParser();
@@ -69,6 +73,9 @@ export class RenderService {
     this.storage = storage;
     this.sourceStorage = options?.sourceStorage;
     this.retryHandler = new RetryHandler(options?.retryOptions, options?.sleepFn);
+    this.templateRenderer = options?.templatesDir
+      ? new TemplateRenderer(options.templatesDir)
+      : undefined;
   }
 
   /**
@@ -120,8 +127,10 @@ export class RenderService {
    * Publish a rendered article to storage
    */
   async publishArticle(article: Article): Promise<void> {
-    // Generate full HTML page
-    const htmlPage = this.wrapInTemplate(article);
+    // Generate full HTML page using template renderer if available
+    const htmlPage = this.templateRenderer
+      ? await this.templateRenderer.renderArticle(article)
+      : this.wrapInTemplate(article);
 
     // Write to storage
     await this.storage.write(
@@ -295,7 +304,30 @@ export class RenderService {
    * @param articles - Array of articles to extract tags from
    */
   async publishAllTagsPage(articles: Article[]): Promise<void> {
-    const html = this.renderAllTagsPage(articles);
+    // Build tag data with counts
+    const tagMap = new Map<string, { name: string; slug: string; count: number }>();
+
+    for (const article of articles) {
+      for (const tag of article.tags) {
+        const slug = normalizeTagSlug(tag);
+        const existing = tagMap.get(slug);
+        if (existing) {
+          existing.count++;
+        } else {
+          tagMap.set(slug, { name: tag, slug, count: 1 });
+        }
+      }
+    }
+
+    // Sort alphabetically by name (case-insensitive)
+    const sortedTags = Array.from(tagMap.values()).sort((a, b) =>
+      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+    );
+
+    // Use template renderer if available, otherwise use inline HTML
+    const html = this.templateRenderer
+      ? await this.templateRenderer.renderAllTagsPage(sortedTags)
+      : this.wrapAllTagsInTemplate(sortedTags);
 
     await this.storage.write(
       'tags/index.html',
@@ -307,11 +339,11 @@ export class RenderService {
   /**
    * Render a single tag page with its articles
    * Per FR-007: Tag page displays tag name, article count, and article list sorted by date descending
-   * @param tag - Tag entity with slug and name
+   * @param tag - Tag with stats (slug, name, count, articles)
    * @param articles - Articles with this tag
    * @returns Rendered HTML string
    */
-  renderTagPage(tag: Tag, articles: Article[]): string {
+  renderTagPage(tag: TagWithStats, articles: Article[]): string {
     // Sort articles by date (newest first)
     const sortedArticles = [...articles].sort(
       (a, b) => b.date.getTime() - a.date.getTime()
@@ -324,17 +356,21 @@ export class RenderService {
    * Publish a single tag page to storage
    * Outputs to tags/{slug}.html
    * Per FR-005: Tag slug is normalized to lowercase
-   * @param tag - Tag entity
+   * @param tag - Tag with stats
    * @param articles - Articles with this tag
    */
-  async publishTagPage(tag: Tag, articles: Article[]): Promise<void> {
+  async publishTagPage(tag: TagWithStats, articles: Article[]): Promise<void> {
     // Skip tags with no articles (orphaned tags)
     if (articles.length === 0) {
       console.warn(`Skipping tag "${tag.name}" - no articles found`);
       return;
     }
 
-    const html = this.renderTagPage(tag, articles);
+    // Use template renderer if available, otherwise use inline HTML
+    const html = this.templateRenderer
+      ? await this.templateRenderer.renderTagPage(tag, articles)
+      : this.renderTagPage(tag, articles);
+
     // Ensure slug is lowercase for S3 key consistency
     const slug = tag.slug.toLowerCase();
 
@@ -369,7 +405,7 @@ export class RenderService {
    * Per FR-007: TagPageContext structure
    * Per FR-008: Article links use /articles/{slug}/ pattern, tag links use /tags/{slug}.html pattern
    */
-  private wrapTagPageInTemplate(tag: Tag, articles: Article[]): string {
+  private wrapTagPageInTemplate(tag: TagWithStats, articles: Article[]): string {
     const year = new Date().getFullYear();
     const articleCount = articles.length;
     const isPlural = articleCount !== 1;
