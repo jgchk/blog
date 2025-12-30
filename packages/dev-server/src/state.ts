@@ -1,6 +1,6 @@
 import type { WebSocket } from 'ws';
 import type { FSWatcher } from 'chokidar';
-import { ArticleIndex, Slug, type Article } from '@blog/core';
+import { ArticleIndex, Slug, createTag, type Article } from '@blog/core';
 import type {
   DevServerStateData,
   RenderedArticle,
@@ -71,10 +71,9 @@ export class DevServerState implements DevServerStateData {
         slug: Slug.fromNormalized(a.slug),
         title: a.metadata.title,
         date: a.metadata.date,
-        content: '',
         html: a.html,
-        tags: a.metadata.tags,
-        aliases: [],
+        tags: a.metadata.tags.map(createTag),
+        aliases: [] as string[],
         draft: false,
         excerpt: a.metadata.excerpt,
         sourcePath: '',

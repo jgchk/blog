@@ -1,10 +1,11 @@
 import type { Slug } from './slug.js';
+import type { Tag } from './tag.js';
 
 /**
- * A blog post created from a markdown file.
- * Per data-model.md specification.
+ * Common properties shared between ParsedArticle and Article.
+ * These represent the domain-independent attributes of a blog post.
  */
-export interface Article {
+interface ArticleBase {
   /** Unique identifier derived from folder name (filesystem-enforced uniqueness) */
   slug: Slug;
 
@@ -14,14 +15,8 @@ export interface Article {
   /** Publication date from front matter (ISO 8601) */
   date: Date;
 
-  /** Raw markdown content (without front matter) */
-  content: string;
-
-  /** Rendered HTML content */
-  html: string;
-
-  /** Associated tags (references Tag.slug) */
-  tags: string[];
+  /** Associated tags - uses Tag value objects for type safety */
+  tags: readonly Tag[];
 
   /** Optional aliases for cross-link resolution */
   aliases: string[];
@@ -40,9 +35,19 @@ export interface Article {
 }
 
 /**
- * Partial article before rendering (no HTML yet)
+ * Stage 1: Parsing result - contains raw markdown, no rendered HTML.
+ * This is the output of the Content Authoring context.
  */
-export interface ParsedArticle
-  extends Omit<Article, 'html'> {
-  html?: string;
+export interface ParsedArticle extends ArticleBase {
+  /** Raw markdown content (without front matter) */
+  content: string;
+}
+
+/**
+ * Stage 2: Publishing-ready article - contains rendered HTML, no raw markdown.
+ * This is the output of the Content Publishing context, ready for presentation.
+ */
+export interface Article extends ArticleBase {
+  /** Rendered HTML content */
+  html: string;
 }

@@ -4,7 +4,7 @@ import {
   formatRenderError,
   articleToRendered,
 } from '../../src/types.js';
-import { Slug, type Article } from '@blog/core';
+import { Slug, createTag, type Article } from '@blog/core';
 
 describe('createRenderError', () => {
   it('should create error from Error instance', () => {
@@ -84,9 +84,8 @@ describe('articleToRendered', () => {
       slug: Slug.fromNormalized('test-post'),
       title: 'Test Post',
       date: new Date('2025-01-15'),
-      content: '# Hello',
       html: '<h1>Hello</h1>',
-      tags: ['test', 'demo'],
+      tags: [createTag('test'), createTag('demo')],
       aliases: [],
       draft: false,
       excerpt: 'A test post',

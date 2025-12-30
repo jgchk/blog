@@ -8,9 +8,10 @@ import {
   ArticleSorter,
   ArchiveBuilder,
   Slug,
+  createTag,
   formatDate as formatDateLong,
   type Article,
-  type ParsedArticle,
+  type Tag,
 } from '@blog/core';
 import type { RenderedArticle, RenderError, DevServerConfig } from './types.js';
 import { createRenderError, articleToRendered } from './types.js';
@@ -123,14 +124,16 @@ export async function renderArticle(
     // Get article assets
     const assets = getArticleAssets(articleDir);
 
-    // Build article object
-    const article: ParsedArticle = {
+    // Convert tag strings to Tag value objects
+    const tags: readonly Tag[] = (fmResult.data.tags ?? []).map(createTag);
+
+    // Build article object (Article has html, no content)
+    const article: Article = {
       slug: articleSlug,
       title: fmResult.data.title,
       date: new Date(fmResult.data.date),
-      content: fmResult.content,
       html: parseResult.html,
-      tags: fmResult.data.tags ?? [],
+      tags,
       aliases: fmResult.data.aliases ?? [],
       draft: fmResult.data.draft ?? false,
       excerpt: fmResult.data.excerpt ?? mdParser.generateExcerpt(fmResult.content),
@@ -143,19 +146,20 @@ export async function renderArticle(
     const { dateIso, dateFormatted } = formatDateDisplay(article.date);
 
     const html = template({
-      ...article,
+      title: article.title,
+      excerpt: article.excerpt,
       content: parseResult.html,
       dateIso,
       dateFormatted,
       tags: article.tags.map((tag) => ({
-        name: tag,
-        slug: Slug.normalizeTag(tag),
+        name: tag.name,
+        slug: tag.slug,
       })),
       year: new Date().getFullYear(),
     });
 
     return {
-      article: articleToRendered(article as Article, html, assets),
+      article: articleToRendered(article, html, assets),
     };
   } catch (err) {
     return {
@@ -183,11 +187,10 @@ export async function renderIndex(
         slug: Slug.fromNormalized(a.slug),
         title: a.metadata.title,
         date: a.metadata.date,
-        tags: a.metadata.tags,
+        tags: a.metadata.tags.map(createTag),
         excerpt: a.metadata.excerpt,
-        content: '',
         html: '',
-        aliases: [],
+        aliases: [] as string[],
         draft: false,
         sourcePath: '',
         updatedAt: new Date(),
@@ -209,8 +212,8 @@ export async function renderIndex(
         dateIso,
         dateFormatted,
         tags: article.tags.map((tag) => ({
-          name: tag,
-          slug: Slug.normalizeTag(tag),
+          name: tag.name,
+          slug: tag.slug,
         })),
       };
     }),
@@ -236,11 +239,10 @@ export async function renderArchive(
       slug: Slug.fromNormalized(a.slug),
       title: a.metadata.title,
       date: a.metadata.date,
-      tags: a.metadata.tags,
+      tags: a.metadata.tags.map(createTag),
       excerpt: a.metadata.excerpt,
-      content: '',
       html: '',
-      aliases: [],
+      aliases: [] as string[],
       draft: false,
       sourcePath: '',
       updatedAt: new Date(),
@@ -289,11 +291,10 @@ export async function renderTagPage(
       slug: Slug.fromNormalized(a.slug),
       title: a.metadata.title,
       date: a.metadata.date,
-      tags: a.metadata.tags,
+      tags: a.metadata.tags.map(createTag),
       excerpt: a.metadata.excerpt,
-      content: '',
       html: '',
-      aliases: [],
+      aliases: [] as string[],
       draft: false,
       sourcePath: '',
       updatedAt: new Date(),
@@ -415,10 +416,9 @@ export async function scanAndRenderAll(
         slug: Slug.fromNormalized(result.article.slug),
         title: result.article.metadata.title,
         date: result.article.metadata.date,
-        content: '',
         html: result.article.html,
-        tags: result.article.metadata.tags,
-        aliases: [],
+        tags: result.article.metadata.tags.map(createTag),
+        aliases: [] as string[],
         draft: false,
         excerpt: result.article.metadata.excerpt,
         sourcePath: indexPath,

@@ -213,7 +213,7 @@ export function articleToRendered(
     metadata: {
       title: article.title,
       date: article.date,
-      tags: article.tags,
+      tags: article.tags.map(t => t.name),
       excerpt: article.excerpt,
     },
     assets,

@@ -1,5 +1,6 @@
 import {
   ArchiveBuilder,
+  createTag,
   FrontMatterParser,
   MarkdownParser,
   Slug,
@@ -115,13 +116,15 @@ export class PipelineRenderer {
       // Create Slug from directory name (already normalized by filesystem)
       const articleSlug = Slug.fromNormalized(slug);
 
+      // Convert tag strings to Tag value objects
+      const tags = (frontMatter.tags ?? []).map(createTag);
+
       const article: Article = {
         slug: articleSlug,
         title: frontMatter.title,
         date: new Date(frontMatter.date),
-        content: markdownContent,
         html,
-        tags: frontMatter.tags ?? [],
+        tags,
         aliases: frontMatter.aliases ?? [],
         draft: frontMatter.draft ?? false,
         excerpt,
@@ -270,7 +273,7 @@ export class PipelineRenderer {
     for (const tag of tags) {
       // Get articles for this tag
       const tagArticles = articles.filter(article =>
-        article.tags.some(t => Slug.normalizeTag(t) === tag.slug)
+        article.tags.some(t => t.slug === tag.slug)
       );
 
       const html = await this.templateRenderer.renderTagPage(tag, tagArticles);

@@ -1,6 +1,5 @@
 import type { Article } from '../models/article.js';
 import type { Tag, TagWithStats } from '../models/tag.js';
-import { Slug } from '../models/slug.js';
 
 /**
  * Internal structure for tracking tag data
@@ -36,8 +35,8 @@ export class TagIndex {
     const index = new TagIndex();
 
     for (const article of articles) {
-      for (const tagName of article.tags) {
-        index.addTag(tagName, article.slug.toString());
+      for (const tag of article.tags) {
+        index.addTag(tag, article.slug.toString());
       }
     }
 
@@ -47,15 +46,15 @@ export class TagIndex {
   /**
    * Add a tag reference for an article
    */
-  private addTag(tagName: string, articleSlug: string): void {
-    const slug = Slug.normalizeTag(tagName);
+  private addTag(tag: Tag, articleSlug: string): void {
+    const slug = tag.slug;
     if (!slug) return;
 
     let data = this.tagMap.get(slug);
 
     if (!data) {
       data = {
-        tag: { slug, name: tagName }, // First occurrence sets the display name
+        tag, // Use the Tag value object directly
         articles: [],
       };
       this.tagMap.set(slug, data);

@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { TemplateRenderer } from '../../../src/services/template-renderer.js';
-import type { Article, TagWithStats } from '@blog/core';
+import { Slug, createTag, type Article, type TagWithStats } from '@blog/core';
 
 describe('TemplateRenderer', () => {
   let tempDir: string;
@@ -123,23 +123,25 @@ describe('TemplateRenderer', () => {
   });
 
   describe('renderArticle', () => {
-    const createArticle = (overrides: Partial<Article> = {}): Article => ({
-      slug: 'test-article',
-      title: 'Test Article',
-      date: new Date('2025-01-15'),
-      content: '# Hello',
-      html: '<h1>Hello</h1>',
-      tags: ['TypeScript', 'Testing'],
-      aliases: [],
-      draft: false,
-      excerpt: 'A test article',
-      sourcePath: 'posts/test-article/index.md',
-      updatedAt: new Date(),
-      ...overrides,
-    });
+    const createTestArticle = (overrides: Partial<Article> & { tagNames?: string[] } = {}): Article => {
+      const { tagNames = ['TypeScript', 'Testing'], ...rest } = overrides;
+      return {
+        slug: Slug.fromNormalized('test-article'),
+        title: 'Test Article',
+        date: new Date('2025-01-15'),
+        html: '<h1>Hello</h1>',
+        tags: tagNames.map(createTag),
+        aliases: [],
+        draft: false,
+        excerpt: 'A test article',
+        sourcePath: 'posts/test-article/index.md',
+        updatedAt: new Date(),
+        ...rest,
+      };
+    };
 
     it('should render an article with all fields', async () => {
-      const article = createArticle();
+      const article = createTestArticle();
       const html = await renderer.renderArticle(article);
 
       expect(html).toContain('Test Article');
@@ -150,7 +152,7 @@ describe('TemplateRenderer', () => {
     });
 
     it('should include the current year', async () => {
-      const article = createArticle();
+      const article = createTestArticle();
       const html = await renderer.renderArticle(article);
 
       const currentYear = new Date().getFullYear();
@@ -158,14 +160,14 @@ describe('TemplateRenderer', () => {
     });
 
     it('should normalize tag slugs', async () => {
-      const article = createArticle({ tags: ['Machine Learning'] });
+      const article = createTestArticle({ tagNames: ['Machine Learning'] });
       const html = await renderer.renderArticle(article);
 
       expect(html).toContain('/tags/machine-learning.html');
     });
 
     it('should handle articles with no tags', async () => {
-      const article = createArticle({ tags: [] });
+      const article = createTestArticle({ tagNames: [] });
       const html = await renderer.renderArticle(article);
 
       expect(html).toContain('Test Article');
@@ -174,7 +176,7 @@ describe('TemplateRenderer', () => {
   });
 
   describe('renderTagPage', () => {
-    const createTag = (overrides: Partial<TagWithStats> = {}): TagWithStats => ({
+    const createTagWithStats = (overrides: Partial<TagWithStats> = {}): TagWithStats => ({
       slug: 'typescript',
       name: 'TypeScript',
       count: 2,
@@ -182,25 +184,24 @@ describe('TemplateRenderer', () => {
       ...overrides,
     });
 
-    const createArticle = (slug: string, title: string): Article => ({
-      slug,
+    const createTagPageArticle = (slugString: string, title: string): Article => ({
+      slug: Slug.fromNormalized(slugString),
       title,
       date: new Date('2025-01-15'),
-      content: 'Content',
       html: '<p>Content</p>',
-      tags: ['TypeScript'],
+      tags: [createTag('TypeScript')],
       aliases: [],
       draft: false,
       excerpt: `Excerpt for ${title}`,
-      sourcePath: `posts/${slug}/index.md`,
+      sourcePath: `posts/${slugString}/index.md`,
       updatedAt: new Date(),
     });
 
     it('should render a tag page with articles', async () => {
-      const tag = createTag();
+      const tag = createTagWithStats();
       const articles = [
-        createArticle('article-1', 'First Article'),
-        createArticle('article-2', 'Second Article'),
+        createTagPageArticle('article-1', 'First Article'),
+        createTagPageArticle('article-2', 'Second Article'),
       ];
 
       const html = await renderer.renderTagPage(tag, articles);
@@ -212,8 +213,8 @@ describe('TemplateRenderer', () => {
     });
 
     it('should use singular for single article', async () => {
-      const tag = createTag({ count: 1, articles: ['article-1'] });
-      const articles = [createArticle('article-1', 'Single Article')];
+      const tag = createTagWithStats({ count: 1, articles: ['article-1'] });
+      const articles = [createTagPageArticle('article-1', 'Single Article')];
 
       const html = await renderer.renderTagPage(tag, articles);
 
@@ -222,10 +223,10 @@ describe('TemplateRenderer', () => {
     });
 
     it('should sort articles by date descending', async () => {
-      const tag = createTag();
+      const tag = createTagWithStats();
       const articles = [
-        { ...createArticle('old', 'Old Article'), date: new Date('2024-01-01') },
-        { ...createArticle('new', 'New Article'), date: new Date('2025-01-01') },
+        { ...createTagPageArticle('old', 'Old Article'), date: new Date('2024-01-01') },
+        { ...createTagPageArticle('new', 'New Article'), date: new Date('2025-01-01') },
       ];
 
       const html = await renderer.renderTagPage(tag, articles);
@@ -237,7 +238,7 @@ describe('TemplateRenderer', () => {
     });
 
     it('should handle empty articles list', async () => {
-      const tag = createTag({ count: 0, articles: [] });
+      const tag = createTagWithStats({ count: 0, articles: [] });
       const html = await renderer.renderTagPage(tag, []);
 
       expect(html).toContain('0 articles');
@@ -337,17 +338,16 @@ describe('TemplateRenderer', () => {
   });
 
   describe('renderHomePage', () => {
-    const createArticle = (slug: string, title: string, date: Date): Article => ({
-      slug,
+    const createHomePageArticle = (slugString: string, title: string, date: Date): Article => ({
+      slug: Slug.fromNormalized(slugString),
       title,
       date,
-      content: 'Content',
       html: '<p>Content</p>',
-      tags: ['TypeScript'],
+      tags: [createTag('TypeScript')],
       aliases: [],
       draft: false,
       excerpt: `Excerpt for ${title}`,
-      sourcePath: `posts/${slug}/index.md`,
+      sourcePath: `posts/${slugString}/index.md`,
       updatedAt: new Date(),
     });
 
@@ -374,8 +374,8 @@ describe('TemplateRenderer', () => {
 
     it('should render home page with articles', async () => {
       const articles = [
-        createArticle('article-1', 'First Article', new Date('2025-01-15')),
-        createArticle('article-2', 'Second Article', new Date('2025-01-10')),
+        createHomePageArticle('article-1', 'First Article', new Date('2025-01-15')),
+        createHomePageArticle('article-2', 'Second Article', new Date('2025-01-10')),
       ];
 
       const html = await renderer.renderHomePage(articles);
@@ -387,7 +387,7 @@ describe('TemplateRenderer', () => {
 
     it('should show "View all articles" when hasMoreArticles is true', async () => {
       const articles = [
-        createArticle('article-1', 'Article 1', new Date('2025-01-15')),
+        createHomePageArticle('article-1', 'Article 1', new Date('2025-01-15')),
       ];
 
       const html = await renderer.renderHomePage(articles, true);
@@ -397,7 +397,7 @@ describe('TemplateRenderer', () => {
 
     it('should not show "View all articles" when hasMoreArticles is false', async () => {
       const articles = [
-        createArticle('article-1', 'Article 1', new Date('2025-01-15')),
+        createHomePageArticle('article-1', 'Article 1', new Date('2025-01-15')),
       ];
 
       const html = await renderer.renderHomePage(articles, false);

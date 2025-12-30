@@ -1,19 +1,20 @@
 import { describe, it, expect } from 'vitest';
 import { TagIndex } from '../../../src/services/tag-index.js';
 import type { Article } from '../../../src/models/article.js';
+import { Slug } from '../../../src/models/slug.js';
+import { createTag } from '../../../src/models/tag.js';
 
 describe('TagIndex', () => {
-  const createArticle = (slug: string, tags: string[]): Article => ({
-    slug,
-    title: `Article ${slug}`,
+  const createArticle = (slugString: string, tagNames: string[]): Article => ({
+    slug: Slug.fromNormalized(slugString),
+    title: `Article ${slugString}`,
     date: new Date('2025-01-15'),
-    content: 'Test content',
     html: '<p>Test content</p>',
-    tags,
+    tags: tagNames.map(createTag),
     aliases: [],
     draft: false,
     excerpt: 'Test excerpt',
-    sourcePath: `posts/${slug}/index.md`,
+    sourcePath: `posts/${slugString}/index.md`,
     updatedAt: new Date(),
   });
 

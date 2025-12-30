@@ -219,7 +219,7 @@ This is the content of the test post.`
       expect(article).not.toBeNull();
       expect(article!.slug.toString()).toBe('test-post');
       expect(article!.title).toBe('Test Post');
-      expect(article!.tags).toEqual(['TypeScript', 'Testing']);
+      expect(article!.tags.map(t => t.name)).toEqual(['TypeScript', 'Testing']);
       expect(article!.html).toContain('This is the content');
     });
 
