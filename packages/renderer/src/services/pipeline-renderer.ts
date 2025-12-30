@@ -219,7 +219,7 @@ export class PipelineRenderer {
       if (file.endsWith('.md')) continue;
 
       const relativePath = file.slice(`${slug}/`.length);
-      const destPath = `posts/${slug}/${relativePath}`;
+      const destPath = `articles/${slug}/${relativePath}`;
 
       const content = await this.sourceStorage.read(file);
       await this.outputStorage.write(destPath, content);
@@ -242,7 +242,7 @@ export class PipelineRenderer {
       try {
         // Render HTML
         const html = this.renderArticleHtml(article);
-        const htmlPath = `posts/${article.slug}/index.html`;
+        const htmlPath = `articles/${article.slug}/index.html`;
         await this.outputStorage.write(htmlPath, Buffer.from(html, 'utf-8'));
 
         // Copy assets

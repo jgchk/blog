@@ -323,7 +323,7 @@ Hello world!`
       expect(result.tagPagesGenerated).toBe(1);
 
       // Verify output files
-      const htmlPath = path.join(outputDir, 'posts', 'test-post', 'index.html');
+      const htmlPath = path.join(outputDir, 'articles', 'test-post', 'index.html');
       const htmlContent = await fs.readFile(htmlPath, 'utf-8');
       expect(htmlContent).toContain('Test Post');
       expect(htmlContent).toContain('Hello world!');
@@ -372,7 +372,7 @@ date: 2024-01-15
       expect(result.assetsUploaded).toBe(1);
 
       // Verify asset was copied
-      const assetPath = path.join(outputDir, 'posts', 'post-with-image', 'image.png');
+      const assetPath = path.join(outputDir, 'articles', 'post-with-image', 'image.png');
       const assetExists = await fs.access(assetPath).then(() => true).catch(() => false);
       expect(assetExists).toBe(true);
     });
