@@ -311,7 +311,13 @@ h1 {
   margin-top: 0;
 }
 
-/* Amp-style mixed italic/regular h1 - wrap first line in <em> */
+/* Amp-style mixed italic/regular h1 - first line automatically italic */
+h1::first-line {
+  font-weight: 200;
+  font-style: italic;
+}
+
+/* Manual override - wrap text in <em> for italic */
 h1 em,
 h1 i {
   font-family: var(--font-display);
