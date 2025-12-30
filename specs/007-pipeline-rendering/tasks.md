@@ -62,9 +62,9 @@
 - [X] T012 [US1] Implement local file writing (rendered/ output directory) in packages/renderer/src/services/pipeline-renderer.ts
 - [X] T013 [US1] Implement fail-fast error handling per FR-007 in packages/renderer/src/services/pipeline-renderer.ts
 - [X] T014 [P] [US1] Write unit tests for renderAllPosts in packages/renderer/tests/services/pipeline-renderer.test.ts
-- [ ] T015 [US1] Add render step to deploy job in .github/workflows/ci-cd.yml
-- [ ] T016 [US1] Add S3 sync step (assets first, then HTML) per research.md in .github/workflows/ci-cd.yml
-- [ ] T017 [US1] Add CloudFront invalidation step in .github/workflows/ci-cd.yml
+- [X] T015 [US1] Add render step to deploy job in .github/workflows/ci-cd.yml
+- [X] T016 [US1] Add S3 sync step (assets first, then HTML) per research.md in .github/workflows/ci-cd.yml
+- [X] T017 [US1] Add CloudFront invalidation step in .github/workflows/ci-cd.yml
 - [X] T017a [US1] Configure concurrency group with cancel-in-progress: true in .github/workflows/ci-cd.yml (already configured)
 - [X] T017b [P] [US1] Verify job timeout is set (deploy job has timeout-minutes: 20)
 
@@ -99,7 +99,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Verify S3 sync --delete flag removes orphaned content in .github/workflows/ci-cd.yml
+- [X] T024 [US3] Verify S3 sync --delete flag removes orphaned content in .github/workflows/ci-cd.yml
 - [ ] T025 [P] [US3] Document deletion behavior in specs/007-pipeline-rendering/quickstart.md
 
 **Checkpoint**: At this point, content lifecycle (add, update, delete) is fully handled
@@ -127,12 +127,12 @@
 
 **Purpose**: Remove webhook infrastructure that is no longer needed
 
-- [ ] T029 Remove webhook Lambda function from packages/infra/lib/blog-stack.ts
-- [ ] T030 Remove admin Lambda function from packages/infra/lib/blog-stack.ts
-- [ ] T031 Remove API Gateway and all endpoints from packages/infra/lib/blog-stack.ts
-- [ ] T032 Remove SNS topic from packages/infra/lib/blog-stack.ts
-- [ ] T033 Remove githubWebhookSecret prop and related code from packages/infra/lib/blog-stack.ts
-- [ ] T034 [P] Remove webhook configuration step from .github/workflows/ci-cd.yml
+- [X] T029 Remove webhook Lambda function from packages/infra/lib/blog-stack.ts
+- [X] T030 Remove admin Lambda function from packages/infra/lib/blog-stack.ts
+- [X] T031 Remove API Gateway and all endpoints from packages/infra/lib/blog-stack.ts
+- [X] T032 Remove SNS topic from packages/infra/lib/blog-stack.ts
+- [X] T033 Remove githubWebhookSecret prop and related code from packages/infra/lib/blog-stack.ts
+- [X] T034 [P] Remove webhook configuration step from .github/workflows/ci-cd.yml
 - [ ] T035 [P] Remove WEBHOOK_SECRET and WEBHOOK_PAT secrets usage from .github/workflows/ci-cd.yml
 - [ ] T036 Remove Lambda handlers (webhook.ts, admin.ts) from packages/renderer/src/handlers/
 - [ ] T037 Remove SNS notifier adapter from packages/renderer/src/adapters/sns-notifier.ts

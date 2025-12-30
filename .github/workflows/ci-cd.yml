@@ -99,7 +99,7 @@ jobs:
       id-token: write # Required for OIDC authentication
     environment: production
     outputs:
-      cloudfront_domain: ${{ steps.get-url.outputs.domain }}
+      cloudfront_domain: ${{ steps.get-outputs.outputs.domain }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -119,6 +119,13 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Render site
+        run: pnpm --filter @blog/renderer render:pipeline
+        env:
+          POSTS_DIR: ${{ github.workspace }}/posts
+          OUTPUT_DIR: ${{ github.workspace }}/rendered
+          TEMPLATES_DIR: ${{ github.workspace }}/packages/site/src/templates
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -132,50 +139,45 @@ jobs:
         working-directory: packages/infra
         run: npx cdk deploy --require-approval never -c environment=prod
 
-      - name: Get CloudFront URL
-        id: get-url
+      - name: Get stack outputs
+        id: get-outputs
         run: |
           DOMAIN=$(aws cloudformation describe-stacks \
             --stack-name BlogStack-prod \
             --query 'Stacks[0].Outputs[?OutputKey==`DistributionDomain`].OutputValue' \
             --output text)
-          echo "domain=$DOMAIN" >> $GITHUB_OUTPUT
-
-      - name: Configure GitHub Webhook
-        env:
-          GH_TOKEN: ${{ secrets.WEBHOOK_PAT }}
-          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
-        run: |
-          # Get webhook URL from stack outputs
-          WEBHOOK_URL=$(aws cloudformation describe-stacks \
+          BUCKET=$(aws cloudformation describe-stacks \
             --stack-name BlogStack-prod \
-            --query 'Stacks[0].Outputs[?OutputKey==`WebhookUrl`].OutputValue' \
+            --query 'Stacks[0].Outputs[?OutputKey==`BucketName`].OutputValue' \
             --output text)
+          DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
+            --stack-name BlogStack-prod \
+            --query 'Stacks[0].Outputs[?OutputKey==`DistributionId`].OutputValue' \
+            --output text)
+          echo "domain=$DOMAIN" >> $GITHUB_OUTPUT
+          echo "bucket=$BUCKET" >> $GITHUB_OUTPUT
+          echo "distribution_id=$DISTRIBUTION_ID" >> $GITHUB_OUTPUT
 
-          echo "Configuring webhook for: $WEBHOOK_URL"
+      - name: Upload assets to S3
+        run: |
+          # Upload non-HTML files first (assets must exist before HTML references them)
+          aws s3 sync ${{ github.workspace }}/rendered s3://${{ steps.get-outputs.outputs.bucket }} \
+            --exclude "*.html" \
+            --delete
 
-          # Check for existing webhook pointing to our API
-          HOOK_ID=$(gh api repos/${{ github.repository }}/hooks \
-            --jq '.[] | select(.config.url | contains("webhook/github")) | .id' 2>/dev/null || echo "")
+      - name: Upload HTML to S3
+        run: |
+          # Upload HTML files after assets
+          aws s3 sync ${{ github.workspace }}/rendered s3://${{ steps.get-outputs.outputs.bucket }} \
+            --exclude "*" \
+            --include "*.html" \
+            --delete
 
-          if [ -n "$HOOK_ID" ]; then
-            echo "Updating existing webhook (ID: $HOOK_ID)"
-            gh api repos/${{ github.repository }}/hooks/$HOOK_ID -X PATCH \
-              -f config[url]="$WEBHOOK_URL" \
-              -f config[content_type]="json" \
-              -f config[secret]="$WEBHOOK_SECRET"
-          else
-            echo "Creating new webhook"
-            gh api repos/${{ github.repository }}/hooks -X POST \
-              -f name="web" \
-              -f config[url]="$WEBHOOK_URL" \
-              -f config[content_type]="json" \
-              -f config[secret]="$WEBHOOK_SECRET" \
-              -f 'events[]=push' \
-              -F active=true
-          fi
-
-          echo "Webhook configured successfully"
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.get-outputs.outputs.distribution_id }} \
+            --paths "/*"
 
   smoke-test:
     name: Smoke Tests
