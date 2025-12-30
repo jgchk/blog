@@ -13,6 +13,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-23
 - N/A (workflow files stored in `.github/workflows/`) (005-ci-cd-pipeline)
 - TypeScript 5.3+ targeting ES2022 on AWS Lambda Node.js 20.x + AWS SDK v3 (S3, SNS, CloudFront), unified/remark (markdown), gray-matter (front matter), native fetch (GitHub API) (006-webhook-renderer-connection)
 - S3 bucket (blog-content-{environment}-{account}) for rendered HTML and assets (006-webhook-renderer-connection)
+- TypeScript 5.3+ targeting ES2022 on Node.js 20.x + @blog/core (rendering), @blog/renderer (adapters), AWS SDK v3 (S3, CloudFront), unified/remark (markdown), gray-matter (front matter) (007-pipeline-rendering)
+- S3 bucket (`blog-content-{environment}-{account}`) for rendered HTML and assets, CloudFront distribution for CDN (007-pipeline-rendering)
 
 - TypeScript 5.3+ targeting ES2022 on AWS Lambda Node.js 20.x + unified/remark (markdown), gray-matter (front matter), AWS SDK v3 (001-markdown-blog)
 
@@ -32,9 +34,9 @@ npm test && npm run lint
 TypeScript 5.3+ targeting ES2022 on AWS Lambda Node.js 20.x: Follow standard conventions
 
 ## Recent Changes
+- 007-pipeline-rendering: Added TypeScript 5.3+ targeting ES2022 on Node.js 20.x + @blog/core (rendering), @blog/renderer (adapters), AWS SDK v3 (S3, CloudFront), unified/remark (markdown), gray-matter (front matter)
 - 006-webhook-renderer-connection: Added TypeScript 5.3+ targeting ES2022 on AWS Lambda Node.js 20.x + AWS SDK v3 (S3, SNS, CloudFront), unified/remark (markdown), gray-matter (front matter), native fetch (GitHub API)
 - 005-ci-cd-pipeline: Added TypeScript 5.3+ targeting ES2022 on Node.js 20.x + GitHub Actions, AWS CDK 2.120.0, pnpm 8.15.0
-- 004-fix-tag-pages: Added TypeScript 5.3+ targeting ES2022 on Node.js 20.x + Fastify 4.28.0 (dev-server HTTP), Handlebars 4.7.8 (templates), @blog/core (TagIndex, models), AWS SDK v3 (production renderer)
 
 
 <!-- MANUAL ADDITIONS START -->

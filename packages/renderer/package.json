@@ -9,13 +9,16 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "render:pipeline": "cd ../.. && node packages/renderer/dist/pipeline.mjs",
+    "benchmark": "cd ../.. && npx tsx packages/renderer/scripts/generate-benchmark-posts.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.470.0",
     "@aws-sdk/client-sns": "^3.470.0",
     "@aws-sdk/client-cloudfront": "^3.470.0",
-    "@blog/core": "workspace:*"
+    "@blog/core": "workspace:*",
+    "handlebars": "^4.7.8"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.130",
