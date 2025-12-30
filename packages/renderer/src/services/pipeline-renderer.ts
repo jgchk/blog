@@ -10,7 +10,6 @@ import {
 } from '@blog/core';
 import { LocalStorageAdapter } from '../adapters/local-storage.js';
 import type {
-  PipelineContext,
   PipelineOptions,
   PipelineOutput,
   PipelineRenderResult,
@@ -237,8 +236,7 @@ export class PipelineRenderer {
     this.log(`Rendering ${articles.length} posts`);
     const results: PipelineRenderResult[] = [];
 
-    for (let i = 0; i < articles.length; i++) {
-      const article = articles[i];
+    for (const [index, article] of articles.entries()) {
       const startTime = Date.now();
 
       try {
@@ -259,7 +257,7 @@ export class PipelineRenderer {
           duration,
         });
 
-        this.log(`[${i + 1}/${articles.length}] Rendered ${article.slug} (${duration}ms)`);
+        this.log(`[${index + 1}/${articles.length}] Rendered ${article.slug} (${duration}ms)`);
       } catch (error) {
         const duration = Date.now() - startTime;
         results.push({
@@ -271,7 +269,7 @@ export class PipelineRenderer {
           duration,
         });
 
-        this.log(`[${i + 1}/${articles.length}] FAILED ${article.slug}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        this.log(`[${index + 1}/${articles.length}] FAILED ${article.slug}: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
 
@@ -441,7 +439,8 @@ export class PipelineRenderer {
 
         // Fail-fast: stop on first error
         this.setState('FAILED');
-        const firstError = failures[0];
+        // firstError is guaranteed to exist since failures.length > 0
+        const firstError = failures[0]!;
         throw new Error(`Render failed for ${firstError.slug}: ${firstError.error?.message ?? 'Unknown error'}`);
       }
 

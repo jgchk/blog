@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
@@ -431,7 +431,7 @@ Content`
 
       try {
         result = await renderer.execute();
-      } catch (error) {
+      } catch {
         errorOccurred = true;
       }
 
@@ -475,7 +475,7 @@ No date field`
         logger: (msg) => logMessages.push(msg),
       });
 
-      const result = await renderer.execute();
+      await renderer.execute();
 
       // Should succeed (invalid posts are skipped, not failed) but log the issue
       const hasParseErrorLog = logMessages.some(msg =>

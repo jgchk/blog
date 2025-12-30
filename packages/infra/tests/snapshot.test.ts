@@ -5,13 +5,13 @@ import { BlogStack } from '../lib/blog-stack.js';
 
 /**
  * CDK Snapshot tests.
- * Per T079: Verify infrastructure template matches expected structure.
+ * Per 007-pipeline-rendering: Simplified infrastructure (S3 + CloudFront only).
+ * Webhook Lambda, API Gateway, and SNS have been removed.
  */
 describe('BlogStack Snapshot Tests', () => {
   const app = new cdk.App();
   const stack = new BlogStack(app, 'TestStack', {
     environment: 'test',
-    githubWebhookSecret: 'test-secret-123',
     env: {
       account: '123456789012',
       region: 'us-east-1',
@@ -37,24 +37,6 @@ describe('BlogStack Snapshot Tests', () => {
     });
   });
 
-  it('creates the expected Lambda functions', () => {
-    // Render function
-    template.hasResourceProperties('AWS::Lambda::Function', {
-      FunctionName: 'blog-render-test',
-      Runtime: 'nodejs20.x',
-      Timeout: 30,
-      MemorySize: 256,
-    });
-
-    // Admin function
-    template.hasResourceProperties('AWS::Lambda::Function', {
-      FunctionName: 'blog-admin-test',
-      Runtime: 'nodejs20.x',
-      Timeout: 10,
-      MemorySize: 128,
-    });
-  });
-
   it('creates CloudFront distribution', () => {
     template.hasResourceProperties('AWS::CloudFront::Distribution', {
       DistributionConfig: {
@@ -63,33 +45,21 @@ describe('BlogStack Snapshot Tests', () => {
     });
   });
 
-  it('creates SNS topic for alerts', () => {
-    template.hasResourceProperties('AWS::SNS::Topic', {
-      TopicName: 'blog-alerts-test',
-      DisplayName: 'Blog Sync Alerts',
-    });
-  });
-
-  it('creates API Gateway with webhook and admin resources', () => {
-    template.hasResourceProperties('AWS::ApiGateway::RestApi', {
-      Name: 'blog-api-test',
-    });
-
-    // Verify methods exist (POST webhook + 4 admin endpoints + OPTIONS for CORS)
-    // The exact count may vary based on CORS configuration
-    const methods = template.findResources('AWS::ApiGateway::Method');
-    expect(Object.keys(methods).length).toBeGreaterThanOrEqual(5);
-  });
-
-  it('has expected number of resources', () => {
+  it('has expected number of resources (simplified stack)', () => {
     // Count key resources to detect unintended changes
+    // After 007-pipeline-rendering, stack contains only S3 + CloudFront
     template.resourceCountIs('AWS::S3::Bucket', 1);
-    // Lambda functions: render + admin + potentially log retention custom resource
-    const lambdaFunctions = template.findResources('AWS::Lambda::Function');
-    expect(Object.keys(lambdaFunctions).length).toBeGreaterThanOrEqual(2);
     template.resourceCountIs('AWS::CloudFront::Distribution', 1);
-    template.resourceCountIs('AWS::SNS::Topic', 1);
-    template.resourceCountIs('AWS::ApiGateway::RestApi', 1);
+
+    // These should NOT exist (removed in 007-pipeline-rendering)
+    const lambdaFunctions = template.findResources('AWS::Lambda::Function');
+    expect(Object.keys(lambdaFunctions)).toHaveLength(0);
+
+    const snsTopics = template.findResources('AWS::SNS::Topic');
+    expect(Object.keys(snsTopics)).toHaveLength(0);
+
+    const apiGateways = template.findResources('AWS::ApiGateway::RestApi');
+    expect(Object.keys(apiGateways)).toHaveLength(0);
   });
 
   it('matches overall template structure', () => {
@@ -97,7 +67,10 @@ describe('BlogStack Snapshot Tests', () => {
     const outputs = template.findOutputs('*');
     expect(Object.keys(outputs)).toContain('BucketName');
     expect(Object.keys(outputs)).toContain('DistributionDomain');
-    expect(Object.keys(outputs)).toContain('WebhookUrl');
-    expect(Object.keys(outputs)).toContain('ApiEndpoint');
+    expect(Object.keys(outputs)).toContain('DistributionId');
+
+    // These outputs should NOT exist (removed in 007-pipeline-rendering)
+    expect(Object.keys(outputs)).not.toContain('WebhookUrl');
+    expect(Object.keys(outputs)).not.toContain('ApiEndpoint');
   });
 });

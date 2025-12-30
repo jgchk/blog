@@ -1,18 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import * as cdk from 'aws-cdk-lib';
-import { Template, Match, Capture } from 'aws-cdk-lib/assertions';
+import { Template, Match } from 'aws-cdk-lib/assertions';
 import { BlogStack } from '../lib/blog-stack.js';
 
 /**
  * CDK Assertion tests.
- * Per T080: Verify specific infrastructure properties and security configurations.
+ * Per 007-pipeline-rendering: Simplified infrastructure (S3 + CloudFront only).
+ * Webhook Lambda, API Gateway, and SNS have been removed.
  */
 describe('BlogStack Assertion Tests', () => {
   const app = new cdk.App();
   const stack = new BlogStack(app, 'TestStack', {
     environment: 'test',
-    githubWebhookSecret: 'test-secret-123',
-    alertEmail: 'test@example.com',
     env: {
       account: '123456789012',
       region: 'us-east-1',
@@ -56,132 +55,6 @@ describe('BlogStack Assertion Tests', () => {
     });
   });
 
-  describe('Lambda Functions', () => {
-    it('render function has correct environment variables', () => {
-      template.hasResourceProperties('AWS::Lambda::Function', {
-        FunctionName: 'blog-render-test',
-        Environment: {
-          Variables: {
-            GITHUB_WEBHOOK_SECRET: 'test-secret-123',
-            NODE_ENV: 'test',
-          },
-        },
-      });
-    });
-
-    it('render function has S3 bucket ARN in environment', () => {
-      const envCapture = new Capture();
-      template.hasResourceProperties('AWS::Lambda::Function', {
-        FunctionName: 'blog-render-test',
-        Environment: {
-          Variables: {
-            S3_BUCKET: envCapture,
-          },
-        },
-      });
-
-      // Verify the bucket name is referenced
-      expect(envCapture.asObject()).toBeDefined();
-    });
-
-    it('lambda functions use Node.js 20.x or later runtime', () => {
-      const functions = template.findResources('AWS::Lambda::Function');
-      const functionNames = Object.values(functions);
-
-      for (const fn of functionNames) {
-        // Accept nodejs20.x or nodejs22.x (latest supported)
-        expect(fn.Properties.Runtime).toMatch(/^nodejs(20|22)\.x$/);
-      }
-    });
-
-    it('render function has log retention configured', () => {
-      // The CDK may use logRetention property or a custom resource for log retention
-      // Check that lambda function properties include logRetention configuration
-      const renderFn = template.findResources('AWS::Lambda::Function', {
-        Properties: {
-          FunctionName: 'blog-render-test',
-        },
-      });
-      expect(Object.keys(renderFn).length).toBe(1);
-      // Log retention is configured via logRetention property in CDK
-      // which creates a Custom::LogRetention resource or configures it directly
-    });
-  });
-
-  describe('IAM Permissions', () => {
-    it('render function can write to S3 bucket', () => {
-      template.hasResourceProperties('AWS::IAM::Policy', {
-        PolicyDocument: {
-          Statement: Match.arrayWith([
-            Match.objectLike({
-              Action: Match.arrayWith(['s3:PutObject', 's3:PutObjectLegalHold', 's3:PutObjectRetention', 's3:PutObjectTagging', 's3:PutObjectVersionTagging', 's3:Abort*']),
-              Effect: 'Allow',
-            }),
-          ]),
-        },
-      });
-    });
-
-    it('render function can publish to SNS topic', () => {
-      template.hasResourceProperties('AWS::IAM::Policy', {
-        PolicyDocument: {
-          Statement: Match.arrayWith([
-            Match.objectLike({
-              Action: 'sns:Publish',
-              Effect: 'Allow',
-            }),
-          ]),
-        },
-      });
-    });
-
-    it('render function can create CloudFront invalidations', () => {
-      template.hasResourceProperties('AWS::IAM::Policy', {
-        PolicyDocument: {
-          Statement: Match.arrayWith([
-            Match.objectLike({
-              Action: 'cloudfront:CreateInvalidation',
-              Effect: 'Allow',
-            }),
-          ]),
-        },
-      });
-    });
-  });
-
-  describe('API Gateway', () => {
-    it('webhook endpoint allows POST method', () => {
-      template.hasResourceProperties('AWS::ApiGateway::Method', {
-        HttpMethod: 'POST',
-        AuthorizationType: 'NONE', // Public endpoint with signature validation
-      });
-    });
-
-    it('admin endpoints use IAM authorization', () => {
-      // Count IAM-authenticated methods
-      const methods = template.findResources('AWS::ApiGateway::Method', {
-        Properties: {
-          AuthorizationType: 'AWS_IAM',
-        },
-      });
-
-      // Should have multiple admin endpoints with IAM auth
-      expect(Object.keys(methods).length).toBeGreaterThanOrEqual(4);
-    });
-
-    it('has CORS enabled', () => {
-      template.hasResourceProperties('AWS::ApiGateway::Method', {
-        HttpMethod: 'OPTIONS',
-      });
-    });
-
-    it('deploys to v1 stage', () => {
-      template.hasResourceProperties('AWS::ApiGateway::Stage', {
-        StageName: 'v1',
-      });
-    });
-  });
-
   describe('CloudFront', () => {
     it('redirects HTTP to HTTPS', () => {
       template.hasResourceProperties('AWS::CloudFront::Distribution', {
@@ -206,6 +79,28 @@ describe('BlogStack Assertion Tests', () => {
         },
       });
     });
+
+    it('uses caching optimized policy', () => {
+      template.hasResourceProperties('AWS::CloudFront::Distribution', {
+        DistributionConfig: {
+          DefaultCacheBehavior: {
+            CachePolicyId: Match.anyValue(),
+          },
+        },
+      });
+    });
+
+    it('has S3 origin configured', () => {
+      template.hasResourceProperties('AWS::CloudFront::Distribution', {
+        DistributionConfig: {
+          Origins: Match.arrayWith([
+            Match.objectLike({
+              S3OriginConfig: Match.anyValue(),
+            }),
+          ]),
+        },
+      });
+    });
   });
 
   describe('Stack Outputs', () => {
@@ -219,14 +114,26 @@ describe('BlogStack Assertion Tests', () => {
       expect(Object.keys(outputs)).toHaveLength(1);
     });
 
-    it('exports webhook URL', () => {
-      const outputs = template.findOutputs('WebhookUrl');
+    it('exports CloudFront distribution ID', () => {
+      const outputs = template.findOutputs('DistributionId');
       expect(Object.keys(outputs)).toHaveLength(1);
     });
+  });
 
-    it('exports API endpoint', () => {
-      const outputs = template.findOutputs('ApiEndpoint');
-      expect(Object.keys(outputs)).toHaveLength(1);
+  describe('Simplified Infrastructure (007-pipeline-rendering)', () => {
+    it('does not create Lambda functions', () => {
+      const lambdaFunctions = template.findResources('AWS::Lambda::Function');
+      expect(Object.keys(lambdaFunctions)).toHaveLength(0);
+    });
+
+    it('does not create API Gateway', () => {
+      const apiGateways = template.findResources('AWS::ApiGateway::RestApi');
+      expect(Object.keys(apiGateways)).toHaveLength(0);
+    });
+
+    it('does not create SNS topic', () => {
+      const snsTopics = template.findResources('AWS::SNS::Topic');
+      expect(Object.keys(snsTopics)).toHaveLength(0);
     });
   });
 });

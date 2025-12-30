@@ -10,7 +10,7 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
-    "render:pipeline": "node dist/pipeline.mjs"
+    "render:pipeline": "cd ../.. && node packages/renderer/dist/pipeline.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.470.0",

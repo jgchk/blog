@@ -23,8 +23,9 @@ async function main(): Promise<void> {
   let outputDir = process.env.OUTPUT_DIR ?? './rendered';
 
   for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--output' && args[i + 1]) {
-      outputDir = args[i + 1];
+    const nextArg = args[i + 1];
+    if (args[i] === '--output' && nextArg) {
+      outputDir = nextArg;
       i++;
     }
   }
