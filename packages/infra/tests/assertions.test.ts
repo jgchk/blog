@@ -102,6 +102,29 @@ describe('BlogStack Assertion Tests', () => {
         },
       });
     });
+
+    it('has URL rewrite function for clean URLs', () => {
+      // Verify CloudFront Function exists
+      template.hasResourceProperties('AWS::CloudFront::Function', {
+        Name: 'blog-url-rewrite-test',
+        FunctionConfig: {
+          Runtime: 'cloudfront-js-1.0',
+        },
+      });
+
+      // Verify function is associated with distribution
+      template.hasResourceProperties('AWS::CloudFront::Distribution', {
+        DistributionConfig: {
+          DefaultCacheBehavior: {
+            FunctionAssociations: Match.arrayWith([
+              Match.objectLike({
+                EventType: 'viewer-request',
+              }),
+            ]),
+          },
+        },
+      });
+    });
   });
 
   describe('Stack Outputs', () => {
