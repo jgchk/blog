@@ -100,7 +100,7 @@
 ### Implementation for User Story 3
 
 - [X] T024 [US3] Verify S3 sync --delete flag removes orphaned content in .github/workflows/ci-cd.yml
-- [ ] T025 [P] [US3] Document deletion behavior in specs/007-pipeline-rendering/quickstart.md
+- [X] T025 [P] [US3] Document deletion behavior in specs/007-pipeline-rendering/quickstart.md
 
 **Checkpoint**: At this point, content lifecycle (add, update, delete) is fully handled
 

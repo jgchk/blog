@@ -192,6 +192,32 @@ posts/my-post/
 5. Create PR to `main`
 6. Merge triggers automatic deploy
 
+### Deleting a Post
+
+Posts are automatically removed from the live site when their source directory is deleted.
+
+**How deletion works:**
+1. Delete the post directory from `posts/` (e.g., `rm -rf posts/old-post/`)
+2. Commit the deletion and push to your branch
+3. Create PR to `main` and merge
+4. The CI/CD pipeline runs `aws s3 sync --delete` which removes any files in S3 that no longer exist in the rendered output
+5. CloudFront invalidation ensures the deleted content is purged from CDN cache
+
+**What gets removed:**
+- The post's HTML file (`posts/old-post/index.html`)
+- All co-located assets (images, etc.)
+- Tag pages are regenerated, so the deleted post is removed from tag listings
+- Home page is regenerated, so the deleted post is removed from the post list
+
+**Verification:**
+After merge, verify the post is no longer accessible:
+```bash
+# Should return 404 or redirect to 404 page
+curl -I https://your-site.com/posts/deleted-post/
+```
+
+**Note:** Deletion is permanent once merged to main. The post content remains in git history but is removed from the live site.
+
 ### Updating Templates
 
 1. Modify templates in `packages/site/`
