@@ -133,13 +133,13 @@
 - [X] T032 Remove SNS topic from packages/infra/lib/blog-stack.ts
 - [X] T033 Remove githubWebhookSecret prop and related code from packages/infra/lib/blog-stack.ts
 - [X] T034 [P] Remove webhook configuration step from .github/workflows/ci-cd.yml
-- [ ] T035 [P] Remove WEBHOOK_SECRET and WEBHOOK_PAT secrets usage from .github/workflows/ci-cd.yml
-- [ ] T036 Remove Lambda handlers (webhook.ts, admin.ts) from packages/renderer/src/handlers/
-- [ ] T037 Remove SNS notifier adapter from packages/renderer/src/adapters/sns-notifier.ts
-- [ ] T038 Remove sync-tracker service from packages/renderer/src/services/sync-tracker.ts
+- [X] T035 [P] Remove WEBHOOK_SECRET and WEBHOOK_PAT secrets usage from .github/workflows/ci-cd.yml
+- [X] T036 Remove Lambda handlers (webhook.ts, admin.ts) from packages/renderer/src/handlers/
+- [X] T037 Remove SNS notifier adapter from packages/renderer/src/adapters/sns-notifier.ts
+- [X] T038 Remove sync-tracker service from packages/renderer/src/services/sync-tracker.ts
 - [X] T039 Update packages/renderer/src/services/index.ts exports (added PipelineRenderer and types)
 - [X] T040 Update packages/renderer/src/adapters/index.ts exports (added LocalStorageAdapter)
-- [ ] T041 Update packages/renderer/src/handlers/index.ts or remove if empty
+- [X] T041 Update packages/renderer/src/handlers/index.ts or remove if empty
 
 **Checkpoint**: Infrastructure simplified to S3 + CloudFront only
 
