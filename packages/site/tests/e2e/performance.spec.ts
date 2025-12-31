@@ -149,7 +149,7 @@ test.describe('Performance Tests', () => {
     expect(renderBlockingScripts).toBe(0);
   });
 
-  test('navigation is fast after initial load', async ({ page }) => {
+  test('navigation is fast after initial load', async ({ page, browserName }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
 
     // Measure time to navigate to article
@@ -160,7 +160,9 @@ test.describe('Performance Tests', () => {
 
     // Navigation should be fast after initial load
     // CI environments are slower due to I/O throttling, cold caches, and CPU contention
-    const threshold = process.env.CI ? 2000 : 1000;
+    // WebKit browsers have slower navigation timing than Chromium/Firefox
+    const isWebKit = browserName === 'webkit';
+    const threshold = process.env.CI ? 2000 : isWebKit ? 1500 : 1000;
     expect(navTime).toBeLessThan(threshold);
   });
 
