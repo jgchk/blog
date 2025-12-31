@@ -134,7 +134,7 @@ jobs:
           POSTS_DIR: ${{ github.workspace }}/posts
           OUTPUT_DIR: ${{ github.workspace }}/rendered
           TEMPLATES_DIR: ${{ github.workspace }}/packages/site/src/templates
-          SITE_DIR: ${{ github.workspace }}/packages/site/src
+          SITE_DIR: ${{ github.workspace }}/packages/site
 
       - name: Check render performance
         if: always() && steps.render.outcome == 'success'
