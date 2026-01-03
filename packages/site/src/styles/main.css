@@ -560,27 +560,17 @@ article > header time::before {
    ============================================================================= */
 .content blockquote {
   border-left: 2px solid var(--color-accent-muted);
-  padding: var(--space-6) var(--space-8) var(--space-4);
-  background: rgba(255, 255, 255, 0.01);
-  font-family: 'Perfectly Nineties', Georgia, serif;
-  font-weight: 400;
+  padding: var(--space-4) 0 var(--space-4) var(--space-6);
+  margin: var(--space-6) 0;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-weight: 300;
   font-style: italic;
   font-size: var(--text-base);
-  line-height: 1.8;
-  letter-spacing: 0.025em;
-  color: var(--color-text);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: var(--color-text-bright);
   position: relative;
-}
-
-.content blockquote::before {
-  content: '"';
-  position: absolute;
-  top: -0.5rem;
-  left: var(--space-3);
-  font-family: var(--font-serif);
-  font-size: var(--text-5xl);
-  color: var(--color-accent-subtle);
-  line-height: 1;
 }
 
 .content blockquote p:last-child {
