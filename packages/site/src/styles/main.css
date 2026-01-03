@@ -70,21 +70,21 @@
    CSS Custom Properties
    ============================================================================= */
 :root {
-  /* Colors - Dark Theme (Warm Tungsten) */
-  --color-bg: #080706;
-  --color-bg-alt: #040302;
-  --color-bg-elevated: rgba(15, 10, 5, 0.4);
-  --color-text: rgba(255, 250, 245, 0.7);
-  --color-text-muted: rgba(255, 250, 245, 0.4);
-  --color-text-bright: rgba(255, 253, 250, 0.9);
-  --color-text-subtle: rgba(255, 250, 245, 0.2);
+  /* Colors - Dark Theme (Muted Warm Slate & Amber) */
+  --color-bg: #0e0d0c;
+  --color-bg-alt: #080706;
+  --color-bg-elevated: rgba(20, 18, 16, 0.6);
+  --color-text: #c8bda8;
+  --color-text-muted: #8a847c;
+  --color-text-subtle: #524e48;
+  --color-text-bright: #e0d4c0;
   --color-accent: #d97706;
-  --color-accent-muted: rgba(217, 119, 6, 0.4);
-  --color-accent-subtle: rgba(217, 119, 6, 0.2);
-  --color-border: rgba(255, 250, 245, 0.1);
-  --color-border-subtle: rgba(255, 250, 245, 0.05);
-  --color-code-bg: #0a0807;
-  --color-code-text: rgba(251, 191, 36, 0.85);
+  --color-accent-muted: rgba(217, 119, 6, 0.35);
+  --color-accent-subtle: rgba(217, 119, 6, 0.15);
+  --color-border: rgba(200, 189, 168, 0.1);
+  --color-border-subtle: rgba(200, 189, 168, 0.05);
+  --color-code-bg: #080706;
+  --color-code-text: #c8bda8;
 
   /* Typography */
   --font-sans: 'PolySans', 'Inter', system-ui, -apple-system, sans-serif;
@@ -167,7 +167,7 @@ body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle at 50% 50%, transparent 20%, rgba(0, 0, 0, 0.5) 100%);
+  background: radial-gradient(circle at 50% 50%, transparent 30%, rgba(0, 0, 0, 0.35) 100%);
   pointer-events: none;
   z-index: 9998;
 }
@@ -852,7 +852,7 @@ section[aria-label='Article list'] p {
 .tag-cloud a:focus {
   color: var(--color-text-bright);
   border-color: var(--color-accent-muted);
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(224, 123, 76, 0.08);
 }
 
 .tag-count {
@@ -1170,51 +1170,59 @@ article {
 }
 
 /* =============================================================================
-   Syntax Highlighting (Highlight.js Compatible - Warm Palette)
+   Syntax Highlighting (Highlight.js Compatible - Warm Balanced Palette)
    ============================================================================= */
 .hljs {
   background: var(--color-code-bg);
-  color: var(--color-code-text);
+  color: #c8bda8;
 }
 
 .hljs-keyword,
 .hljs-selector-tag,
-.hljs-built_in,
+.hljs-built_in {
+  color: #cc8888;
+}
+
 .hljs-name,
 .hljs-tag {
-  color: #e07a5f;
+  color: #cc8888;
 }
 
 .hljs-string,
+.hljs-addition {
+  color: #a8c090;
+}
+
 .hljs-title,
-.hljs-section,
+.hljs-section {
+  color: #e0d4c0;
+}
+
 .hljs-attribute,
 .hljs-literal,
 .hljs-template-tag,
 .hljs-template-variable,
-.hljs-type,
-.hljs-addition {
-  color: #a7c080;
+.hljs-type {
+  color: #d4a656;
 }
 
 .hljs-comment,
 .hljs-quote,
 .hljs-deletion,
 .hljs-meta {
-  color: rgba(255, 250, 245, 0.3);
+  color: #605a52;
 }
 
 .hljs-number,
 .hljs-regexp,
-.hljs-literal,
 .hljs-bullet,
 .hljs-link {
-  color: #f2cc8f;
+  color: #c9a86c;
 }
 
 .hljs-variable,
 .hljs-template-variable {
-  color: #e8c097;
+  color: #c8bda8;
 }
 
 .hljs-attr,
@@ -1222,22 +1230,22 @@ article {
 .hljs-selector-class,
 .hljs-selector-attr,
 .hljs-selector-pseudo {
-  color: #f4a261;
+  color: #88aabb;
 }
 
 .hljs-symbol,
 .hljs-class .hljs-title,
 .hljs-title.class_ {
-  color: #e9c46a;
+  color: #e0d4c0;
 }
 
 .hljs-function,
 .hljs-title.function_ {
-  color: #ddb892;
+  color: #88aabb;
 }
 
 .hljs-params {
-  color: var(--color-text);
+  color: #c8bda8;
 }
 
 .hljs-emphasis {
@@ -1246,4 +1254,8 @@ article {
 
 .hljs-strong {
   font-weight: bold;
+}
+
+.hljs-property {
+  color: #b8a0c8;
 }
