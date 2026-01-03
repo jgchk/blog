@@ -70,21 +70,21 @@
    CSS Custom Properties
    ============================================================================= */
 :root {
-  /* Colors - Dark Theme */
-  --color-bg: #060606;
-  --color-bg-alt: #020202;
-  --color-bg-elevated: rgba(0, 0, 0, 0.4);
-  --color-text: rgba(255, 255, 255, 0.7);
-  --color-text-muted: rgba(255, 255, 255, 0.4);
-  --color-text-bright: rgba(255, 255, 255, 0.9);
-  --color-text-subtle: rgba(255, 255, 255, 0.2);
-  --color-accent: #6366f1;
-  --color-accent-muted: rgba(99, 102, 241, 0.4);
-  --color-accent-subtle: rgba(99, 102, 241, 0.2);
-  --color-border: rgba(255, 255, 255, 0.1);
-  --color-border-subtle: rgba(255, 255, 255, 0.05);
-  --color-code-bg: #0a0a0a;
-  --color-code-text: rgba(94, 234, 212, 0.8);
+  /* Colors - Dark Theme (Warm Tungsten) */
+  --color-bg: #080706;
+  --color-bg-alt: #040302;
+  --color-bg-elevated: rgba(15, 10, 5, 0.4);
+  --color-text: rgba(255, 250, 245, 0.7);
+  --color-text-muted: rgba(255, 250, 245, 0.4);
+  --color-text-bright: rgba(255, 253, 250, 0.9);
+  --color-text-subtle: rgba(255, 250, 245, 0.2);
+  --color-accent: #d97706;
+  --color-accent-muted: rgba(217, 119, 6, 0.4);
+  --color-accent-subtle: rgba(217, 119, 6, 0.2);
+  --color-border: rgba(255, 250, 245, 0.1);
+  --color-border-subtle: rgba(255, 250, 245, 0.05);
+  --color-code-bg: #0a0807;
+  --color-code-text: rgba(251, 191, 36, 0.85);
 
   /* Typography */
   --font-sans: 'PolySans', 'Inter', system-ui, -apple-system, sans-serif;
@@ -1170,7 +1170,7 @@ article {
 }
 
 /* =============================================================================
-   Syntax Highlighting (Highlight.js Compatible)
+   Syntax Highlighting (Highlight.js Compatible - Warm Palette)
    ============================================================================= */
 .hljs {
   background: var(--color-code-bg);
@@ -1182,7 +1182,7 @@ article {
 .hljs-built_in,
 .hljs-name,
 .hljs-tag {
-  color: #c792ea;
+  color: #e07a5f;
 }
 
 .hljs-string,
@@ -1194,14 +1194,14 @@ article {
 .hljs-template-variable,
 .hljs-type,
 .hljs-addition {
-  color: #c3e88d;
+  color: #a7c080;
 }
 
 .hljs-comment,
 .hljs-quote,
 .hljs-deletion,
 .hljs-meta {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 250, 245, 0.3);
 }
 
 .hljs-number,
@@ -1209,12 +1209,12 @@ article {
 .hljs-literal,
 .hljs-bullet,
 .hljs-link {
-  color: #f78c6c;
+  color: #f2cc8f;
 }
 
 .hljs-variable,
 .hljs-template-variable {
-  color: #82aaff;
+  color: #e8c097;
 }
 
 .hljs-attr,
@@ -1222,18 +1222,18 @@ article {
 .hljs-selector-class,
 .hljs-selector-attr,
 .hljs-selector-pseudo {
-  color: #ffcb6b;
+  color: #f4a261;
 }
 
 .hljs-symbol,
 .hljs-class .hljs-title,
 .hljs-title.class_ {
-  color: #ffcb6b;
+  color: #e9c46a;
 }
 
 .hljs-function,
 .hljs-title.function_ {
-  color: #82aaff;
+  color: #ddb892;
 }
 
 .hljs-params {
