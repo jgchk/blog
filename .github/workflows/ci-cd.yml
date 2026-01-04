@@ -100,6 +100,7 @@ jobs:
     environment: production
     outputs:
       cloudfront_domain: ${{ steps.get-outputs.outputs.domain }}
+      blog_url: ${{ steps.get-outputs.outputs.blog_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -173,9 +174,64 @@ jobs:
             --stack-name BlogStack-prod \
             --query 'Stacks[0].Outputs[?OutputKey==`DistributionId`].OutputValue' \
             --output text)
+          # Get custom domain URL if available, fallback to CloudFront domain
+          BLOG_URL=$(aws cloudformation describe-stacks \
+            --stack-name BlogStack-prod \
+            --query 'Stacks[0].Outputs[?OutputKey==`BlogUrl`].OutputValue' \
+            --output text 2>/dev/null || echo "")
+          if [ -z "$BLOG_URL" ] || [ "$BLOG_URL" = "None" ]; then
+            BLOG_URL="https://$DOMAIN"
+          fi
           echo "domain=$DOMAIN" >> $GITHUB_OUTPUT
           echo "bucket=$BUCKET" >> $GITHUB_OUTPUT
           echo "distribution_id=$DISTRIBUTION_ID" >> $GITHUB_OUTPUT
+          echo "blog_url=$BLOG_URL" >> $GITHUB_OUTPUT
+
+      - name: Update domain nameservers
+        run: |
+          # Get hosted zone nameservers from stack output
+          NS_OUTPUT=$(aws cloudformation describe-stacks \
+            --stack-name BlogStack-prod \
+            --query 'Stacks[0].Outputs[?OutputKey==`NameServers`].OutputValue' \
+            --output text 2>/dev/null || echo "")
+
+          if [ -z "$NS_OUTPUT" ] || [ "$NS_OUTPUT" = "None" ]; then
+            echo "No NameServers output found - skipping nameserver update"
+            exit 0
+          fi
+
+          # Parse nameservers (comma-separated from CDK output)
+          IFS=', ' read -ra NS_ARRAY <<< "$NS_OUTPUT"
+
+          # Get current nameservers on registered domain
+          CURRENT_NS=$(aws route53domains get-domain-detail \
+            --domain-name jake.cafe \
+            --query 'Nameservers[*].Name' \
+            --output text 2>/dev/null | tr '\t' '\n' | sort)
+
+          # Sort new nameservers for comparison
+          NEW_NS=$(printf '%s\n' "${NS_ARRAY[@]}" | sort)
+
+          if [ "$CURRENT_NS" = "$NEW_NS" ]; then
+            echo "Nameservers already configured correctly - skipping update"
+            exit 0
+          fi
+
+          echo "Updating nameservers for jake.cafe..."
+          echo "Current: $CURRENT_NS"
+          echo "New: ${NS_ARRAY[*]}"
+
+          # Build nameserver args
+          NS_ARGS=""
+          for ns in "${NS_ARRAY[@]}"; do
+            NS_ARGS="$NS_ARGS Name=$ns"
+          done
+
+          aws route53domains update-domain-nameservers \
+            --domain-name jake.cafe \
+            --nameservers $NS_ARGS
+
+          echo "Nameservers updated successfully. DNS propagation may take up to 48 hours."
 
       - name: Upload assets to S3
         run: |
@@ -225,7 +281,7 @@ jobs:
 
       - name: Run smoke tests
         env:
-          BASE_URL: https://${{ needs.deploy.outputs.cloudfront_domain }}
+          BASE_URL: ${{ needs.deploy.outputs.blog_url }}
         run: pnpm test:e2e
 
       - name: Upload Playwright report

@@ -160,4 +160,136 @@ describe('BlogStack Assertion Tests', () => {
       expect(Object.keys(snsTopics)).toHaveLength(0);
     });
   });
+
+  describe('No Custom Domain (dev/staging)', () => {
+    it('does not create Route 53 hosted zone', () => {
+      const hostedZones = template.findResources('AWS::Route53::HostedZone');
+      expect(Object.keys(hostedZones)).toHaveLength(0);
+    });
+
+    it('does not create ACM certificate', () => {
+      const certificates = template.findResources(
+        'AWS::CertificateManager::Certificate',
+      );
+      expect(Object.keys(certificates)).toHaveLength(0);
+    });
+
+    it('CloudFront has no custom domain aliases', () => {
+      template.hasResourceProperties('AWS::CloudFront::Distribution', {
+        DistributionConfig: Match.not(
+          Match.objectLike({
+            Aliases: Match.anyValue(),
+          }),
+        ),
+      });
+    });
+
+    it('does not create Route 53 A record', () => {
+      const records = template.findResources('AWS::Route53::RecordSet');
+      expect(Object.keys(records)).toHaveLength(0);
+    });
+
+    it('does not export NameServers output', () => {
+      const outputs = template.findOutputs('NameServers');
+      expect(Object.keys(outputs)).toHaveLength(0);
+    });
+
+    it('does not export BlogUrl output', () => {
+      const outputs = template.findOutputs('BlogUrl');
+      expect(Object.keys(outputs)).toHaveLength(0);
+    });
+  });
+});
+
+describe('BlogStack with Custom Domain (Production)', () => {
+  const prodApp = new cdk.App();
+  const prodStack = new BlogStack(prodApp, 'ProdTestStack', {
+    environment: 'prod',
+    domainConfig: {
+      domainName: 'jake.cafe',
+      subdomain: 'blog',
+    },
+    env: {
+      account: '123456789012',
+      region: 'us-east-1',
+    },
+  });
+  const prodTemplate = Template.fromStack(prodStack);
+
+  describe('Route 53', () => {
+    it('creates hosted zone for root domain', () => {
+      prodTemplate.hasResourceProperties('AWS::Route53::HostedZone', {
+        Name: 'jake.cafe.',
+      });
+    });
+
+    it('creates A record alias for blog subdomain', () => {
+      prodTemplate.hasResourceProperties('AWS::Route53::RecordSet', {
+        Name: 'blog.jake.cafe.',
+        Type: 'A',
+      });
+    });
+  });
+
+  describe('ACM Certificate', () => {
+    it('creates certificate for blog subdomain', () => {
+      prodTemplate.hasResourceProperties(
+        'AWS::CertificateManager::Certificate',
+        {
+          DomainName: 'blog.jake.cafe',
+          ValidationMethod: 'DNS',
+        },
+      );
+    });
+  });
+
+  describe('CloudFront with Custom Domain', () => {
+    it('configures custom domain alias', () => {
+      prodTemplate.hasResourceProperties('AWS::CloudFront::Distribution', {
+        DistributionConfig: {
+          Aliases: ['blog.jake.cafe'],
+        },
+      });
+    });
+
+    it('associates ACM certificate', () => {
+      prodTemplate.hasResourceProperties('AWS::CloudFront::Distribution', {
+        DistributionConfig: {
+          ViewerCertificate: {
+            AcmCertificateArn: Match.anyValue(),
+            SslSupportMethod: 'sni-only',
+          },
+        },
+      });
+    });
+  });
+
+  describe('Stack Outputs', () => {
+    it('exports NameServers for DNS migration', () => {
+      const outputs = prodTemplate.findOutputs('NameServers');
+      expect(Object.keys(outputs)).toHaveLength(1);
+    });
+
+    it('exports BlogUrl with custom domain', () => {
+      const outputs = prodTemplate.findOutputs('BlogUrl');
+      expect(Object.keys(outputs)).toHaveLength(1);
+    });
+  });
+
+  describe('IAM Permissions', () => {
+    it('creates Route 53 Domains policy for nameserver updates', () => {
+      prodTemplate.hasResourceProperties('AWS::IAM::Policy', {
+        PolicyDocument: {
+          Statement: Match.arrayWith([
+            Match.objectLike({
+              Action: [
+                'route53domains:GetDomainDetail',
+                'route53domains:UpdateDomainNameservers',
+              ],
+            }),
+          ]),
+        },
+      });
+    });
+  });
 });
