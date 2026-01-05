@@ -126,6 +126,24 @@ export async function createServer(
     });
   }
 
+  // Register static file serving for images
+  if (existsSync(paths.imagesDir)) {
+    await fastify.register(fastifyStatic, {
+      root: paths.imagesDir,
+      prefix: '/assets/images/',
+      decorateReply: false,
+    });
+  }
+
+  // Register static file serving for favicons
+  if (existsSync(paths.faviconsDir)) {
+    await fastify.register(fastifyStatic, {
+      root: paths.faviconsDir,
+      prefix: '/assets/favicons/',
+      decorateReply: false,
+    });
+  }
+
   // WebSocket handler on /__dev/ws for live reload
   fastify.get('/__dev/ws', { websocket: true }, (socket) => {
     state.addClient(socket);
@@ -275,9 +293,9 @@ export async function createServer(
     }
   );
 
-  // Add dev headers for static assets (CSS and fonts)
+  // Add dev headers for static assets (CSS, fonts, and images)
   fastify.addHook('onSend', (request, reply, payload, done) => {
-    if (request.url.startsWith('/assets/styles/') || request.url.startsWith('/fonts/')) {
+    if (request.url.startsWith('/assets/') || request.url.startsWith('/fonts/')) {
       addDevHeaders(reply);
     }
     done(null, payload);

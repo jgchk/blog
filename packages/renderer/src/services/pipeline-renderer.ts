@@ -246,6 +246,38 @@ export class PipelineRenderer {
       // Styles directory may not exist
     }
 
+    // Copy images from src/images to assets/images/
+    const imagesDir = 'src/images';
+    try {
+      const imageFiles = await siteStorage.list(`${imagesDir}/`);
+      for (const file of imageFiles) {
+        const relativePath = file.slice(`${imagesDir}/`.length);
+        const destPath = `assets/images/${relativePath}`;
+
+        const content = await siteStorage.read(file);
+        await this.outputStorage.write(destPath, content);
+        assets.push(destPath);
+      }
+    } catch {
+      // Images directory may not exist
+    }
+
+    // Copy favicons from src/favicons to assets/favicons/
+    const faviconsDir = 'src/favicons';
+    try {
+      const faviconFiles = await siteStorage.list(`${faviconsDir}/`);
+      for (const file of faviconFiles) {
+        const relativePath = file.slice(`${faviconsDir}/`.length);
+        const destPath = `assets/favicons/${relativePath}`;
+
+        const content = await siteStorage.read(file);
+        await this.outputStorage.write(destPath, content);
+        assets.push(destPath);
+      }
+    } catch {
+      // Favicons directory may not exist
+    }
+
     this.log(`Copied ${assets.length} site assets`);
     return assets;
   }

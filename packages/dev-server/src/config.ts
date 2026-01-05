@@ -123,6 +123,8 @@ export function resolveConfigPaths(config: DevServerConfig): {
   templatesDir: string;
   stylesDir: string;
   fontsDir: string;
+  imagesDir: string;
+  faviconsDir: string;
 } {
   const rootDir = isAbsolute(config.rootDir)
     ? config.rootDir
@@ -133,6 +135,8 @@ export function resolveConfigPaths(config: DevServerConfig): {
   const templatesDir = resolve(siteDir, 'src/templates');
   const stylesDir = resolve(siteDir, 'src/styles');
   const fontsDir = resolve(siteDir, 'src/fonts');
+  const imagesDir = resolve(siteDir, 'src/images');
+  const faviconsDir = resolve(siteDir, 'src/favicons');
 
   return {
     rootDir,
@@ -141,5 +145,7 @@ export function resolveConfigPaths(config: DevServerConfig): {
     templatesDir,
     stylesDir,
     fontsDir,
+    imagesDir,
+    faviconsDir,
   };
 }
