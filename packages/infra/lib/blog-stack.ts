@@ -177,6 +177,11 @@ function handler(event) {
         value: `https://${blogDomain}`,
         description: 'Blog URL with custom domain',
       });
+
+      new cdk.CfnOutput(this, 'HostedZoneId', {
+        value: hostedZone.hostedZoneId,
+        description: 'Route53 Hosted Zone ID for ddns script',
+      });
     }
   }
 }
